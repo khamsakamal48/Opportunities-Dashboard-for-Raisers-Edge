@@ -382,6 +382,7 @@ try:
     
     # Get opportunity list from RE
     print("Get opportunity list from RE")
+    params = ""
     get_opportunity_list_from_re()
     
     # Close DB connection
