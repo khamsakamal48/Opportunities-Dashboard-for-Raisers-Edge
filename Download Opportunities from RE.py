@@ -55,11 +55,14 @@ conn = psycopg2.connect(host=DB_IP, dbname=DB_NAME, user=DB_USERNAME, password=D
 print("Creating connection with SQL database")
 cur = conn.cursor()
 
-# Retrieve access_token from file
-print("Retrieve token from API connections")
-with open('access_token_output.json') as access_token_output:
-  data = json.load(access_token_output)
-  access_token = data["access_token"]
+def retrieve_token():
+    global access_token
+    # Retrieve access_token from file
+    print("Retrieve token from API connections")
+    
+    with open('access_token_output.json') as access_token_output:
+        data = json.load(access_token_output)
+        access_token = data["access_token"]
 
 def get_request_re():
     print("Running GET Request from RE function")
@@ -203,6 +206,8 @@ def print_json(d):
     print(json.dumps(d, indent=4))
     
 def get_constituent_from_re():
+    retrieve_token()
+    
     # Housekeeping
     multiple_files = glob.glob("Constituents_in_RE_*.json")
 
@@ -276,6 +281,8 @@ def get_constituent_from_re():
 
 def get_opportunity_list_from_re():
     global url
+    
+    retrieve_token()
     
     # Read multiple files
     multiple_files = glob.glob("Opportunity_List_from_RE_*.json")
