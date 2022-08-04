@@ -9,6 +9,7 @@ from jinja2 import Environment
 from datetime import datetime
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
+from datetime import date
 
 # Printing the output to file for debugging
 sys.stdout = open('Process.log', 'w')
@@ -48,12 +49,50 @@ SMTP_URL = os.getenv("SMTP_URL")
 SMTP_PORT = os.getenv("SMTP_PORT")
 SEND_TO  = os.getenv("SEND_TO")
 
-# PostgreSQL DB Connection
-conn = psycopg2.connect(host=DB_IP, dbname=DB_NAME, user=DB_USERNAME, password=DB_PASSWORD)
+def connect_db():
+    global conn, cur
+    # PostgreSQL DB Connection
+    conn = psycopg2.connect(host=DB_IP, dbname=DB_NAME, user=DB_USERNAME, password=DB_PASSWORD)
 
-# Open connection
-print("Creating connection with SQL database")
-cur = conn.cursor()
+    # Open connection
+    print("Creating connection with SQL database")
+    cur = conn.cursor()
+
+def disconnect_db():
+    # Close DB connection
+    if conn:
+        cur.close()
+        conn.close()
+    
+    housekeeping()
+    
+    # Close writing to Process.log
+    sys.stdout.close()
+    
+    exit()
+    
+def housekeeping():
+    # Housekeeping
+    multiple_files = glob.glob("*_RE_*.json")
+
+    # Iterate over the list of filepaths & remove each file.
+    print("Removing old files")
+    for each_file in multiple_files:
+        try:
+            os.remove(each_file)
+        except:
+            pass
+        
+    # Housekeeping
+    multiple_files = glob.glob("*.csv")
+
+    # Iterate over the list of filepaths & remove each file.
+    print("Removing old files")
+    for each_file in multiple_files:
+        try:
+            os.remove(each_file)
+        except:
+            pass
 
 def retrieve_token():
     global access_token
@@ -91,9 +130,6 @@ def check_for_errors():
         
 def send_error_emails():
     print("Sending email for an error")
-    
-    # Close writing to Process.log
-    sys.stdout.close()
     
     message = MIMEMultipart()
     message["Subject"] = subject
@@ -157,7 +193,7 @@ def send_error_emails():
     # Create a text/html message from a rendered template
     emailbody = MIMEText(
         Environment().from_string(TEMPLATE).render(
-            job_name = "Syncing Raisers Edge and AlmaBase",
+            job_name = subject,
             current_time=datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
             error_log_message = Argument
         ), "html"
@@ -182,13 +218,8 @@ def send_error_emails():
         imap.login(MAIL_USERN, MAIL_PASSWORD)
         imap.append('Sent', '\\Seen', imaplib.Time2Internaldate(time.time()), emailcontent.encode('utf8'))
         imap.logout()
-        
-    # Close DB connection
-    if conn:
-        cur.close()
-        conn.close()
-        
-    exit()
+    
+    disconnect_db()
 
 def attach_file_to_email(message, filename):
     # Open the attachment file for reading in binary mode, and make it a MIMEApplication class
@@ -206,20 +237,11 @@ def print_json(d):
     print(json.dumps(d, indent=4))
     
 def get_constituent_from_re():
+    global url, params
+    
     retrieve_token()
     
-    # Housekeeping
-    multiple_files = glob.glob("Constituents_in_RE_*.json")
-
-    # Iterate over the list of filepaths & remove each file.
-    print("Removing old files with list of constituents")
-    for each_file in multiple_files:
-        try:
-            os.remove(each_file)
-        except:
-            pass
-        
-    global url, params
+    housekeeping()
     
     # Request parameters for Blackbaud API request
     params = {
@@ -249,6 +271,16 @@ def get_constituent_from_re():
             else:
                 break
             
+    # Parse from JSON and write to CSV file
+    # Header of CSV file
+    header = ['constituent_id', 'name']
+
+    with open('Constituents_in_RE.csv', 'w', encoding='UTF8') as csv_file:
+        writer = csv.writer(csv_file, delimiter = ";")
+
+        # Write the header
+        writer.writerow(header)
+            
     # Delete rows in table
     cur.execute("truncate constituent_list;")
     
@@ -265,35 +297,29 @@ def get_constituent_from_re():
             json_content = json.load(json_file)
 
             for results in json_content['value']:
-                constituent_id = results['id']
-                name = results['name']
+                data = (results['id'],results['name'].replace(";", ","))
                 
-                # Will update in PostgreSQL
-                insert_updates = """
-                                INSERT INTO constituent_list (constituent_id, name)
-                                VALUES (%s, %s)
-                                """
-                cur.execute(insert_updates, [constituent_id, name])
-                
-                conn.commit()
+                with open('Constituents_in_RE.csv', 'a', encoding='UTF8') as csv_file:
+                    writer = csv.writer(csv_file, delimiter = ";")
+                    writer.writerow(data)
                 
         os.remove(each_file)
+    
+    # Copying contents of CSV file to PostgreSQL DB
+    with open('Constituents_in_RE.csv', 'r') as input_csv:
+        # Skip the header row.
+        next(input_csv)
+        cur.copy_from(input_csv, 'constituent_list', sep=';')
+
+    # Commit changes
+    conn.commit()
 
 def get_opportunity_list_from_re():
     global url
     
     retrieve_token()
     
-    # Read multiple files
-    multiple_files = glob.glob("Opportunity_List_from_RE_*.json")
-    
-    # Housekeeping
-    print("Remove Opportunity_List_from_RE_*.json files")
-    for each_file in multiple_files:
-        try:
-            os.remove(each_file)
-        except:
-            pass
+    housekeeping()
     
     # Blackbaud API URL
     url = 'https://api.sky.blackbaud.com/opportunity/v1/opportunities?include_inactive=false'
@@ -316,6 +342,16 @@ def get_opportunity_list_from_re():
                 url = re_api_response["next_link"]
             else:
                 break
+    
+    # Parse from JSON and write to CSV file
+    # Header of CSV file
+    header = ['opportunity_id', 'ask_amount', 'constituent_id', 'date_added', 'date_modified', 'expected_amount', 'funded_amount', 'opportunity_name', 'purpose', 'status', 'date']
+
+    with open('Opportunities_in_RE.csv', 'w', encoding='UTF8') as csv_file:
+        writer = csv.writer(csv_file, delimiter = ";")
+
+        # Write the header
+        writer.writerow(header)
     
     # Read each file
     print("Parsing content from Opportunity_List_from_RE_*.json files and adding to DB")
@@ -370,19 +406,27 @@ def get_opportunity_list_from_re():
                     status = results['status']
                 except:
                     status = ""
-
-                # Will update in PostgreSQL
-                insert_updates = """
-                                INSERT INTO opportunity_list (opportunity_id, ask_amount, constituent_id, date_added, date_modified, expected_amount, funded_amount, opportunity_name, purpose, status ,date)
-                                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, now())
-                                """
-                cur.execute(insert_updates, [opportunity_id, ask_amount, constituent_id, date_added, date_modified, expected_amount, funded_amount, opportunity_name, purpose, status])
                 
-                conn.commit()
+                data = (opportunity_id, ask_amount, constituent_id, date_added, date_modified, expected_amount, funded_amount, opportunity_name.replace(";", ","), purpose, status, date.today())
+                
+                with open('Opportunities_in_RE.csv', 'a', encoding='UTF8') as csv_file:
+                    writer = csv.writer(csv_file, delimiter = ";")
+                    writer.writerow(data)
                 
         os.remove(each_file)
     
+    # Copying contents of CSV file to PostgreSQL DB
+    with open('Opportunities_in_RE.csv', 'r') as input_csv:
+        # Skip the header row.
+        next(input_csv)
+        cur.copy_from(input_csv, 'opportunity_list', sep=';')
+
+    # Commit changes
+    conn.commit()
+    
 try:
+    connect_db()
+    
     # Get list of constituents in RE
     print("Get list of constituents in RE")
     get_constituent_from_re()
@@ -392,9 +436,7 @@ try:
     params = ""
     get_opportunity_list_from_re()
     
-    # Close DB connection
-    cur.close()
-    conn.close()
+    disconnect_db()
 
 except Exception as Argument:
     print("Error while downloading opportunity list from Raisers Edge")
