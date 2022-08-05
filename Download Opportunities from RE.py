@@ -64,8 +64,6 @@ def disconnect_db():
         cur.close()
         conn.close()
     
-    housekeeping()
-    
     # Close writing to Process.log
     sys.stdout.close()
     
@@ -218,8 +216,6 @@ def send_error_emails():
         imap.login(MAIL_USERN, MAIL_PASSWORD)
         imap.append('Sent', '\\Seen', imaplib.Time2Internaldate(time.time()), emailcontent.encode('utf8'))
         imap.logout()
-    
-    disconnect_db()
 
 def attach_file_to_email(message, filename):
     # Open the attachment file for reading in binary mode, and make it a MIMEApplication class
@@ -435,10 +431,15 @@ try:
     print("Get opportunity list from RE")
     params = ""
     get_opportunity_list_from_re()
-    
-    disconnect_db()
 
 except Exception as Argument:
     print("Error while downloading opportunity list from Raisers Edge")
     subject = "Error while downloading opportunity list from Raisers Edge"
     send_error_emails()
+    
+finally:
+    # Do housekeeping
+    housekeeping()
+    
+    # Disconnect DB
+    disconnect_db()
