@@ -12,6 +12,9 @@ from urllib3 import Retry
 from datetime import date
 from pretty_html_table import build_table
 
+# Printing the output to file for debugging
+sys.stdout = open('Process.log', 'w')
+
 # API Request strategy
 print("Setting API Request strategy")
 retry_strategy = Retry(
