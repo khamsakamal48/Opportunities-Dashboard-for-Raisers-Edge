@@ -77,17 +77,6 @@ def housekeeping():
         except:
             pass
         
-def disconnect_db():
-    # Close DB connection
-    if conn:
-        cur.close()
-        conn.close()
-    
-    # Close writing to Process.log
-    sys.stdout.close()
-    
-    exit()
-    
 def housekeeping():
     # Housekeeping
     multiple_files = glob.glob("*_RE_*.json")
