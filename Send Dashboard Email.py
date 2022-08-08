@@ -53,7 +53,7 @@ IMAP_PORT = os.getenv("IMAP_PORT")
 SMTP_URL = os.getenv("SMTP_URL")
 SMTP_PORT = os.getenv("SMTP_PORT")
 ERROR_EMAILS_TO  = os.getenv("ERROR_EMAILS_TO")
-    
+
 def housekeeping():
     # Housekeeping
     multiple_files = glob.glob("*_RE_*.json")
@@ -76,7 +76,7 @@ def housekeeping():
             os.remove(each_file)
         except:
             pass
-        
+    
 def housekeeping():
     # Housekeeping
     multiple_files = glob.glob("*_RE_*.json")
@@ -239,4 +239,292 @@ def attach_file_to_email(message, filename):
     
 def print_json(d):
     print(json.dumps(d, indent=4))
+
+def get_opportunity_list_from_re():
+    global url, params
     
+    retrieve_token()
+    
+    housekeeping()
+    
+    # Blackbaud API URL
+    url = 'https://api.sky.blackbaud.com/opportunity/v1/opportunities?include_inactive=false'
+    params = ""
+    
+    # Pagination request to retreive list
+    while url:
+        # Blackbaud API GET request
+        get_request_re()
+
+        # Incremental File name
+        i = 1
+        while os.path.exists("Opportunity_List_from_RE_%s.json" % i):
+            i += 1
+        with open("Opportunity_List_from_RE_%s.json" % i, "w") as list_output:
+            json.dump(re_api_response, list_output,ensure_ascii=False, sort_keys=True, indent=4)
+        
+        # Check if a variable is present in file
+        with open("Opportunity_List_from_RE_%s.json" % i) as list_output_last:
+            if 'next_link' in list_output_last.read():
+                url = re_api_response["next_link"]
+            else:
+                break
+        
+    # Read each file
+    print("Parsing content from Opportunity_List_from_RE_*.json files")
+    multiple_files = glob.glob("Opportunity_List_from_RE_*.json")
+    
+    for each_file in multiple_files:
+    
+        # Open JSON file
+        with open(each_file, 'r') as json_file:
+            json_content = json.load(json_file)
+            
+            corporate_pipeline_amount = []
+            corporate_solicitation_amount = []
+            corporate_cultivation_amount = []
+            corporate_committed_amount = []
+            major_donor_pipeline_amount = []
+            major_donor_solicitation_amount = []
+            major_donor_cultivation_amount = []
+            major_donor_committed_amount = []
+
+            for results in json_content['value']:
+                
+                try:
+                    if results['purpose'] == "Corporate":
+                        # Working with Corporate
+                        print("Working with Corporate")
+                        
+                        # Getting Pipeline amount
+                        print("Getting Pipeline amount")
+                        try:
+                            if results['status'] == "Pipeline":
+                                try:
+                                    pipeline_amount = results['ask_amount']['value']
+                                except:
+                                    pipeline_amount = "0"
+                                    
+                                corporate_pipeline_amount.append(int(pipeline_amount))
+                        except:
+                            pass
+                        
+                        # Getting Cultivation amount
+                        print("Getting Cultivation amount")
+                        try:
+                            if results['status'] == "Cultivation":
+                                try:
+                                    cultivation_amount = results['ask_amount']['value']
+                                except:
+                                    cultivation_amount = "0"
+                                    
+                                corporate_cultivation_amount.append(int(cultivation_amount))
+                        except:
+                            pass
+                        
+                        # Getting Solicitation amount
+                        print("Getting Solicitation amount")
+                        try:
+                            if results['status'] == "Solicitation":
+                                try:
+                                    solicitation_amount = results['ask_amount']['value']
+                                except:
+                                    solicitation_amount = "0"
+                                    
+                                corporate_solicitation_amount.append(int(solicitation_amount))
+                        except:
+                            pass
+                        
+                        # Getting Cultivation amount
+                        print("Getting Cultivation amount")
+                        try:
+                            if results['status'] == "Cultivation":
+                                try:
+                                    solicitation_amount = results['ask_amount']['value']
+                                except:
+                                    solicitation_amount = "0"
+                                    
+                                corporate_solicitation_amount.append(int(solicitation_amount))
+                        except:
+                            pass
+                        
+                        # Getting Committed amount
+                        print("Getting Committed amount")
+                        try:
+                            if results['status'] == "Committed":
+                                try:
+                                    committed_amount = results['expected_amount']['value']
+                                except:
+                                    committed_amount = "0"
+                                    
+                                corporate_committed_amount.append(int(committed_amount))
+                        except:
+                            pass
+                        
+                    elif results['purpose'] == "Major Donor":
+                        # Working with Corporate
+                        print("Working with Major Donor")
+                        
+                        # Getting Pipeline amount
+                        print("Getting Pipeline amount")
+                        try:
+                            if results['status'] == "Pipeline":
+                                try:
+                                    pipeline_amount = results['ask_amount']['value']
+                                except:
+                                    pipeline_amount = "0"
+                                    
+                                major_donor_pipeline_amount.append(int(pipeline_amount))
+                        except:
+                            pass
+                        
+                        # Getting Cultivation amount
+                        print("Getting Cultivation amount")
+                        try:
+                            if results['status'] == "Cultivation":
+                                try:
+                                    cultivation_amount = results['ask_amount']['value']
+                                except:
+                                    cultivation_amount = "0"
+                                    
+                                major_donor_cultivation_amount.append(int(cultivation_amount))
+                        except:
+                            pass
+                        
+                        # Getting Solicitation amount
+                        print("Getting Solicitation amount")
+                        try:
+                            if results['status'] == "Solicitation":
+                                try:
+                                    solicitation_amount = results['ask_amount']['value']
+                                except:
+                                    solicitation_amount = "0"
+                                    
+                                major_donor_solicitation_amount.append(int(solicitation_amount))
+                        except:
+                            pass
+                        
+                        # Getting Cultivation amount
+                        print("Getting Cultivation amount")
+                        try:
+                            if results['status'] == "Cultivation":
+                                try:
+                                    solicitation_amount = results['ask_amount']['value']
+                                except:
+                                    solicitation_amount = "0"
+                                    
+                                major_donor_solicitation_amount.append(int(solicitation_amount))
+                        except:
+                            pass
+                        
+                        # Getting Committed amount
+                        print("Getting Committed amount")
+                        try:
+                            if results['status'] == "Committed":
+                                try:
+                                    committed_amount = results['ask_amount']['value']
+                                except:
+                                    committed_amount = "0"
+                                    
+                                major_donor_committed_amount.append(int(committed_amount))
+                        except:
+                            pass
+                        
+                        
+                except:
+                    pass
+                
+                # try:
+                #     expected_amount = results['expected_amount']['value']
+                # except:
+                #     expected_amount = ""
+                
+                # try:
+                #     funded_amount = results['funded_amount']['value']
+                # except:
+                #     funded_amount = ""
+                
+                # try:
+                #     purpose = results['purpose']
+                # except:
+                #     purpose = ""
+                
+                # try:
+                #     status = results['status']
+                # except:
+                #     status = ""
+            
+    total_corporate_pipeline_amount = sum(corporate_pipeline_amount)/10000000
+    total_corporate_pipeline_amount_in_inr = locale.currency(total_corporate_pipeline_amount, grouping=True)
+    total_corporate_pipeline_amount_in_inr_crores = f"{total_corporate_pipeline_amount_in_inr} Cr."
+    print(f"Total Corporate Pipeline Amount = {total_corporate_pipeline_amount}")
+    print(f"Total Corporate Pipeline Amount in INR = {total_corporate_pipeline_amount_in_inr}")
+    print(total_corporate_pipeline_amount_in_inr_crores)
+    
+    total_corporate_cultivation_amount = sum(corporate_cultivation_amount)/10000000
+    total_corporate_cultivation_amount_in_inr = locale.currency(total_corporate_cultivation_amount, grouping=True)
+    total_corporate_cultivation_amount_in_inr_crores = f"{total_corporate_cultivation_amount_in_inr} Cr."
+    print(f"Total Corporate Cultivation Amount = {total_corporate_cultivation_amount}")
+    print(f"Total Corporate Cultivation Amount in INR = {total_corporate_cultivation_amount_in_inr}")
+    print(total_corporate_cultivation_amount_in_inr_crores)
+    
+    total_corporate_solicitation_amount = sum(corporate_solicitation_amount)/10000000
+    total_corporate_solicitation_amount_in_inr = locale.currency(total_corporate_solicitation_amount, grouping=True)
+    total_corporate_solicitation_amount_in_inr_crores = f"{total_corporate_solicitation_amount_in_inr} Cr."
+    print(f"Total Corporate Solicitation Amount = {total_corporate_solicitation_amount}")
+    print(f"Total Corporate Solicitation Amount in INR = {total_corporate_solicitation_amount_in_inr}")
+    print(total_corporate_solicitation_amount_in_inr_crores)
+    
+    total_corporate_committed_amount = sum(corporate_committed_amount)/10000000
+    total_corporate_committed_amount_in_inr = locale.currency(total_corporate_committed_amount, grouping=True)
+    total_corporate_committed_amount_in_inr_crores = f"{total_corporate_committed_amount_in_inr} Cr."
+    print(f"Total Corporate Committed Amount = {total_corporate_committed_amount}")
+    print(f"Total Corporate Committed Amount in INR = {total_corporate_committed_amount_in_inr}")
+    print(total_corporate_committed_amount_in_inr_crores)
+    
+    total_major_donor_pipeline_amount = sum(major_donor_pipeline_amount)/10000000
+    total_major_donor_pipeline_amount_in_inr = locale.currency(total_major_donor_pipeline_amount, grouping=True)
+    total_major_donor_pipeline_amount_in_inr_crores = f"{total_major_donor_pipeline_amount_in_inr} Cr."
+    print(f"Total Major Donor Pipeline Amount = {total_major_donor_pipeline_amount}")
+    print(f"Total Major Donor Pipeline Amount in INR = {total_major_donor_pipeline_amount_in_inr}")
+    print(total_major_donor_pipeline_amount_in_inr_crores)
+    
+    total_major_donor_cultivation_amount = sum(major_donor_cultivation_amount)/10000000
+    total_major_donor_cultivation_amount_in_inr = locale.currency(total_major_donor_cultivation_amount, grouping=True)
+    total_major_donor_cultivation_amount_in_inr_crores = f"{total_major_donor_cultivation_amount_in_inr} Cr."
+    print(f"Total Major Donor Cultivation Amount = {total_major_donor_cultivation_amount}")
+    print(f"Total Major Donor Cultivation Amount in INR = {total_major_donor_cultivation_amount_in_inr}")
+    print(total_major_donor_cultivation_amount_in_inr_crores)
+    
+    total_major_donor_solicitation_amount = sum(major_donor_solicitation_amount)/10000000
+    total_major_donor_solicitation_amount_in_inr = locale.currency(total_major_donor_solicitation_amount, grouping=True)
+    total_major_donor_solicitation_amount_in_inr_crores = f"{total_major_donor_solicitation_amount_in_inr} Cr."
+    print(f"Total Major Donor Solicitation Amount = {total_major_donor_solicitation_amount}")
+    print(f"Total Major Donor Solicitation Amount in INR = {total_major_donor_solicitation_amount_in_inr}")
+    print(total_major_donor_solicitation_amount_in_inr_crores)
+    
+    total_major_donor_committed_amount = sum(major_donor_committed_amount)/10000000
+    total_major_donor_committed_amount_in_inr = locale.currency(total_major_donor_committed_amount, grouping=True)
+    total_major_donor_committed_amount_in_inr_crores = f"{total_major_donor_committed_amount_in_inr} Cr."
+    print(f"Total Major Donor Committed Amount = {total_major_donor_committed_amount}")
+    print(f"Total Major Donor Committed Amount in INR = {total_major_donor_committed_amount_in_inr}")
+    print(total_major_donor_committed_amount_in_inr_crores)
+
+try:
+    housekeeping()
+    
+    get_opportunity_list_from_re()
+    
+except Exception as Argument:
+    print("Error while sending Opportunity Dashboard")
+    subject = "Error while sending Opportunity Dashboard"
+    send_error_emails()
+    
+finally:
+    # Do housekeeping
+    housekeeping()
+    
+    # Close writing to Process.log
+    sys.stdout.close()
+    
+    exit()
