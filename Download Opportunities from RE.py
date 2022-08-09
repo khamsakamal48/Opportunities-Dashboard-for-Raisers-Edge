@@ -246,7 +246,7 @@ def get_constituent_from_re():
     }
     
     # Blackbaud API URL
-    url = 'https://api.sky.blackbaud.com/constituent/v1/constituents'
+    url = 'https://api.sky.blackbaud.com/constituent/v1/constituents?include_deceased=true&include_inactive=true'
     
     # Pagination request to retreive list
     while url:
