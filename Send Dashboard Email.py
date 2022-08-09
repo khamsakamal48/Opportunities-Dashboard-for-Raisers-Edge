@@ -259,7 +259,7 @@ def print_json(d):
     print(json.dumps(d, indent=4))
 
 def get_opportunity_list_from_re():
-    global url, params
+    global url, params, total_corporate_prospect_amount_in_inr_crores, total_corporate_cultivation_amount_in_inr_crores, total_corporate_solicitation_amount_in_inr_crores, total_corporate_committed_amount_in_inr_crores, total_major_donor_prospect_amount_in_inr_crores, total_major_donor_cultivation_amount_in_inr_crores, total_major_donor_solicitation_amount_in_inr_crores, total_major_donor_committed_amount_in_inr_crores
     
     retrieve_token()
     
