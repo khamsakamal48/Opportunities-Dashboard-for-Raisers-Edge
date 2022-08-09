@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import requests, os, json, glob, csv, psycopg2, sys, smtplib, ssl, imaplib, time, email, re, fuzzywuzzy, itertools, geopy, datetime, logging, pretty_html_table, locale
+import requests, os, json, glob, csv, psycopg2, sys, smtplib, ssl, imaplib, time, email, itertools, datetime, logging, locale, xlsxwriter
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
@@ -10,7 +10,6 @@ from datetime import datetime
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
 from datetime import date
-from pretty_html_table import build_table
 
 # Printing the output to file for debugging
 sys.stdout = open('Process.log', 'w')
