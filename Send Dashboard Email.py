@@ -292,13 +292,113 @@ def get_opportunity_list_from_re():
     print("Parsing content from Opportunity_List_from_RE_*.json files")
     multiple_files = glob.glob("Opportunity_List_from_RE_*.json")
     
-    for each_file in multiple_files:
+    # Workbook() takes one, non-optional, argument
+    # which is the filename that we want to create.
+    workbook = xlsxwriter.Workbook('Opportunities_in_RE.xlsx')
     
-        # Open JSON file
-        with open(each_file, 'r') as json_file:
-            json_content = json.load(json_file)
+    # By default worksheet names in the spreadsheet will be
+    # Sheet1, Sheet2 etc., but we can also specify a name.
+    corporate_worksheet = workbook.add_worksheet("Corporate")
+    major_donor_worksheet = workbook.add_worksheet("Major Donor")
             
-            corporate_pipeline_amount = []
+    # Add a bold format to use to highlight cells.
+    
+    # Add a number format for cells with money.
+    # money = workbook.add_format({'num_format': '₹##,###'})
+    
+    # Format cell
+    header_format = workbook.add_format()
+    header_format.set_pattern(1)  # This is optional when using a solid fill.
+    header_format.set_bg_color('orange')
+    header_format.set_bold()
+    header_format.set_font_color('white')
+    header_format.set_font_size(12)
+    header_format.set_border()
+    header_format.set_border_color('white')
+    
+    header_format_centre = workbook.add_format()
+    header_format_centre.set_pattern(1)  # This is optional when using a solid fill.
+    header_format_centre.set_bg_color('orange')
+    header_format_centre.set_bold()
+    header_format_centre.set_font_color('white')
+    header_format_centre.set_font_size(12)
+    header_format_centre.set_border()
+    header_format_centre.set_border_color('white')
+    header_format_centre.set_center_across()
+    
+    cell_format = workbook.add_format()
+    cell_format.set_font_size(12)
+    cell_format.set_border()
+    cell_format.set_border_color('orange')
+    
+    cell_format_centre = workbook.add_format()
+    cell_format_centre.set_font_size(12)
+    cell_format_centre.set_border()
+    cell_format_centre.set_border_color('orange')
+    cell_format_centre.set_center_across()
+    
+    money = workbook.add_format()
+    money.set_font_size(12)
+    money.set_border()
+    money.set_border_color('orange')
+    money.set_num_format('_(₹* #,##0.00_);_(₹* (#,##0.00);_(₹* "-"??_);_(@_)')
+    
+    cell_format_bold = workbook.add_format()
+    cell_format_bold.set_font_size(12)
+    cell_format_bold.set_border()
+    cell_format_bold.set_border_color('orange')
+    cell_format_bold.set_bold()
+    
+    cell_format_blue = workbook.add_format()
+    cell_format_blue.set_font_size(12)
+    cell_format_blue.set_border()
+    cell_format_blue.set_border_color('orange')
+    cell_format_blue.set_font_color('#0068DA')
+    cell_format_blue.set_underline()
+    cell_format_blue.set_center_across()
+    
+    # Adding Header
+    corporate_worksheet.write('A1', 'Name', header_format)
+    corporate_worksheet.write('B1', 'Open Constituent in RE', header_format_centre)
+    corporate_worksheet.write('C1', 'Opportunity Name', header_format)
+    corporate_worksheet.write('D1', 'Status', header_format_centre)
+    corporate_worksheet.write('E1', 'Asked Amount', header_format_centre)
+    corporate_worksheet.write('F1', 'Expected Amount', header_format_centre)
+    corporate_worksheet.write('G1', 'Funded Amount', header_format_centre)
+    
+    major_donor_worksheet.write('A1', 'Name', header_format)
+    major_donor_worksheet.write('B1', 'Open Constituent in RE', header_format_centre)
+    major_donor_worksheet.write('C1', 'Opportunity Name', header_format)
+    major_donor_worksheet.write('D1', 'Status', header_format_centre)
+    major_donor_worksheet.write('E1', 'Asked Amount', header_format_centre)
+    major_donor_worksheet.write('F1', 'Expected Amount', header_format_centre)
+    major_donor_worksheet.write('G1', 'Funded Amount', header_format_centre)
+    
+    # Freeze the Top rows
+    corporate_worksheet.freeze_panes(1, 0)
+    major_donor_worksheet.freeze_panes(1, 0)
+    
+    # Set column width
+    corporate_worksheet.set_column('A:A', 50)
+    major_donor_worksheet.set_column('A:A', 50)
+    
+    corporate_worksheet.set_column('B:B', 25)
+    major_donor_worksheet.set_column('B:B', 25)
+    
+    corporate_worksheet.set_column('C:C', 70)
+    major_donor_worksheet.set_column('C:C', 70)
+    
+    corporate_worksheet.set_column('D:G', 20)
+    major_donor_worksheet.set_column('D:G', 20)
+    
+    # Start from the first cell. Rows and
+    # columns are zero indexed.
+    corporate_worksheet_row = 1
+    corporate_worksheet_col = 0
+    
+    major_donor_worksheet_row = 1
+    major_donor_worksheet_col = 0
+    
             corporate_solicitation_amount = []
             corporate_cultivation_amount = []
             corporate_committed_amount = []
@@ -379,6 +479,76 @@ def get_opportunity_list_from_re():
                         except:
                             pass
                         
+                        print("Getting Constituent ID")
+                        constituent_id = results['constituent_id']
+                        
+                        # Getting Constituent Name
+                        print("Getting Constituent Name")
+                        try:
+                            extract_sql =  """
+                            SELECT * FROM constituent_list WHERE constituent_id = %s;
+                            """
+                        
+                            cur.execute(extract_sql, [constituent_id])
+                            result = cur.fetchall()
+
+                            # Ensure no comma or brackets in output
+                            result_list = list(result[0])
+                            constituent_name = result_list[1]
+                            
+                        except:
+                            constituent_name = ""
+
+                        # Getting Opportunity Name
+                        print("Getting Opportunity Name")
+                        try:
+                            opportunity_name = results['name']
+                        except:
+                            opportunity_name = ""
+                        
+                        # Getting Opportunity Status
+                        print("Getting Opportunity Status")
+                        try:
+                            status = results['status']
+                        except:
+                            status = ""
+                        
+                        # Getting Opportunity Ask Amount
+                        print("Getting Opportunity Ask Amount")
+                        try:
+                            ask_amount = results['ask_amount']['value']
+                        except:
+                            ask_amount = ""
+                            
+                        # Getting Opportunity Expected Amount
+                        print("Getting Opportunity Expected Amount")
+                        try:
+                            expected_amount = results['expected_amount']['value']
+                        except:
+                            expected_amount = ""
+                        
+                        # Getting Opportunity Funded Amount
+                        print("Getting Opportunity Funded Amount")
+                        try:
+                            funded_amount = results['funded_amount']['value']
+                        except:
+                            funded_amount = ""
+                            
+                        corporate_worksheet.write(corporate_worksheet_row, corporate_worksheet_col, constituent_name, cell_format_bold)
+                        corporate_worksheet_col += 1
+                        corporate_worksheet.write(corporate_worksheet_row, corporate_worksheet_col, f'=HYPERLINK(CONCATENATE("https://host.nxt.blackbaud.com/constituent/records/","{constituent_id}","?envId=p-dzY8gGigKUidokeljxaQiA&svcId=renxt"),"Open in RE")', cell_format_blue)
+                        corporate_worksheet_col += 1
+                        corporate_worksheet.write(corporate_worksheet_row, corporate_worksheet_col, opportunity_name, cell_format)
+                        corporate_worksheet_col += 1
+                        corporate_worksheet.write(corporate_worksheet_row, corporate_worksheet_col, status, cell_format_centre)
+                        corporate_worksheet_col += 1
+                        corporate_worksheet.write(corporate_worksheet_row, corporate_worksheet_col, ask_amount, money)
+                        corporate_worksheet_col += 1
+                        corporate_worksheet.write(corporate_worksheet_row, corporate_worksheet_col, expected_amount, money)
+                        corporate_worksheet_col += 1
+                        corporate_worksheet.write(corporate_worksheet_row, corporate_worksheet_col, funded_amount, money)
+                        corporate_worksheet_row += 1
+                        
                     elif results['purpose'] == "Major Donor":
                         # Working with Corporate
                         print("Working with Major Donor")
@@ -448,36 +618,76 @@ def get_opportunity_list_from_re():
                         except:
                             pass
                         
+                        print("Getting Constituent ID")
+                        constituent_id = results['constituent_id']
+                        
+                        # Getting Constituent Name
+                        print("Getting Constituent Name")
+                        try:
+                            extract_sql =  """
+                            SELECT * FROM constituent_list WHERE constituent_id = %s;
+                            """
+                        
+                            cur.execute(extract_sql, [constituent_id])
+                            result = cur.fetchall()
+
+                            # Ensure no comma or brackets in output
+                            result_list = list(result[0])
+                            constituent_name = result_list[1]
                         
                 except:
-                    pass
+                            constituent_name = ""
                 
-                # try:
-                #     expected_amount = results['expected_amount']['value']
-                # except:
-                #     expected_amount = ""
+                        # Getting Opportunity Name
+                        print("Getting Opportunity Name")
+                        try:
+                            opportunity_name = results['name']
+                        except:
+                            opportunity_name = ""
                 
-                # try:
-                #     funded_amount = results['funded_amount']['value']
-                # except:
-                #     funded_amount = ""
+                        # Getting Opportunity Status
+                        print("Getting Opportunity Status")
+                        try:
+                            status = results['status']
+                        except:
+                            status = ""
                 
-                # try:
-                #     purpose = results['purpose']
-                # except:
-                #     purpose = ""
+                        # Getting Opportunity Ask Amount
+                        print("Getting Opportunity Ask Amount")
+                        try:
+                            ask_amount = results['ask_amount']['value']
+                        except:
+                            ask_amount = ""
                 
-                # try:
-                #     status = results['status']
-                # except:
-                #     status = ""
+                        # Getting Opportunity Expected Amount
+                        print("Getting Opportunity Expected Amount")
+                        try:
+                            expected_amount = results['expected_amount']['value']
+                        except:
+                            expected_amount = ""
             
-    total_corporate_pipeline_amount = sum(corporate_pipeline_amount)/10000000
-    total_corporate_pipeline_amount_in_inr = locale.currency(total_corporate_pipeline_amount, grouping=True)
-    total_corporate_pipeline_amount_in_inr_crores = f"{total_corporate_pipeline_amount_in_inr} Cr."
-    print(f"Total Corporate Pipeline Amount = {total_corporate_pipeline_amount}")
-    print(f"Total Corporate Pipeline Amount in INR = {total_corporate_pipeline_amount_in_inr}")
-    print(total_corporate_pipeline_amount_in_inr_crores)
+                        # Getting Opportunity Funded Amount
+                        print("Getting Opportunity Funded Amount")
+                        try:
+                            funded_amount = results['funded_amount']['value']
+                        except:
+                            funded_amount = ""
+                            
+                        major_donor_worksheet.write(major_donor_worksheet_row, major_donor_worksheet_col, constituent_name, cell_format_bold)
+                        major_donor_worksheet_col += 1
+                        major_donor_worksheet.write(major_donor_worksheet_row, major_donor_worksheet_col, f'=HYPERLINK(CONCATENATE("https://host.nxt.blackbaud.com/constituent/records/","{constituent_id}","?envId=p-dzY8gGigKUidokeljxaQiA&svcId=renxt"),"Open in RE")', cell_format_blue)
+                        major_donor_worksheet_col += 1
+                        major_donor_worksheet.write(major_donor_worksheet_row, major_donor_worksheet_col, opportunity_name, cell_format)
+                        major_donor_worksheet_col += 1
+                        major_donor_worksheet.write(major_donor_worksheet_row, major_donor_worksheet_col, status, cell_format_centre)
+                        major_donor_worksheet_col += 1
+                        major_donor_worksheet.write(major_donor_worksheet_row, major_donor_worksheet_col, ask_amount, money)
+                        major_donor_worksheet_col += 1
+                        major_donor_worksheet.write(major_donor_worksheet_row, major_donor_worksheet_col, expected_amount, money)
+                        major_donor_worksheet_col += 1
+                        major_donor_worksheet.write(major_donor_worksheet_row, major_donor_worksheet_col, funded_amount, money)
+                        major_donor_worksheet_row += 1
+                        
     
     total_corporate_cultivation_amount = sum(corporate_cultivation_amount)/10000000
     total_corporate_cultivation_amount_in_inr = locale.currency(total_corporate_cultivation_amount, grouping=True)
@@ -528,6 +738,12 @@ def get_opportunity_list_from_re():
     print(f"Total Major Donor Committed Amount in INR = {total_major_donor_committed_amount_in_inr}")
     print(total_major_donor_committed_amount_in_inr_crores)
 
+    # Set auto-filters
+    corporate_worksheet.autofilter(0, 0, corporate_worksheet_row, corporate_worksheet_col)
+    major_donor_worksheet.autofilter(0, 0, major_donor_worksheet_row, major_donor_worksheet_col)
+    
+    # Close the excel file
+    workbook.close()
 try:
     housekeeping()
     
