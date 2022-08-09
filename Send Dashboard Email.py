@@ -64,6 +64,26 @@ BM_MAJOR_DONOR_CULTIVATION = os.getenv("BM_MAJOR_DONOR_CULTIVATION")
 BM_MAJOR_DONOR_SOLICITATION = os.getenv("BM_MAJOR_DONOR_SOLICITATION")
 BM_MAJOR_DONOR_COMMITTED = os.getenv("BM_MAJOR_DONOR_COMMITTED")
 
+def connect_db():
+    global conn, cur
+    # PostgreSQL DB Connection
+    conn = psycopg2.connect(host=DB_IP, dbname=DB_NAME, user=DB_USERNAME, password=DB_PASSWORD)
+
+    # Open connection
+    print("Creating connection with SQL database")
+    cur = conn.cursor()
+
+def disconnect_db():
+    # Close DB connection
+    if conn:
+        cur.close()
+        conn.close()
+    
+    # Close writing to Process.log
+    sys.stdout.close()
+    
+    exit()
+
 def housekeeping():
     # Housekeeping
     multiple_files = glob.glob("*_RE_*.json")
