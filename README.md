@@ -119,6 +119,7 @@ Set a CRON job to refresh token and start the program
 ```bash
 
 */42 * * * * cd Opportunities-Dashboard-for-Raisers-Edge/ && python3 Refresh\ Access\ Token.py > /dev/null 2>&1
-@daily cd Opportunities-Dashboard-for-Raisers-Edge/ && python3 Download\ Opportunities\ from\ RE.py > /dev/null 2>&1
+@weekly cd Opportunities-Dashboard-for-Raisers-Edge/ && python3 Download\ Opportunities\ from\ RE.py > /dev/null 2>&1
+0 9 * * 1 cd Opportunities-Dashboard-for-Raisers-Edge/ && python3 Send\ Dashboard\ Email.py > /dev/null 2>&1
 
 ```
