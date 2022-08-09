@@ -107,7 +107,6 @@ def housekeeping():
         except:
             pass
     
-def housekeeping():
     # Housekeeping
     multiple_files = glob.glob("*.xlsx")
 
