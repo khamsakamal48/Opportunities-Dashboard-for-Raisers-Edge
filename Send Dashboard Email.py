@@ -106,7 +106,7 @@ def housekeeping():
             os.remove(each_file)
         except:
             pass
-    
+        
     # Housekeeping
     multiple_files = glob.glob("*.xlsx")
 
@@ -260,7 +260,7 @@ def print_json(d):
 
 def get_opportunity_list_from_re():
     global url, params, total_corporate_prospect_amount_in_inr_crores, total_corporate_cultivation_amount_in_inr_crores, total_corporate_solicitation_amount_in_inr_crores, total_corporate_committed_amount_in_inr_crores, total_major_donor_prospect_amount_in_inr_crores, total_major_donor_cultivation_amount_in_inr_crores, total_major_donor_solicitation_amount_in_inr_crores, total_major_donor_committed_amount_in_inr_crores
-    
+
     retrieve_token()
     
     housekeeping()
@@ -300,7 +300,7 @@ def get_opportunity_list_from_re():
     # Sheet1, Sheet2 etc., but we can also specify a name.
     corporate_worksheet = workbook.add_worksheet("Corporate")
     major_donor_worksheet = workbook.add_worksheet("Major Donor")
-            
+    
     # Add a bold format to use to highlight cells.
     
     # Add a number format for cells with money.
@@ -399,13 +399,20 @@ def get_opportunity_list_from_re():
     major_donor_worksheet_row = 1
     major_donor_worksheet_col = 0
     
-            corporate_solicitation_amount = []
-            corporate_cultivation_amount = []
-            corporate_committed_amount = []
-            major_donor_pipeline_amount = []
-            major_donor_solicitation_amount = []
-            major_donor_cultivation_amount = []
-            major_donor_committed_amount = []
+    corporate_prospect_amount = []
+    corporate_solicitation_amount = []
+    corporate_cultivation_amount = []
+    corporate_committed_amount = []
+    major_donor_prospect_amount = []
+    major_donor_solicitation_amount = []
+    major_donor_cultivation_amount = []
+    major_donor_committed_amount = []
+    
+    for each_file in multiple_files:
+    
+        # Open JSON file
+        with open(each_file, 'r') as json_file:
+            json_content = json.load(json_file)
 
             for results in json_content['value']:
                 
@@ -413,17 +420,18 @@ def get_opportunity_list_from_re():
                     if results['purpose'] == "Corporate":
                         # Working with Corporate
                         print("Working with Corporate")
+                        corporate_worksheet_col = 0
                         
-                        # Getting Pipeline amount
-                        print("Getting Pipeline amount")
+                        # Getting Prospect amount
+                        print("Getting Prospect amount")
                         try:
-                            if results['status'] == "Pipeline":
+                            if results['status'] == "Prospect":
                                 try:
-                                    pipeline_amount = results['ask_amount']['value']
+                                    prospect_amount = results['ask_amount']['value']
                                 except:
-                                    pipeline_amount = "0"
+                                    prospect_amount = "0"
                                     
-                                corporate_pipeline_amount.append(int(pipeline_amount))
+                                corporate_prospect_amount.append(int(prospect_amount))
                         except:
                             pass
                         
@@ -540,16 +548,18 @@ def get_opportunity_list_from_re():
                         # Working with Corporate
                         print("Working with Major Donor")
                         
-                        # Getting Pipeline amount
-                        print("Getting Pipeline amount")
+                        major_donor_worksheet_col = 0
+                        
+                        # Getting Prospect amount
+                        print("Getting Prospect amount")
                         try:
-                            if results['status'] == "Pipeline":
+                            if results['status'] == "Prospect":
                                 try:
-                                    pipeline_amount = results['ask_amount']['value']
+                                    prospect_amount = results['ask_amount']['value']
                                 except:
-                                    pipeline_amount = "0"
+                                    prospect_amount = "0"
                                     
-                                major_donor_pipeline_amount.append(int(pipeline_amount))
+                                major_donor_prospect_amount.append(int(prospect_amount))
                         except:
                             pass
                         
@@ -609,37 +619,37 @@ def get_opportunity_list_from_re():
                             result_list = list(result[0])
                             constituent_name = result_list[1]
                         
-                except:
+                        except:
                             constituent_name = ""
-                
+
                         # Getting Opportunity Name
                         print("Getting Opportunity Name")
                         try:
                             opportunity_name = results['name']
                         except:
                             opportunity_name = ""
-                
+                            
                         # Getting Opportunity Status
                         print("Getting Opportunity Status")
                         try:
                             status = results['status']
                         except:
                             status = ""
-                
+                            
                         # Getting Opportunity Ask Amount
                         print("Getting Opportunity Ask Amount")
                         try:
                             ask_amount = results['ask_amount']['value']
                         except:
                             ask_amount = ""
-                
+                            
                         # Getting Opportunity Expected Amount
                         print("Getting Opportunity Expected Amount")
                         try:
                             expected_amount = results['expected_amount']['value']
                         except:
                             expected_amount = ""
-            
+                        
                         # Getting Opportunity Funded Amount
                         print("Getting Opportunity Funded Amount")
                         try:
@@ -662,6 +672,15 @@ def get_opportunity_list_from_re():
                         major_donor_worksheet.write(major_donor_worksheet_row, major_donor_worksheet_col, funded_amount, money)
                         major_donor_worksheet_row += 1
                         
+                except:
+                    pass
+            
+    total_corporate_prospect_amount = sum(corporate_prospect_amount)/10000000
+    total_corporate_prospect_amount_in_inr = locale.currency(total_corporate_prospect_amount, grouping=True)
+    total_corporate_prospect_amount_in_inr_crores = f"{total_corporate_prospect_amount_in_inr} Cr."
+    print(f"Total Corporate Prospect Amount = {total_corporate_prospect_amount}")
+    print(f"Total Corporate Prospect Amount in INR = {total_corporate_prospect_amount_in_inr}")
+    print(total_corporate_prospect_amount_in_inr_crores)
     
     total_corporate_cultivation_amount = sum(corporate_cultivation_amount)/10000000
     total_corporate_cultivation_amount_in_inr = locale.currency(total_corporate_cultivation_amount, grouping=True)
@@ -684,12 +703,12 @@ def get_opportunity_list_from_re():
     print(f"Total Corporate Committed Amount in INR = {total_corporate_committed_amount_in_inr}")
     print(total_corporate_committed_amount_in_inr_crores)
     
-    total_major_donor_pipeline_amount = sum(major_donor_pipeline_amount)/10000000
-    total_major_donor_pipeline_amount_in_inr = locale.currency(total_major_donor_pipeline_amount, grouping=True)
-    total_major_donor_pipeline_amount_in_inr_crores = f"{total_major_donor_pipeline_amount_in_inr} Cr."
-    print(f"Total Major Donor Pipeline Amount = {total_major_donor_pipeline_amount}")
-    print(f"Total Major Donor Pipeline Amount in INR = {total_major_donor_pipeline_amount_in_inr}")
-    print(total_major_donor_pipeline_amount_in_inr_crores)
+    total_major_donor_prospect_amount = sum(major_donor_prospect_amount)/10000000
+    total_major_donor_prospect_amount_in_inr = locale.currency(total_major_donor_prospect_amount, grouping=True)
+    total_major_donor_prospect_amount_in_inr_crores = f"{total_major_donor_prospect_amount_in_inr} Cr."
+    print(f"Total Major Donor Prospect Amount = {total_major_donor_prospect_amount}")
+    print(f"Total Major Donor Prospect Amount in INR = {total_major_donor_prospect_amount_in_inr}")
+    print(total_major_donor_prospect_amount_in_inr_crores)
     
     total_major_donor_cultivation_amount = sum(major_donor_cultivation_amount)/10000000
     total_major_donor_cultivation_amount_in_inr = locale.currency(total_major_donor_cultivation_amount, grouping=True)
@@ -711,7 +730,7 @@ def get_opportunity_list_from_re():
     print(f"Total Major Donor Committed Amount = {total_major_donor_committed_amount}")
     print(f"Total Major Donor Committed Amount in INR = {total_major_donor_committed_amount_in_inr}")
     print(total_major_donor_committed_amount_in_inr_crores)
-
+    
     # Set auto-filters
     corporate_worksheet.autofilter(0, 0, corporate_worksheet_row, corporate_worksheet_col)
     major_donor_worksheet.autofilter(0, 0, major_donor_worksheet_row, major_donor_worksheet_col)
@@ -2056,9 +2075,14 @@ def send_email():
         imap.logout()
 
 try:
+    connect_db()
+    
     housekeeping()
     
     get_opportunity_list_from_re()
+    
+    subject = "Opportunity Summary | Raisers Edge"
+    send_email()
     
 except Exception as Argument:
     print("Error while sending Opportunity Dashboard")
@@ -2069,7 +2093,5 @@ finally:
     # Do housekeeping
     housekeeping()
     
-    # Close writing to Process.log
-    sys.stdout.close()
-    
-    exit()
+    # Disconnect DB
+    disconnect_db()
