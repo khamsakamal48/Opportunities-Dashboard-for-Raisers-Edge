@@ -453,19 +453,6 @@ def get_opportunity_list_from_re():
                         except:
                             pass
                         
-                        # Getting Cultivation amount
-                        print("Getting Cultivation amount")
-                        try:
-                            if results['status'] == "Cultivation":
-                                try:
-                                    solicitation_amount = results['ask_amount']['value']
-                                except:
-                                    solicitation_amount = "0"
-                                    
-                                corporate_solicitation_amount.append(int(solicitation_amount))
-                        except:
-                            pass
-                        
                         # Getting Committed amount
                         print("Getting Committed amount")
                         try:
@@ -583,19 +570,6 @@ def get_opportunity_list_from_re():
                         print("Getting Solicitation amount")
                         try:
                             if results['status'] == "Solicitation":
-                                try:
-                                    solicitation_amount = results['ask_amount']['value']
-                                except:
-                                    solicitation_amount = "0"
-                                    
-                                major_donor_solicitation_amount.append(int(solicitation_amount))
-                        except:
-                            pass
-                        
-                        # Getting Cultivation amount
-                        print("Getting Cultivation amount")
-                        try:
-                            if results['status'] == "Cultivation":
                                 try:
                                     solicitation_amount = results['ask_amount']['value']
                                 except:
