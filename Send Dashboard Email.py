@@ -1912,7 +1912,8 @@ def send_email():
     <ul style="margin: 0; padding: 0; margin-left: 20px; list-style-type: revert; color: #363a3e; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 16px; font-weight: 400; letter-spacing: 0px; line-height: 150%; text-align: left;">
     <li style="margin-bottom: 5px;">The values for the "<u>Board Meeting</u>" are the ones shown to the Board of Directors at the last board meeting held on {{LAST_BOARD_MEETING_DATE}}</li>
     <li style="margin-bottom: 5px;">The "<u>Current values</u>" are the ones as available in Raisers Edge as of today</li>
-    <li>The Committed amount for 'Corporate' is calculated against the <u>Expected amount</u>, whereas for 'Major Donor' it's calculated against the <u>Asked amount</u> as recorded in Raisers Edge</li>
+    <li style="margin-bottom: 5px;">The Committed amount for 'Corporate' is calculated against the <u>Expected amount</u>, whereas for 'Major Donor' it's calculated against the <u>Asked amount</u> as recorded in Raisers Edge</li>
+    <li>A list of all the active opportunities available and recorded in Raisers Edge is also attached with this email for your perusal</li>
     </ul>
     </td>
     </tr>
