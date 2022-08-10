@@ -676,56 +676,56 @@ def get_opportunity_list_from_re():
                     pass
             
     total_corporate_prospect_amount = sum(corporate_prospect_amount)/10000000
-    total_corporate_prospect_amount_in_inr = locale.currency(total_corporate_prospect_amount, grouping=True)
+    total_corporate_prospect_amount_in_inr = round(locale.currency(total_corporate_prospect_amount, grouping=True))
     total_corporate_prospect_amount_in_inr_crores = f"{total_corporate_prospect_amount_in_inr} Cr."
     print(f"Total Corporate Prospect Amount = {total_corporate_prospect_amount}")
     print(f"Total Corporate Prospect Amount in INR = {total_corporate_prospect_amount_in_inr}")
     print(total_corporate_prospect_amount_in_inr_crores)
     
     total_corporate_cultivation_amount = sum(corporate_cultivation_amount)/10000000
-    total_corporate_cultivation_amount_in_inr = locale.currency(total_corporate_cultivation_amount, grouping=True)
+    total_corporate_cultivation_amount_in_inr = round(locale.currency(total_corporate_cultivation_amount, grouping=True))
     total_corporate_cultivation_amount_in_inr_crores = f"{total_corporate_cultivation_amount_in_inr} Cr."
     print(f"Total Corporate Cultivation Amount = {total_corporate_cultivation_amount}")
     print(f"Total Corporate Cultivation Amount in INR = {total_corporate_cultivation_amount_in_inr}")
     print(total_corporate_cultivation_amount_in_inr_crores)
     
     total_corporate_solicitation_amount = sum(corporate_solicitation_amount)/10000000
-    total_corporate_solicitation_amount_in_inr = locale.currency(total_corporate_solicitation_amount, grouping=True)
+    total_corporate_solicitation_amount_in_inr = round(locale.currency(total_corporate_solicitation_amount, grouping=True))
     total_corporate_solicitation_amount_in_inr_crores = f"{total_corporate_solicitation_amount_in_inr} Cr."
     print(f"Total Corporate Solicitation Amount = {total_corporate_solicitation_amount}")
     print(f"Total Corporate Solicitation Amount in INR = {total_corporate_solicitation_amount_in_inr}")
     print(total_corporate_solicitation_amount_in_inr_crores)
     
     total_corporate_committed_amount = sum(corporate_committed_amount)/10000000
-    total_corporate_committed_amount_in_inr = locale.currency(total_corporate_committed_amount, grouping=True)
+    total_corporate_committed_amount_in_inr = round(locale.currency(total_corporate_committed_amount, grouping=True))
     total_corporate_committed_amount_in_inr_crores = f"{total_corporate_committed_amount_in_inr} Cr."
     print(f"Total Corporate Committed Amount = {total_corporate_committed_amount}")
     print(f"Total Corporate Committed Amount in INR = {total_corporate_committed_amount_in_inr}")
     print(total_corporate_committed_amount_in_inr_crores)
     
     total_major_donor_prospect_amount = sum(major_donor_prospect_amount)/10000000
-    total_major_donor_prospect_amount_in_inr = locale.currency(total_major_donor_prospect_amount, grouping=True)
+    total_major_donor_prospect_amount_in_inr = round(locale.currency(total_major_donor_prospect_amount, grouping=True))
     total_major_donor_prospect_amount_in_inr_crores = f"{total_major_donor_prospect_amount_in_inr} Cr."
     print(f"Total Major Donor Prospect Amount = {total_major_donor_prospect_amount}")
     print(f"Total Major Donor Prospect Amount in INR = {total_major_donor_prospect_amount_in_inr}")
     print(total_major_donor_prospect_amount_in_inr_crores)
     
     total_major_donor_cultivation_amount = sum(major_donor_cultivation_amount)/10000000
-    total_major_donor_cultivation_amount_in_inr = locale.currency(total_major_donor_cultivation_amount, grouping=True)
+    total_major_donor_cultivation_amount_in_inr = round(locale.currency(total_major_donor_cultivation_amount, grouping=True))
     total_major_donor_cultivation_amount_in_inr_crores = f"{total_major_donor_cultivation_amount_in_inr} Cr."
     print(f"Total Major Donor Cultivation Amount = {total_major_donor_cultivation_amount}")
     print(f"Total Major Donor Cultivation Amount in INR = {total_major_donor_cultivation_amount_in_inr}")
     print(total_major_donor_cultivation_amount_in_inr_crores)
     
     total_major_donor_solicitation_amount = sum(major_donor_solicitation_amount)/10000000
-    total_major_donor_solicitation_amount_in_inr = locale.currency(total_major_donor_solicitation_amount, grouping=True)
+    total_major_donor_solicitation_amount_in_inr = round(locale.currency(total_major_donor_solicitation_amount, grouping=True))
     total_major_donor_solicitation_amount_in_inr_crores = f"{total_major_donor_solicitation_amount_in_inr} Cr."
     print(f"Total Major Donor Solicitation Amount = {total_major_donor_solicitation_amount}")
     print(f"Total Major Donor Solicitation Amount in INR = {total_major_donor_solicitation_amount_in_inr}")
     print(total_major_donor_solicitation_amount_in_inr_crores)
     
     total_major_donor_committed_amount = sum(major_donor_committed_amount)/10000000
-    total_major_donor_committed_amount_in_inr = locale.currency(total_major_donor_committed_amount, grouping=True)
+    total_major_donor_committed_amount_in_inr = round(locale.currency(total_major_donor_committed_amount, grouping=True))
     total_major_donor_committed_amount_in_inr_crores = f"{total_major_donor_committed_amount_in_inr} Cr."
     print(f"Total Major Donor Committed Amount = {total_major_donor_committed_amount}")
     print(f"Total Major Donor Committed Amount in INR = {total_major_donor_committed_amount_in_inr}")
