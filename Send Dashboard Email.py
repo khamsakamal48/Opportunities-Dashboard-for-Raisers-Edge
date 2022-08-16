@@ -259,7 +259,7 @@ def print_json(d):
     print(json.dumps(d, indent=4))
 
 def get_opportunity_list_from_re():
-    global url, params, total_corporate_prospect_amount_in_inr_crores, total_corporate_cultivation_amount_in_inr_crores, total_corporate_solicitation_amount_in_inr_crores, total_corporate_committed_amount_in_inr_crores, total_major_donor_prospect_amount_in_inr_crores, total_major_donor_cultivation_amount_in_inr_crores, total_major_donor_solicitation_amount_in_inr_crores, total_major_donor_committed_amount_in_inr_crores
+    global url, params, today_date, total_corporate_prospect_amount_in_inr_crores, total_corporate_cultivation_amount_in_inr_crores, total_corporate_solicitation_amount_in_inr_crores, total_corporate_committed_amount_in_inr_crores, total_corporate_prospect_count, total_corporate_cultivation_count, total_corporate_solicitation_count, total_corporate_committed_count, total_major_donor_prospect_amount_in_inr_crores, total_major_donor_cultivation_amount_in_inr_crores, total_major_donor_solicitation_amount_in_inr_crores, total_major_donor_committed_amount_in_inr_crores, total_major_donor_prospect_count, total_major_donor_cultivation_count, total_major_donor_solicitation_count, total_major_donor_committed_count
 
     retrieve_token()
     
@@ -408,6 +408,15 @@ def get_opportunity_list_from_re():
     major_donor_cultivation_amount = []
     major_donor_committed_amount = []
     
+    corporate_prospect_count = []
+    corporate_solicitation_count = []
+    corporate_cultivation_count = []
+    corporate_committed_count = []
+    major_donor_prospect_count = []
+    major_donor_solicitation_count = []
+    major_donor_cultivation_count = []
+    major_donor_committed_count = []
+    
     for each_file in multiple_files:
     
         # Open JSON file
@@ -428,10 +437,13 @@ def get_opportunity_list_from_re():
                             if results['status'] == "Prospect":
                                 try:
                                     prospect_amount = results['ask_amount']['value']
+                                    prospect_count = "1"
                                 except:
                                     prospect_amount = "0"
+                                    prospect_count = "0"
                                     
                                 corporate_prospect_amount.append(int(prospect_amount))
+                                corporate_prospect_count.append(int(prospect_count))
                         except:
                             pass
                         
@@ -441,10 +453,13 @@ def get_opportunity_list_from_re():
                             if results['status'] == "Cultivation":
                                 try:
                                     cultivation_amount = results['ask_amount']['value']
+                                    cultivation_count = "1"
                                 except:
                                     cultivation_amount = "0"
+                                    cultivation_count = "0"
                                     
                                 corporate_cultivation_amount.append(int(cultivation_amount))
+                                corporate_cultivation_count.append(int(cultivation_count))
                         except:
                             pass
                         
@@ -454,10 +469,13 @@ def get_opportunity_list_from_re():
                             if results['status'] == "Solicitation":
                                 try:
                                     solicitation_amount = results['ask_amount']['value']
+                                    solicitation_count ="1"
                                 except:
                                     solicitation_amount = "0"
+                                    solicitation_count ="0"
                                     
                                 corporate_solicitation_amount.append(int(solicitation_amount))
+                                corporate_solicitation_count.append(int(solicitation_count))
                         except:
                             pass
                         
@@ -467,10 +485,13 @@ def get_opportunity_list_from_re():
                             if results['status'] == "Committed":
                                 try:
                                     committed_amount = results['expected_amount']['value']
+                                    committed_count = "1"
                                 except:
                                     committed_amount = "0"
+                                    committed_count = "0"
                                     
                                 corporate_committed_amount.append(int(committed_amount))
+                                corporate_committed_count.append(int(committed_count))
                         except:
                             pass
                         
@@ -556,10 +577,13 @@ def get_opportunity_list_from_re():
                             if results['status'] == "Prospect":
                                 try:
                                     prospect_amount = results['ask_amount']['value']
+                                    prospect_count = "1"
                                 except:
                                     prospect_amount = "0"
+                                    prospect_count = "0"
                                     
                                 major_donor_prospect_amount.append(int(prospect_amount))
+                                major_donor_prospect_count.append(int(prospect_count))
                         except:
                             pass
                         
@@ -569,10 +593,13 @@ def get_opportunity_list_from_re():
                             if results['status'] == "Cultivation":
                                 try:
                                     cultivation_amount = results['ask_amount']['value']
+                                    cultivation_count = "1"
                                 except:
                                     cultivation_amount = "0"
+                                    cultivation_count = "0"
                                     
                                 major_donor_cultivation_amount.append(int(cultivation_amount))
+                                major_donor_cultivation_count.append(int(cultivation_count))
                         except:
                             pass
                         
@@ -582,10 +609,13 @@ def get_opportunity_list_from_re():
                             if results['status'] == "Solicitation":
                                 try:
                                     solicitation_amount = results['ask_amount']['value']
+                                    solicitation_count = "1"
                                 except:
                                     solicitation_amount = "0"
+                                    solicitation_count = "0"
                                     
                                 major_donor_solicitation_amount.append(int(solicitation_amount))
+                                major_donor_solicitation_count.append(int(solicitation_count))
                         except:
                             pass
                         
@@ -595,10 +625,13 @@ def get_opportunity_list_from_re():
                             if results['status'] == "Committed":
                                 try:
                                     committed_amount = results['ask_amount']['value']
+                                    committed_count = "1"
                                 except:
                                     committed_amount = "0"
+                                    committed_count = "0"
                                     
                                 major_donor_committed_amount.append(int(committed_amount))
+                                major_donor_committed_count.append(int(committed_count))
                         except:
                             pass
                         
@@ -681,6 +714,7 @@ def get_opportunity_list_from_re():
     print(f"Total Corporate Prospect Amount = {total_corporate_prospect_amount}")
     print(f"Total Corporate Prospect Amount in INR = {total_corporate_prospect_amount_in_inr}")
     print(total_corporate_prospect_amount_in_inr_crores)
+    total_corporate_prospect_count = sum(corporate_prospect_count)
     
     total_corporate_cultivation_amount = round(sum(corporate_cultivation_amount)/10000000)
     total_corporate_cultivation_amount_in_inr = locale.currency(round(total_corporate_cultivation_amount), grouping=True).replace(".00", "")
@@ -688,6 +722,7 @@ def get_opportunity_list_from_re():
     print(f"Total Corporate Cultivation Amount = {total_corporate_cultivation_amount}")
     print(f"Total Corporate Cultivation Amount in INR = {total_corporate_cultivation_amount_in_inr}")
     print(total_corporate_cultivation_amount_in_inr_crores)
+    total_corporate_cultivation_count = sum(corporate_cultivation_count)
     
     total_corporate_solicitation_amount = round(sum(corporate_solicitation_amount)/10000000)
     total_corporate_solicitation_amount_in_inr = locale.currency(round(total_corporate_solicitation_amount), grouping=True).replace(".00", "")
@@ -695,6 +730,7 @@ def get_opportunity_list_from_re():
     print(f"Total Corporate Solicitation Amount = {total_corporate_solicitation_amount}")
     print(f"Total Corporate Solicitation Amount in INR = {total_corporate_solicitation_amount_in_inr}")
     print(total_corporate_solicitation_amount_in_inr_crores)
+    total_corporate_solicitation_count = sum(corporate_solicitation_count)
     
     total_corporate_committed_amount = round(sum(corporate_committed_amount)/10000000)
     total_corporate_committed_amount_in_inr = locale.currency(round(total_corporate_committed_amount), grouping=True).replace(".00", "")
@@ -702,6 +738,7 @@ def get_opportunity_list_from_re():
     print(f"Total Corporate Committed Amount = {total_corporate_committed_amount}")
     print(f"Total Corporate Committed Amount in INR = {total_corporate_committed_amount_in_inr}")
     print(total_corporate_committed_amount_in_inr_crores)
+    total_corporate_committed_count = sum(corporate_committed_count)
     
     total_major_donor_prospect_amount = round(sum(major_donor_prospect_amount)/10000000)
     total_major_donor_prospect_amount_in_inr = locale.currency(total_major_donor_prospect_amount, grouping=True).replace(".00", "")
@@ -709,6 +746,7 @@ def get_opportunity_list_from_re():
     print(f"Total Major Donor Prospect Amount = {total_major_donor_prospect_amount}")
     print(f"Total Major Donor Prospect Amount in INR = {total_major_donor_prospect_amount_in_inr}")
     print(total_major_donor_prospect_amount_in_inr_crores)
+    total_major_donor_prospect_count = sum(major_donor_prospect_count)
     
     total_major_donor_cultivation_amount = round(sum(major_donor_cultivation_amount)/10000000)
     total_major_donor_cultivation_amount_in_inr = locale.currency(round(total_major_donor_cultivation_amount), grouping=True).replace(".00", "")
@@ -716,6 +754,7 @@ def get_opportunity_list_from_re():
     print(f"Total Major Donor Cultivation Amount = {total_major_donor_cultivation_amount}")
     print(f"Total Major Donor Cultivation Amount in INR = {total_major_donor_cultivation_amount_in_inr}")
     print(total_major_donor_cultivation_amount_in_inr_crores)
+    total_major_donor_cultivation_count = sum(major_donor_cultivation_count)
     
     total_major_donor_solicitation_amount = round(sum(major_donor_solicitation_amount)/10000000)
     total_major_donor_solicitation_amount_in_inr = locale.currency(round(total_major_donor_solicitation_amount), grouping=True).replace(".00", "")
@@ -723,6 +762,7 @@ def get_opportunity_list_from_re():
     print(f"Total Major Donor Solicitation Amount = {total_major_donor_solicitation_amount}")
     print(f"Total Major Donor Solicitation Amount in INR = {total_major_donor_solicitation_amount_in_inr}")
     print(total_major_donor_solicitation_amount_in_inr_crores)
+    total_major_donor_solicitation_count = sum(major_donor_solicitation_count)
     
     total_major_donor_committed_amount = round(sum(major_donor_committed_amount)/10000000)
     total_major_donor_committed_amount_in_inr = locale.currency(round(total_major_donor_committed_amount), grouping=True).replace(".00", "")
@@ -730,6 +770,7 @@ def get_opportunity_list_from_re():
     print(f"Total Major Donor Committed Amount = {total_major_donor_committed_amount}")
     print(f"Total Major Donor Committed Amount in INR = {total_major_donor_committed_amount_in_inr}")
     print(total_major_donor_committed_amount_in_inr_crores)
+    total_major_donor_committed_count = sum(major_donor_committed_count)
     
     # Set auto-filters
     corporate_worksheet.autofilter(0, 0, corporate_worksheet_row, corporate_worksheet_col)
@@ -737,6 +778,23 @@ def get_opportunity_list_from_re():
     
     # Close the excel file
     workbook.close()
+    
+    today_date = date.today().strftime("%d %b, %Y")
+    
+    # # Preparing JSON Data
+    # corporate_json_data = {
+    #     'Status': ['Prospect', 'Cultivation', 'Solicitation', 'Committed'],
+    #     f'Amount as on {LAST_BOARD_MEETING_DATE}': [BM_CORPORATE_PROSPECT, BM_CORPORATE_CULTIVATION, BM_CORPORATE_SOLICITATION, BM_CORPORATE_COMMITTED],
+    #     f'Amount as on {today}': [total_corporate_prospect_amount_in_inr_crores, total_corporate_cultivation_amount_in_inr_crores, total_corporate_solicitation_amount_in_inr_crores, total_corporate_committed_amount_in_inr_crores],
+    #     f'Count as on {today}': [total_corporate_prospect_count, total_corporate_cultivation_count, total_corporate_solicitation_count, total_corporate_committed_count]
+    # }
+    
+    # major_donor_json_data = {
+    #     'Status': ['Prospect', 'Cultivation', 'Solicitation', 'Committed'],
+    #     f'Amount as on {LAST_BOARD_MEETING_DATE}': [BM_MAJOR_DONOR_PROSPECT, BM_MAJOR_DONOR_CULTIVATION, BM_MAJOR_DONOR_SOLICITATION, BM_MAJOR_DONOR_COMMITTED],
+    #     f'Amount as on {today}': [total_major_donor_prospect_amount_in_inr_crores, total_major_donor_cultivation_amount_in_inr_crores, total_major_donor_solicitation_amount_in_inr_crores, total_major_donor_committed_amount_in_inr_crores],
+    #     f'Count as on {today}': [total_major_donor_prospect_count, total_major_donor_cultivation_count, total_major_donor_solicitation_count, total_major_donor_committed_count]
+    # }
     
 def send_email():
     print("Sending email...")
@@ -750,9 +808,8 @@ def send_email():
     # Adding Reply-to header
     message.add_header('reply-to', MAIL_USERN)
         
-    TEMPLATE="""
+    TEMPLATE = """
     <!DOCTYPE html>
-
     <html lang="en" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:v="urn:schemas-microsoft-com:vml">
     <head>
     <title></title>
@@ -796,109 +853,101 @@ def send_email():
                 .row-12 .column-1 .block-2.heading_block h3,
                 .row-12 .column-2 .block-2.heading_block h3,
                 .row-12 .column-3 .block-2.heading_block h3,
+                .row-12 .column-4 .block-2.heading_block h3,
                 .row-13 .column-1 .block-2.heading_block h3,
                 .row-13 .column-2 .block-2.heading_block h3,
                 .row-13 .column-3 .block-2.heading_block h3,
+                .row-13 .column-4 .block-2.heading_block h3,
                 .row-14 .column-1 .block-2.heading_block h3,
                 .row-14 .column-2 .block-2.heading_block h3,
                 .row-14 .column-3 .block-2.heading_block h3,
+                .row-14 .column-4 .block-2.heading_block h3,
                 .row-15 .column-1 .block-2.heading_block h3,
                 .row-15 .column-2 .block-2.heading_block h3,
                 .row-15 .column-3 .block-2.heading_block h3,
-                .row-19 .column-1 .block-2.heading_block h3,
-                .row-19 .column-2 .block-2.heading_block h3,
-                .row-19 .column-3 .block-2.heading_block h3,
-                .row-20 .column-1 .block-2.heading_block h3,
-                .row-20 .column-2 .block-2.heading_block h3,
-                .row-20 .column-3 .block-2.heading_block h3,
-                .row-21 .column-1 .block-2.heading_block h3,
-                .row-21 .column-2 .block-2.heading_block h3,
-                .row-21 .column-3 .block-2.heading_block h3,
-                .row-22 .column-1 .block-2.heading_block h3,
-                .row-22 .column-2 .block-2.heading_block h3,
-                .row-22 .column-3 .block-2.heading_block h3,
+                .row-15 .column-4 .block-2.heading_block h3,
+                .row-16 .column-1 .block-2.heading_block h3,
+                .row-16 .column-2 .block-2.heading_block h3,
+                .row-16 .column-3 .block-2.heading_block h3,
+                .row-16 .column-4 .block-2.heading_block h3,
+                .row-2 .column-1 .block-1.paragraph_block td.pad>div,
+                .row-5 .column-1 .block-2.heading_block h3,
+                .row-5 .column-2 .block-2.heading_block h3,
+                .row-5 .column-3 .block-2.heading_block h3,
+                .row-5 .column-4 .block-2.heading_block h3,
+                .row-6 .column-1 .block-2.heading_block h3,
+                .row-6 .column-2 .block-2.heading_block h3,
                 .row-6 .column-3 .block-2.heading_block h3,
                 .row-6 .column-4 .block-2.heading_block h3,
-                .row-6 .column-5 .block-2.heading_block h3,
                 .row-7 .column-1 .block-2.heading_block h3,
                 .row-7 .column-2 .block-2.heading_block h3,
                 .row-7 .column-3 .block-2.heading_block h3,
                 .row-7 .column-4 .block-2.heading_block h3,
-                .row-7 .column-5 .block-2.heading_block h3,
                 .row-8 .column-1 .block-2.heading_block h3,
                 .row-8 .column-2 .block-2.heading_block h3,
                 .row-8 .column-3 .block-2.heading_block h3,
                 .row-8 .column-4 .block-2.heading_block h3,
-                .row-8 .column-5 .block-2.heading_block h3,
                 .row-9 .column-1 .block-2.heading_block h3,
                 .row-9 .column-2 .block-2.heading_block h3,
                 .row-9 .column-3 .block-2.heading_block h3,
-                .row-9 .column-4 .block-2.heading_block h3,
-                .row-9 .column-5 .block-2.heading_block h3 {
-                    font-size: 16px !important;
+                .row-9 .column-4 .block-2.heading_block h3 {
+                    font-size: 14px !important;
                 }
 
-                .row-10 .column-1 .block-1.heading_block td.pad,
-                .row-11 .column-1 .block-2.heading_block td.pad,
-                .row-11 .column-2 .block-2.heading_block td.pad,
-                .row-11 .column-3 .block-2.heading_block td.pad,
                 .row-12 .column-1 .block-2.heading_block td.pad,
-                .row-12 .column-2 .block-2.heading_block td.pad,
-                .row-12 .column-3 .block-2.heading_block td.pad,
-                .row-13 .column-1 .block-2.heading_block td.pad,
-                .row-13 .column-2 .block-2.heading_block td.pad,
-                .row-13 .column-3 .block-2.heading_block td.pad,
-                .row-14 .column-1 .block-2.heading_block td.pad,
-                .row-14 .column-2 .block-2.heading_block td.pad,
-                .row-14 .column-3 .block-2.heading_block td.pad,
-                .row-15 .column-1 .block-2.heading_block td.pad,
-                .row-15 .column-2 .block-2.heading_block td.pad,
-                .row-15 .column-3 .block-2.heading_block td.pad,
-                .row-17 .column-1 .block-1.heading_block td.pad,
-                .row-18 .column-1 .block-2.heading_block td.pad,
-                .row-18 .column-2 .block-2.heading_block td.pad,
-                .row-18 .column-3 .block-2.heading_block td.pad,
-                .row-19 .column-1 .block-2.heading_block td.pad,
-                .row-19 .column-2 .block-2.heading_block td.pad,
-                .row-19 .column-3 .block-2.heading_block td.pad,
-                .row-20 .column-1 .block-2.heading_block td.pad,
-                .row-20 .column-2 .block-2.heading_block td.pad,
-                .row-20 .column-3 .block-2.heading_block td.pad,
-                .row-21 .column-1 .block-2.heading_block td.pad,
-                .row-21 .column-2 .block-2.heading_block td.pad,
-                .row-21 .column-3 .block-2.heading_block td.pad,
-                .row-22 .column-1 .block-2.heading_block td.pad,
-                .row-22 .column-2 .block-2.heading_block td.pad,
-                .row-22 .column-3 .block-2.heading_block td.pad {
-                    padding: 5px !important;
+                .row-5 .column-1 .block-2.heading_block td.pad {
+                    padding: 25px 0 0 !important;
                 }
 
-                .row-10 .column-1 .block-1.heading_block h2,
-                .row-17 .column-1 .block-1.heading_block h2 {
+                .row-11 .column-1 .block-1.heading_block h1,
+                .row-3 .column-1 .block-1.heading_block h1,
+                .row-4 .column-1 .block-1.heading_block h1 {
                     font-size: 23px !important;
                 }
 
-                .row-11 .column-1 .block-2.heading_block h3,
-                .row-11 .column-2 .block-2.heading_block h3,
-                .row-11 .column-3 .block-2.heading_block h3,
-                .row-18 .column-1 .block-2.heading_block h3,
-                .row-18 .column-2 .block-2.heading_block h3,
-                .row-18 .column-3 .block-2.heading_block h3,
-                .row-25 .column-1 .block-1.heading_block h2 {
-                    font-size: 18px !important;
+                .row-3 .column-1 .block-1.heading_block td.pad {
+                    padding: 10px 10px 0 !important;
                 }
 
-                .row-26 .column-1 .block-1.paragraph_block td.pad>div {
-                    font-size: 13px !important;
+                .row-2 .column-1 .block-1.paragraph_block td.pad {
+                    padding: 20px !important;
                 }
 
-                .row-23 .column-1 .block-2.list_block ul {
+                .row-1 .column-1 .block-1.image_block td.pad,
+                .row-19 .column-1 .block-1.heading_block td.pad {
+                    padding: 10px !important;
+                }
+
+                .row-13 .column-1 .block-2.heading_block td.pad,
+                .row-13 .column-4 .block-2.heading_block td.pad,
+                .row-14 .column-1 .block-2.heading_block td.pad,
+                .row-14 .column-4 .block-2.heading_block td.pad,
+                .row-15 .column-1 .block-2.heading_block td.pad,
+                .row-15 .column-4 .block-2.heading_block td.pad,
+                .row-16 .column-1 .block-2.heading_block td.pad,
+                .row-16 .column-4 .block-2.heading_block td.pad,
+                .row-6 .column-1 .block-2.heading_block td.pad,
+                .row-6 .column-4 .block-2.heading_block td.pad,
+                .row-7 .column-1 .block-2.heading_block td.pad,
+                .row-7 .column-4 .block-2.heading_block td.pad,
+                .row-8 .column-1 .block-2.heading_block td.pad,
+                .row-8 .column-4 .block-2.heading_block td.pad,
+                .row-9 .column-1 .block-2.heading_block td.pad,
+                .row-9 .column-4 .block-2.heading_block td.pad {
+                    padding: 10px 0 0 !important;
+                }
+
+                .row-17 .column-1 .block-2.list_block ul {
                     font-size: 14px !important;
                     line-height: auto !important;
                 }
 
-                .row-25 .column-1 .block-1.heading_block td.pad {
-                    padding: 10px !important;
+                .row-20 .column-1 .block-1.paragraph_block td.pad>div {
+                    font-size: 13px !important;
+                }
+
+                .row-19 .column-1 .block-1.heading_block h2 {
+                    font-size: 18px !important;
                 }
             }
 
@@ -946,61 +995,51 @@ def send_email():
                     padding: 0 20px 10px !important;
                 }
 
-                .row-4 .column-2,
-                .row-4 .column-3,
-                .row-5 .column-2,
-                .row-5 .column-3,
-                .row-6 .column-2,
-                .row-6 .column-3,
-                .row-7 .column-2,
-                .row-7 .column-3,
-                .row-8 .column-2,
-                .row-8 .column-3,
-                .row-9 .column-2,
-                .row-9 .column-3 {
-                    padding: 5px !important;
-                }
-
-                .row-10 .column-1,
-                .row-11 .column-2,
-                .row-11 .column-3,
+                .row-12 .column-1,
                 .row-12 .column-2,
                 .row-12 .column-3,
+                .row-12 .column-4,
                 .row-13 .column-2,
                 .row-13 .column-3,
+                .row-13 .column-4,
                 .row-14 .column-2,
                 .row-14 .column-3,
+                .row-14 .column-4,
                 .row-15 .column-2,
                 .row-15 .column-3,
+                .row-15 .column-4,
+                .row-16 .column-2,
+                .row-16 .column-3,
+                .row-16 .column-4,
                 .row-17 .column-1,
-                .row-18 .column-2,
-                .row-18 .column-3,
-                .row-19 .column-2,
-                .row-19 .column-3,
-                .row-20 .column-2,
-                .row-20 .column-3,
-                .row-21 .column-2,
-                .row-21 .column-3,
-                .row-22 .column-2,
-                .row-22 .column-3,
-                .row-23 .column-1 {
+                .row-5 .column-1,
+                .row-5 .column-2,
+                .row-5 .column-3,
+                .row-5 .column-4,
+                .row-6 .column-2,
+                .row-6 .column-3,
+                .row-6 .column-4,
+                .row-7 .column-2,
+                .row-7 .column-3,
+                .row-7 .column-4,
+                .row-8 .column-2,
+                .row-8 .column-3,
+                .row-8 .column-4,
+                .row-9 .column-2,
+                .row-9 .column-3,
+                .row-9 .column-4 {
                     padding: 10px !important;
                 }
 
-                .row-11 .column-1,
-                .row-18 .column-1 {
-                    padding: 15px 15px 15px 0 !important;
-                }
-
-                .row-12 .column-1,
                 .row-13 .column-1,
                 .row-14 .column-1,
                 .row-15 .column-1,
-                .row-19 .column-1,
-                .row-20 .column-1,
-                .row-21 .column-1,
-                .row-22 .column-1 {
-                    padding: 10px 10px 10px 0 !important;
+                .row-16 .column-1,
+                .row-6 .column-1,
+                .row-7 .column-1,
+                .row-8 .column-1,
+                .row-9 .column-1 {
+                    padding: 10px 10px 10px 5px !important;
                 }
             }
         </style>
@@ -1014,14 +1053,14 @@ def send_email():
     <tbody>
     <tr>
     <td>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content stack" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #305496; color: #000000; width: 1200px;" width="1200">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content stack" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #193e8d; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
     <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; vertical-align: top; padding-top: 5px; padding-bottom: 5px; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="100%">
     <table border="0" cellpadding="20" cellspacing="0" class="image_block block-1" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad">
-    <div align="center" class="alignment" style="line-height:10px"><img src="https://i.ibb.co/fk6J37P/iitblogowhite.png" style="display: block; height: auto; border: 0; width: 90px; max-width: 100%;" width="90"/></div>
+    <div align="center" class="alignment" style="line-height:10px"><img src="https://i.ibb.co/fk6J37P/iitblogowhite.png" style="display: block; height: auto; border: 0; width: 100px; max-width: 100%;" width="100"/></div>
     </td>
     </tr>
     </table>
@@ -1037,7 +1076,7 @@ def send_email():
     <tbody>
     <tr>
     <td>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content stack" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 1200px;" width="1200">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content stack" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
     <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; vertical-align: top; padding-top: 5px; padding-bottom: 5px; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="100%">
@@ -1063,21 +1102,14 @@ def send_email():
     <tbody>
     <tr>
     <td>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content stack" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 1200px;" width="1200">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content stack" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
     <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; vertical-align: top; padding-top: 5px; padding-bottom: 5px; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="100%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-1" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
-    <td class="pad" style="padding-top:20px;text-align:center;width:100%;">
-    <h1 style="margin: 0; color: #101112; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 38px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Current Opportunity statuses</span></h1>
-    </td>
-    </tr>
-    </table>
-    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
-    <tr>
-    <td class="pad" style="padding-bottom:20px;padding-left:20px;padding-right:20px;padding-top:5px;text-align:center;width:100%;">
-    <h1 style="margin: 0; color: #606060; direction: ltr; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 20px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">since Last Board Meeting</span></h1>
+    <td class="pad" style="padding-bottom:10px;padding-top:20px;text-align:center;width:100%;">
+    <h1 style="margin: 0; color: #101112; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 38px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Opportunity Pipeline</span></h1>
     </td>
     </tr>
     </table>
@@ -1089,36 +1121,18 @@ def send_email():
     </tr>
     </tbody>
     </table>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-4 mobile_hide" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-size: auto;" width="100%">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-4" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tbody>
     <tr>
     <td>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-size: auto; background-color: #163d85; border-radius: 0; color: #000000; width: 1200px;" width="1200">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content stack" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-bottom: 0 solid #FFFFFF; border-left: 0 solid #FFFFFF; border-right: 0px solid #FFFFFF; border-top: 0 solid #FFFFFF; background-color: #193e8d; border-radius: 0; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
-    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #193e8d; border-left: 20px solid #FFFFFF; border-right: 1px solid #FFFFFF; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-bottom: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #FFFFFF; border-left: 0px solid #FFFFFF; border-right: 0px solid #FFFFFF; border-top: 0px solid #FFFFFF; padding-left: 20px; padding-right: 20px; vertical-align: top; padding-top: 20px; padding-bottom: 20px;" width="100%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-1" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
-    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
-    <h2 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 30px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: left; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Type</span></h2>
-    </td>
-    </tr>
-    </table>
-    </td>
-    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-left: 0px solid #FFFFFF; border-right: 1px solid #FFFFFF; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-bottom: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
-    <tr>
-    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
-    <h2 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 30px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Corporate</span></h2>
-    </td>
-    </tr>
-    </table>
-    </td>
-    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-left: 0px solid #FFFFFF; border-right: 20px solid #FFFFFF; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-bottom: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
-    <tr>
-    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
-    <h2 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 30px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Major Donor</span></h2>
+    <td class="pad" style="text-align:center;width:100%;">
+    <h1 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 38px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Corporate</span></h1>
     </td>
     </tr>
     </table>
@@ -1130,54 +1144,45 @@ def send_email():
     </tr>
     </tbody>
     </table>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-5 mobile_hide" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-size: auto;" width="100%">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-5" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tbody>
     <tr>
     <td>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-size: auto; background-color: #5f80b8; border-bottom: 0 solid #FFFFFF; border-left: 0 solid #FFFFFF; border-radius: 0; border-right: 0px solid #FFFFFF; border-top: 0 solid #FFFFFF; color: #000000; width: 1200px;" width="1200">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #284988; border-radius: 0; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
-    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-left: 20px solid #FFFFFF; border-right: 1px solid #FFFFFF; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-bottom: 0px;" width="33.333333333333336%">
+    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
-    <td class="pad" style="text-align:center;width:100%;padding-top:30px;padding-bottom:30px;">
-    <h3 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: left; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Status / Values in Cr.</span></h3>
+    <td class="pad" style="padding-top:35px;text-align:center;width:100%;padding-bottom:20px;">
+    <h3 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Status</span></h3>
     </td>
     </tr>
     </table>
     </td>
-    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-left: 0px solid #FFFFFF; border-right: 1px solid #FFFFFF; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-bottom: 0px;" width="16.666666666666668%">
+    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
-    <h3 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Board Meeting</span></h3>
+    <h3 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Amount as on {{LAST_BOARD_MEETING_DATE}}</span></h3>
     </td>
     </tr>
     </table>
     </td>
-    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-left: 0px solid #FFFFFF; border-right: 1px solid #FFFFFF; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-bottom: 0px;" width="16.666666666666668%">
+    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
-    <h3 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Current values</span></h3>
+    <h3 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Amount as on {{today_date}}</span></h3>
     </td>
     </tr>
     </table>
     </td>
-    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-left: 0px solid #FFFFFF; border-right: 1px solid #FFFFFF; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-bottom: 0px;" width="16.666666666666668%">
+    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
-    <h3 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Board Meeting</span></h3>
-    </td>
-    </tr>
-    </table>
-    </td>
-    <td class="column column-5" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-left: 0px solid #FFFFFF; border-right: 20px solid #FFFFFF; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-bottom: 0px;" width="16.666666666666668%">
-    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
-    <tr>
-    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
-    <h3 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Current values</span></h3>
+    <h3 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Count as on {{today_date}}</span></h3>
     </td>
     </tr>
     </table>
@@ -1189,32 +1194,32 @@ def send_email():
     </tr>
     </tbody>
     </table>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-6 mobile_hide" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-size: auto;" width="100%">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-6" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tbody>
     <tr>
     <td>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #cfe2ff; background-size: auto; border-bottom: 0 solid #FFFFFF; border-left: 0 solid #FFFFFF; border-radius: 0; border-right: 0px solid #FFFFFF; border-top: 0 solid #FFFFFF; color: #000000; width: 1200px;" width="1200">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
-    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #cfe2ff; border-bottom: 1px solid #FFFFFF; border-left: 20px solid #FFFFFF; border-right: 1px solid #FFFFFF; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px;" width="33.333333333333336%">
+    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #d3ddef; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="25%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
-    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: left; margin-top: 0; margin-bottom: 0;"><strong><span class="tinyMce-placeholder">Prospect</span></strong></h3>
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Prospect</span></h3>
     </td>
     </tr>
     </table>
     </td>
-    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-bottom: 1px solid #FFFFFF; border-left: 0px solid #FFFFFF; border-right: 1px solid #FFFFFF; padding-left: 15px; padding-right: 15px; vertical-align: top; border-top: 0px;" width="16.666666666666668%">
+    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
-    <h3 style="margin: 0; color: #707070; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_CORPORATE_PROSPECT}}</span></h3>
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_CORPORATE_PROSPECT}}</span></h3>
     </td>
     </tr>
     </table>
     </td>
-    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-bottom: 1px solid #FFFFFF; border-left: 0px solid #FFFFFF; border-right: 1px solid #CFE2FF; padding-left: 15px; padding-right: 15px; vertical-align: top; border-top: 0px;" width="16.666666666666668%">
+    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1223,20 +1228,11 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-bottom: 1px solid #FFFFFF; border-left: 0px solid #FFFFFF; border-right: 1px solid #FFFFFF; padding-left: 15px; padding-right: 15px; vertical-align: top; border-top: 0px;" width="16.666666666666668%">
+    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
-    <h3 style="margin: 0; color: #707070; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_MAJOR_DONOR_PROSPECT}}</span></h3>
-    </td>
-    </tr>
-    </table>
-    </td>
-    <td class="column column-5" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-bottom: 1px solid #FFFFFF; border-left: 0px solid #FFFFFF; border-right: 20px solid #FFFFFF; padding-left: 10px; padding-right: 10px; vertical-align: top; border-top: 0px;" width="16.666666666666668%">
-    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
-    <tr>
-    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
-    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{total_major_donor_prospect_amount_in_inr_crores}}</span></h3>
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{total_corporate_prospect_count}}</span></h3>
     </td>
     </tr>
     </table>
@@ -1248,32 +1244,32 @@ def send_email():
     </tr>
     </tbody>
     </table>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-7 mobile_hide" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-size: auto;" width="100%">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-7" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tbody>
     <tr>
     <td>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #cfe2ff; background-size: auto; border-bottom: 0 solid #FFFFFF; border-left: 0 solid #FFFFFF; border-radius: 0; border-right: 0px solid #FFFFFF; border-top: 0 solid #FFFFFF; color: #000000; width: 1200px;" width="1200">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
-    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 1px solid #FFFFFF; border-left: 20px solid #FFFFFF; border-right: 1px solid #FFFFFF; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px;" width="33.333333333333336%">
+    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #d3ddef; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="25%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
-    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: left; margin-top: 0; margin-bottom: 0;"><strong><span class="tinyMce-placeholder">Cultivation</span></strong></h3>
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Cultivation</span></h3>
     </td>
     </tr>
     </table>
     </td>
-    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-bottom: 1px solid #FFFFFF; border-left: 0px solid #FFFFFF; border-right: 1px solid #FFFFFF; padding-left: 15px; padding-right: 15px; vertical-align: top; border-top: 0px;" width="16.666666666666668%">
+    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
-    <h3 style="margin: 0; color: #707070; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_CORPORATE_CULTIVATION}}</span></h3>
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_CORPORATE_CULTIVATION}}</span></h3>
     </td>
     </tr>
     </table>
     </td>
-    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-bottom: 1px solid #FFFFFF; border-left: 0px solid #FFFFFF; border-right: 1px solid #CFE2FF; padding-left: 15px; padding-right: 15px; vertical-align: top; border-top: 0px;" width="16.666666666666668%">
+    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1282,20 +1278,11 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-bottom: 1px solid #FFFFFF; border-left: 0px solid #FFFFFF; border-right: 1px solid #FFFFFF; padding-left: 15px; padding-right: 15px; vertical-align: top; border-top: 0px;" width="16.666666666666668%">
+    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
-    <h3 style="margin: 0; color: #707070; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_MAJOR_DONOR_CULTIVATION}}</span></h3>
-    </td>
-    </tr>
-    </table>
-    </td>
-    <td class="column column-5" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-bottom: 1px solid #FFFFFF; border-left: 0px solid #FFFFFF; border-right: 20px solid #FFFFFF; padding-left: 10px; padding-right: 10px; vertical-align: top; border-top: 0px;" width="16.666666666666668%">
-    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
-    <tr>
-    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
-    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{total_major_donor_cultivation_amount_in_inr_crores}}</span></h3>
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{total_corporate_cultivation_count}}</span></h3>
     </td>
     </tr>
     </table>
@@ -1307,32 +1294,32 @@ def send_email():
     </tr>
     </tbody>
     </table>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-8 mobile_hide" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-size: auto;" width="100%">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-8" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tbody>
     <tr>
     <td>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #cfe2ff; background-size: auto; border-bottom: 0 solid #FFFFFF; border-left: 0 solid #FFFFFF; border-radius: 0; border-right: 0px solid #FFFFFF; border-top: 0 solid #FFFFFF; color: #000000; width: 1200px;" width="1200">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
-    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 1px solid #FFFFFF; border-left: 20px solid #FFFFFF; border-right: 1px solid #FFFFFF; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px;" width="33.333333333333336%">
+    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #d3ddef; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="25%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
-    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: left; margin-top: 0; margin-bottom: 0;"><strong><span class="tinyMce-placeholder">Solicitation</span></strong></h3>
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Solicitation</span></h3>
     </td>
     </tr>
     </table>
     </td>
-    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-bottom: 1px solid #FFFFFF; border-left: 0px solid #FFFFFF; border-right: 1px solid #FFFFFF; padding-left: 15px; padding-right: 15px; vertical-align: top; border-top: 0px;" width="16.666666666666668%">
+    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
-    <h3 style="margin: 0; color: #707070; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_CORPORATE_SOLICITATION}}</span></h3>
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_CORPORATE_SOLICITATION}}</span></h3>
     </td>
     </tr>
     </table>
     </td>
-    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-bottom: 1px solid #FFFFFF; border-left: 0px solid #FFFFFF; border-right: 1px solid #CFE2FF; padding-left: 15px; padding-right: 15px; vertical-align: top; border-top: 0px;" width="16.666666666666668%">
+    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1341,20 +1328,11 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-bottom: 1px solid #FFFFFF; border-left: 0px solid #FFFFFF; border-right: 1px solid #FFFFFF; padding-left: 15px; padding-right: 15px; vertical-align: top; border-top: 0px;" width="16.666666666666668%">
+    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
-    <h3 style="margin: 0; color: #707070; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_MAJOR_DONOR_SOLICITATION}}</span></h3>
-    </td>
-    </tr>
-    </table>
-    </td>
-    <td class="column column-5" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-bottom: 1px solid #FFFFFF; border-left: 0px solid #FFFFFF; border-right: 20px solid #FFFFFF; padding-left: 10px; padding-right: 10px; vertical-align: top; border-top: 0px;" width="16.666666666666668%">
-    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
-    <tr>
-    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
-    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{total_major_donor_solicitation_amount_in_inr_crores}}</span></h3>
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{total_corporate_solicitation_count}}</span></h3>
     </td>
     </tr>
     </table>
@@ -1366,32 +1344,32 @@ def send_email():
     </tr>
     </tbody>
     </table>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-9 mobile_hide" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-size: auto;" width="100%">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-9" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tbody>
     <tr>
     <td>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #cfe2ff; background-size: auto; border-bottom: 0 solid #FFFFFF; border-left: 0 solid #FFFFFF; border-radius: 0; border-right: 0px solid #FFFFFF; border-top: 0 solid #FFFFFF; color: #000000; width: 1200px;" width="1200">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
-    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 1px solid #FFFFFF; border-left: 20px solid #FFFFFF; border-right: 1px solid #FFFFFF; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px;" width="33.333333333333336%">
+    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #d3ddef; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="25%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
-    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: left; margin-top: 0; margin-bottom: 0;"><strong><span class="tinyMce-placeholder">Committed</span></strong></h3>
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Committed</span></h3>
     </td>
     </tr>
     </table>
     </td>
-    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-bottom: 1px solid #FFFFFF; border-left: 0px solid #FFFFFF; border-right: 1px solid #FFFFFF; padding-left: 15px; padding-right: 15px; vertical-align: top; border-top: 0px;" width="16.666666666666668%">
+    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
-    <h3 style="margin: 0; color: #707070; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_CORPORATE_COMMITTED}}</span></h3>
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_CORPORATE_COMMITTED}}</span></h3>
     </td>
     </tr>
     </table>
     </td>
-    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-bottom: 1px solid #FFFFFF; border-left: 0px solid #FFFFFF; border-right: 1px solid #CFE2FF; padding-left: 15px; padding-right: 15px; vertical-align: top; border-top: 0px;" width="16.666666666666668%">
+    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1400,20 +1378,11 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-bottom: 1px solid #FFFFFF; border-left: 0px solid #FFFFFF; border-right: 1px solid #FFFFFF; padding-left: 15px; padding-right: 15px; vertical-align: top; border-top: 0px;" width="16.666666666666668%">
+    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
-    <h3 style="margin: 0; color: #707070; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_MAJOR_DONOR_COMMITTED}}</span></h3>
-    </td>
-    </tr>
-    </table>
-    </td>
-    <td class="column column-5" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-bottom: 1px solid #FFFFFF; border-left: 0px solid #FFFFFF; border-right: 20px solid #FFFFFF; padding-left: 10px; padding-right: 10px; vertical-align: top; border-top: 0px;" width="16.666666666666668%">
-    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
-    <tr>
-    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
-    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{total_major_donor_committed_amount_in_inr_crores}}</span></h3>
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{total_corporate_committed_count}}</span></h3>
     </td>
     </tr>
     </table>
@@ -1425,239 +1394,11 @@ def send_email():
     </tr>
     </tbody>
     </table>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-10 desktop_hide" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-10" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tbody>
     <tr>
     <td>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden; background-color: #163d85; border-radius: 0; color: #000000; width: 1200px;" width="1200">
-    <tbody>
-    <tr>
-    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-left: 0px solid #FFFFFF; border-right: 0px solid #FFFFFF; padding-left: 20px; padding-right: 20px; vertical-align: top; padding-top: 20px; padding-bottom: 20px; border-top: 0px; border-bottom: 0px;" width="100%">
-    <table border="0" cellpadding="10" cellspacing="0" class="heading_block block-1" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
-    <tr>
-    <td class="pad">
-    <h2 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 30px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Corporate</span></h2>
-    </td>
-    </tr>
-    </table>
-    </td>
-    </tr>
-    </tbody>
-    </table>
-    </td>
-    </tr>
-    </tbody>
-    </table>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-11 desktop_hide" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
-    <tbody>
-    <tr>
-    <td>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden; background-color: #5f80b8; border-radius: 0; color: #000000; width: 1200px;" width="1200">
-    <tbody>
-    <tr>
-    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-left: 0px solid #FFFFFF; border-right: 0px solid #FFFFFF; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-bottom: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
-    <tr>
-    <td class="pad" style="padding-bottom:30px;padding-left:10px;padding-right:10px;padding-top:30px;text-align:center;width:100%;">
-    <h3 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: left; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Status</span></h3>
-    </td>
-    </tr>
-    </table>
-    </td>
-    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-right: 1px solid #FFFFFF; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-bottom: 0px; border-left: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
-    <tr>
-    <td class="pad" style="padding-bottom:30px;padding-left:10px;padding-right:10px;padding-top:30px;text-align:center;width:100%;">
-    <h3 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Board Meeting</span></h3>
-    </td>
-    </tr>
-    </table>
-    </td>
-    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-right: 0px solid #FFFFFF; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-bottom: 0px; border-left: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
-    <tr>
-    <td class="pad" style="padding-bottom:30px;padding-left:10px;padding-right:10px;padding-top:30px;text-align:center;width:100%;">
-    <h3 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Current values</span></h3>
-    </td>
-    </tr>
-    </table>
-    </td>
-    </tr>
-    </tbody>
-    </table>
-    </td>
-    </tr>
-    </tbody>
-    </table>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-12 desktop_hide" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
-    <tbody>
-    <tr>
-    <td>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden; background-color: #cfe2ff; border-bottom: 0 solid #FFFFFF; border-left: 0 solid #FFFFFF; border-radius: 0; border-right: 0px solid #FFFFFF; border-top: 0 solid #FFFFFF; color: #000000; width: 1200px;" width="1200">
-    <tbody>
-    <tr>
-    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-left: 0px solid #FFFFFF; border-right: 0px solid #FFFFFF; vertical-align: top; border-top: 0px; border-bottom: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="10" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
-    <tr>
-    <td class="pad">
-    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: left; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Prospect</span></h3>
-    </td>
-    </tr>
-    </table>
-    </td>
-    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-right: 1px solid #FFFFFF; vertical-align: top; border-top: 0px; border-bottom: 0px; border-left: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="10" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
-    <tr>
-    <td class="pad">
-    <h3 style="margin: 0; color: #707070; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_CORPORATE_PROSPECT}}</span></h3>
-    </td>
-    </tr>
-    </table>
-    </td>
-    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-right: 0px solid #FFFFFF; vertical-align: top; border-top: 0px; border-bottom: 0px; border-left: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="10" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
-    <tr>
-    <td class="pad">
-    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{total_corporate_prospect_amount_in_inr_crores}}</span></h3>
-    </td>
-    </tr>
-    </table>
-    </td>
-    </tr>
-    </tbody>
-    </table>
-    </td>
-    </tr>
-    </tbody>
-    </table>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-13 desktop_hide" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
-    <tbody>
-    <tr>
-    <td>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden; background-color: #cfe2ff; border-bottom: 0 solid #FFFFFF; border-left: 0 solid #FFFFFF; border-radius: 0; border-right: 0px solid #FFFFFF; border-top: 0 solid #FFFFFF; color: #000000; width: 1200px;" width="1200">
-    <tbody>
-    <tr>
-    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-left: 0px solid #FFFFFF; border-right: 0px solid #FFFFFF; vertical-align: top; border-top: 0px; border-bottom: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="10" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
-    <tr>
-    <td class="pad">
-    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: left; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Cultivation</span></h3>
-    </td>
-    </tr>
-    </table>
-    </td>
-    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-right: 1px solid #FFFFFF; vertical-align: top; border-top: 0px; border-bottom: 0px; border-left: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="10" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
-    <tr>
-    <td class="pad">
-    <h3 style="margin: 0; color: #707070; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_CORPORATE_CULTIVATION}}</span></h3>
-    </td>
-    </tr>
-    </table>
-    </td>
-    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-right: 0px solid #FFFFFF; vertical-align: top; border-top: 0px; border-bottom: 0px; border-left: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="10" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
-    <tr>
-    <td class="pad">
-    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{total_corporate_cultivation_amount_in_inr_crores}}</span></h3>
-    </td>
-    </tr>
-    </table>
-    </td>
-    </tr>
-    </tbody>
-    </table>
-    </td>
-    </tr>
-    </tbody>
-    </table>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-14 desktop_hide" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
-    <tbody>
-    <tr>
-    <td>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden; background-color: #cfe2ff; border-bottom: 0 solid #FFFFFF; border-left: 0 solid #FFFFFF; border-radius: 0; border-right: 0px solid #FFFFFF; border-top: 0 solid #FFFFFF; color: #000000; width: 1200px;" width="1200">
-    <tbody>
-    <tr>
-    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-left: 0px solid #FFFFFF; border-right: 0px solid #FFFFFF; vertical-align: top; border-top: 0px; border-bottom: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="10" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
-    <tr>
-    <td class="pad">
-    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: left; margin-top: 0; margin-bottom: 0;">Solicitation</h3>
-    </td>
-    </tr>
-    </table>
-    </td>
-    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-right: 1px solid #FFFFFF; vertical-align: top; border-top: 0px; border-bottom: 0px; border-left: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="10" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
-    <tr>
-    <td class="pad">
-    <h3 style="margin: 0; color: #707070; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_CORPORATE_SOLICITATION}}</span></h3>
-    </td>
-    </tr>
-    </table>
-    </td>
-    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-right: 0px solid #FFFFFF; vertical-align: top; border-top: 0px; border-bottom: 0px; border-left: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="10" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
-    <tr>
-    <td class="pad">
-    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{total_corporate_solicitation_amount_in_inr_crores}}</span></h3>
-    </td>
-    </tr>
-    </table>
-    </td>
-    </tr>
-    </tbody>
-    </table>
-    </td>
-    </tr>
-    </tbody>
-    </table>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-15 desktop_hide" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
-    <tbody>
-    <tr>
-    <td>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden; background-color: #cfe2ff; border-bottom: 0 solid #FFFFFF; border-left: 0 solid #FFFFFF; border-radius: 0; border-right: 0px solid #FFFFFF; border-top: 0 solid #FFFFFF; color: #000000; width: 1200px;" width="1200">
-    <tbody>
-    <tr>
-    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-left: 0px solid #FFFFFF; border-right: 0px solid #FFFFFF; vertical-align: top; border-top: 0px; border-bottom: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="10" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
-    <tr>
-    <td class="pad">
-    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: left; margin-top: 0; margin-bottom: 0;"><strong>Committed</strong></h3>
-    </td>
-    </tr>
-    </table>
-    </td>
-    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-right: 1px solid #FFFFFF; vertical-align: top; border-top: 0px; border-bottom: 0px; border-left: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="10" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
-    <tr>
-    <td class="pad">
-    <h3 style="margin: 0; color: #707070; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_CORPORATE_COMMITTED}}</span></h3>
-    </td>
-    </tr>
-    </table>
-    </td>
-    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-right: 0px solid #FFFFFF; vertical-align: top; border-top: 0px; border-bottom: 0px; border-left: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="10" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
-    <tr>
-    <td class="pad">
-    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{total_corporate_committed_amount_in_inr_crores}}</span></h3>
-    </td>
-    </tr>
-    </table>
-    </td>
-    </tr>
-    </tbody>
-    </table>
-    </td>
-    </tr>
-    </tbody>
-    </table>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-16 desktop_hide" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
-    <tbody>
-    <tr>
-    <td>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content stack" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden; background-color: #ffffff; border-radius: 0; color: #000000; width: 1200px;" width="1200">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content stack" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
     <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; vertical-align: top; padding-top: 5px; padding-bottom: 5px; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="100%">
@@ -1670,18 +1411,18 @@ def send_email():
     </tr>
     </tbody>
     </table>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-17 desktop_hide" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-11" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tbody>
     <tr>
     <td>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden; background-color: #163d85; border-radius: 0; color: #000000; width: 1200px;" width="1200">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content stack" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-bottom: 0 solid #FFFFFF; border-left: 0 solid #FFFFFF; border-right: 0px solid #FFFFFF; border-top: 0 solid #FFFFFF; background-color: #193e8d; border-radius: 0; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
-    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-left: 0px solid #FFFFFF; border-right: 0px solid #FFFFFF; padding-left: 20px; padding-right: 20px; vertical-align: top; padding-top: 20px; padding-bottom: 20px; border-top: 0px; border-bottom: 0px;" width="100%">
-    <table border="0" cellpadding="10" cellspacing="0" class="heading_block block-1" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
+    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-left: 20px; padding-right: 20px; vertical-align: top; padding-top: 20px; padding-bottom: 20px; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="100%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-1" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
-    <td class="pad">
-    <h2 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 30px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Major Donor</span></h2>
+    <td class="pad" style="text-align:center;width:100%;">
+    <h1 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 38px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Major Donor</span></h1>
     </td>
     </tr>
     </table>
@@ -1693,36 +1434,45 @@ def send_email():
     </tr>
     </tbody>
     </table>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-18 desktop_hide" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-12" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tbody>
     <tr>
     <td>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden; background-color: #5f80b8; border-radius: 0; color: #000000; width: 1200px;" width="1200">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #284988; border-radius: 0; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
-    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-left: 0px solid #FFFFFF; border-right: 0px solid #FFFFFF; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-bottom: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
+    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
-    <td class="pad" style="padding-bottom:30px;padding-left:10px;padding-right:10px;padding-top:30px;text-align:center;width:100%;">
-    <h3 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: left; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Status</span></h3>
+    <td class="pad" style="padding-top:35px;text-align:center;width:100%;padding-bottom:20px;">
+    <h3 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Status</span></h3>
     </td>
     </tr>
     </table>
     </td>
-    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-right: 1px solid #FFFFFF; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-bottom: 0px; border-left: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
+    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
-    <td class="pad" style="padding-bottom:30px;padding-left:10px;padding-right:10px;padding-top:30px;text-align:center;width:100%;">
-    <h3 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Board Meeting</span></h3>
+    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+    <h3 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Amount as on {{LAST_BOARD_MEETING_DATE}}</span></h3>
     </td>
     </tr>
     </table>
     </td>
-    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-right: 0px solid #FFFFFF; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-bottom: 0px; border-left: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
+    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
-    <td class="pad" style="padding-bottom:30px;padding-left:10px;padding-right:10px;padding-top:30px;text-align:center;width:100%;">
-    <h3 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Current values</span></h3>
+    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+    <h3 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Amount as on {{today_date}}</span></h3>
+    </td>
+    </tr>
+    </table>
+    </td>
+    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+    <tr>
+    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+    <h3 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Count as on {{today_date}}</span></h3>
     </td>
     </tr>
     </table>
@@ -1734,40 +1484,49 @@ def send_email():
     </tr>
     </tbody>
     </table>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-19 desktop_hide" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-13" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tbody>
     <tr>
     <td>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden; background-color: #cfe2ff; border-bottom: 0 solid #FFFFFF; border-left: 0 solid #FFFFFF; border-radius: 0; border-right: 0px solid #FFFFFF; border-top: 0 solid #FFFFFF; color: #000000; width: 1200px;" width="1200">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
-    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-left: 0px solid #FFFFFF; border-right: 0px solid #FFFFFF; vertical-align: top; border-top: 0px; border-bottom: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="10" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
+    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #d3ddef; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="25%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
-    <td class="pad">
-    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: left; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Prospect</span></h3>
+    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Prospect</span></h3>
     </td>
     </tr>
     </table>
     </td>
-    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-right: 1px solid #FFFFFF; vertical-align: top; border-top: 0px; border-bottom: 0px; border-left: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="10" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
+    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
-    <td class="pad">
-    <h3 style="margin: 0; color: #707070; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_MAJOR_DONOR_PROSPECT}}</span></h3>
+    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_MAJOR_DONOR_PROSPECT}}</span></h3>
     </td>
     </tr>
     </table>
     </td>
-    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-right: 0px solid #FFFFFF; vertical-align: top; border-top: 0px; border-bottom: 0px; border-left: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="10" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
+    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
-    <td class="pad">
+    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
     <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{total_major_donor_prospect_amount_in_inr_crores}}</span></h3>
     </td>
     </tr>
     </table>
     </td>
+    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+    <tr>
+    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{total_major_donor_prospect_count}}</span></h3>
+    </td>
+    </tr>
+    </table>
+    </td>
     </tr>
     </tbody>
     </table>
@@ -1775,40 +1534,49 @@ def send_email():
     </tr>
     </tbody>
     </table>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-20 desktop_hide" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-14" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tbody>
     <tr>
     <td>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden; background-color: #cfe2ff; border-bottom: 0 solid #FFFFFF; border-left: 0 solid #FFFFFF; border-radius: 0; border-right: 0px solid #FFFFFF; border-top: 0 solid #FFFFFF; color: #000000; width: 1200px;" width="1200">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
-    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-left: 0px solid #FFFFFF; border-right: 0px solid #FFFFFF; vertical-align: top; border-top: 0px; border-bottom: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="10" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
+    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #d3ddef; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="25%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
-    <td class="pad">
-    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: left; margin-top: 0; margin-bottom: 0;">Cultivation</h3>
+    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Cultivation</span></h3>
     </td>
     </tr>
     </table>
     </td>
-    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-right: 1px solid #FFFFFF; vertical-align: top; border-top: 0px; border-bottom: 0px; border-left: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="10" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
+    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
-    <td class="pad">
-    <h3 style="margin: 0; color: #707070; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_MAJOR_DONOR_CULTIVATION}}</span></h3>
+    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_MAJOR_DONOR_CULTIVATION}}</span></h3>
     </td>
     </tr>
     </table>
     </td>
-    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-right: 0px solid #FFFFFF; vertical-align: top; border-top: 0px; border-bottom: 0px; border-left: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="10" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
+    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
-    <td class="pad">
+    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
     <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{total_major_donor_cultivation_amount_in_inr_crores}}</span></h3>
     </td>
     </tr>
     </table>
     </td>
+    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+    <tr>
+    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{total_major_donor_cultivation_count}}</span></h3>
+    </td>
+    </tr>
+    </table>
+    </td>
     </tr>
     </tbody>
     </table>
@@ -1816,40 +1584,49 @@ def send_email():
     </tr>
     </tbody>
     </table>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-21 desktop_hide" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-15" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tbody>
     <tr>
     <td>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden; background-color: #cfe2ff; border-bottom: 0 solid #FFFFFF; border-left: 0 solid #FFFFFF; border-radius: 0; border-right: 0px solid #FFFFFF; border-top: 0 solid #FFFFFF; color: #000000; width: 1200px;" width="1200">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
-    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-left: 0px solid #FFFFFF; border-right: 0px solid #FFFFFF; vertical-align: top; border-top: 0px; border-bottom: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="10" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
+    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #d3ddef; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="25%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
-    <td class="pad">
-    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: left; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Solicitation</span></h3>
+    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Solicitation</span></h3>
     </td>
     </tr>
     </table>
     </td>
-    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-right: 1px solid #FFFFFF; vertical-align: top; border-top: 0px; border-bottom: 0px; border-left: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="10" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
+    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
-    <td class="pad">
-    <h3 style="margin: 0; color: #707070; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_MAJOR_DONOR_SOLICITATION}}</span></h3>
+    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_MAJOR_DONOR_SOLICITATION}}</span></h3>
     </td>
     </tr>
     </table>
     </td>
-    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-right: 0px solid #FFFFFF; vertical-align: top; border-top: 0px; border-bottom: 0px; border-left: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="10" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
+    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
-    <td class="pad">
+    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
     <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{total_major_donor_solicitation_amount_in_inr_crores}}</span></h3>
     </td>
     </tr>
     </table>
     </td>
+    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+    <tr>
+    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{total_major_donor_solicitation_count}}</span></h3>
+    </td>
+    </tr>
+    </table>
+    </td>
     </tr>
     </tbody>
     </table>
@@ -1857,40 +1634,49 @@ def send_email():
     </tr>
     </tbody>
     </table>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-22 desktop_hide" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-16" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tbody>
     <tr>
     <td>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden; background-color: #cfe2ff; border-bottom: 0 solid #FFFFFF; border-left: 0 solid #FFFFFF; border-radius: 0; border-right: 0px solid #FFFFFF; border-top: 0 solid #FFFFFF; color: #000000; width: 1200px;" width="1200">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
-    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-left: 0px solid #FFFFFF; border-right: 0px solid #FFFFFF; vertical-align: top; border-top: 0px; border-bottom: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="10" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
+    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #d3ddef; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="25%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
-    <td class="pad">
-    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: left; margin-top: 0; margin-bottom: 0;"><strong>Committed</strong></h3>
+    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Committed</span></h3>
     </td>
     </tr>
     </table>
     </td>
-    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-right: 1px solid #FFFFFF; vertical-align: top; border-top: 0px; border-bottom: 0px; border-left: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="10" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
+    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
-    <td class="pad">
-    <h3 style="margin: 0; color: #707070; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_MAJOR_DONOR_COMMITTED}}</span></h3>
+    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_MAJOR_DONOR_COMMITTED}}</span></h3>
     </td>
     </tr>
     </table>
     </td>
-    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; border-right: 0px solid #FFFFFF; vertical-align: top; border-top: 0px; border-bottom: 0px; border-left: 0px;" width="33.333333333333336%">
-    <table border="0" cellpadding="10" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all; display: none; max-height: 0; overflow: hidden;" width="100%">
+    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
-    <td class="pad">
+    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
     <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{total_major_donor_committed_amount_in_inr_crores}}</span></h3>
     </td>
     </tr>
     </table>
     </td>
+    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+    <tr>
+    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{total_major_donor_committed_count}}</span></h3>
+    </td>
+    </tr>
+    </table>
+    </td>
     </tr>
     </tbody>
     </table>
@@ -1898,20 +1684,19 @@ def send_email():
     </tr>
     </tbody>
     </table>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-23" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-17" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tbody>
     <tr>
     <td>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content stack" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 1200px;" width="1200">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content stack" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
     <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-left: 20px; padding-right: 20px; vertical-align: top; padding-top: 20px; padding-bottom: 20px; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="100%">
     <table border="0" cellpadding="0" cellspacing="0" class="list_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;" width="100%">
     <tr>
     <td class="pad" style="padding-top:20px;">
-    <ul style="margin: 0; padding: 0; margin-left: 20px; list-style-type: revert; color: #363a3e; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 16px; font-weight: 400; letter-spacing: 0px; line-height: 150%; text-align: left;">
-    <li style="margin-bottom: 5px;">The values for the "<u>Board Meeting</u>" are the ones shown to the Board of Directors at the last board meeting held on {{LAST_BOARD_MEETING_DATE}}</li>
-    <li style="margin-bottom: 5px;">The "<u>Current values</u>" are the ones as available in Raisers Edge as of today</li>
+    <ul start="1" style="margin: 0; padding: 0; margin-left: 20px; list-style-type: revert; color: #363a3e; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 16px; font-weight: 400; letter-spacing: 0px; line-height: 150%; text-align: left;">
+    <li style="margin-bottom: 5px;">The Amount as on {{LAST_BOARD_MEETING_DATE}} are the ones shown to the Board of Directors at the last board meeting</li>
     <li style="margin-bottom: 5px;">The Committed amount for 'Corporate' is calculated against the <u>Expected amount</u>, whereas for 'Major Donor' it's calculated against the <u>Asked amount</u> as recorded in Raisers Edge</li>
     <li>A list of all the active opportunities available and recorded in Raisers Edge is also attached with this email for your perusal</li>
     </ul>
@@ -1926,11 +1711,11 @@ def send_email():
     </tr>
     </tbody>
     </table>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-24" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-18" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tbody>
     <tr>
     <td>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content stack" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 1200px;" width="1200">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content stack" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
     <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; vertical-align: top; padding-top: 5px; padding-bottom: 5px; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="100%">
@@ -1943,11 +1728,11 @@ def send_email():
     </tr>
     </tbody>
     </table>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-25" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-19" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tbody>
     <tr>
     <td>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content stack" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #305496; color: #000000; width: 1200px;" width="1200">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content stack" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #193e8d; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
     <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; vertical-align: top; padding-top: 5px; padding-bottom: 5px; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="100%">
@@ -1966,11 +1751,11 @@ def send_email():
     </tr>
     </tbody>
     </table>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-26" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-20" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tbody>
     <tr>
     <td>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content stack" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 1200px;" width="1200">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content stack" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
     <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; vertical-align: top; padding-top: 5px; padding-bottom: 5px; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="100%">
@@ -1991,39 +1776,6 @@ def send_email():
     </tr>
     </tbody>
     </table>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-27" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
-    <tbody>
-    <tr>
-    <td>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content stack" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; color: #000000; width: 1200px;" width="1200">
-    <tbody>
-    <tr>
-    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; vertical-align: top; padding-top: 5px; padding-bottom: 5px; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="100%">
-    <table border="0" cellpadding="0" cellspacing="0" class="icons_block block-1" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
-    <tr>
-    <td class="pad" style="vertical-align: middle; color: #9d9d9d; font-family: inherit; font-size: 15px; padding-bottom: 5px; padding-top: 5px; text-align: center;">
-    <table cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
-    <tr>
-    <td class="alignment" style="vertical-align: middle; text-align: center;">
-    <!--[if vml]><table align="left" cellpadding="0" cellspacing="0" role="presentation" style="display:inline-block;padding-left:0px;padding-right:0px;mso-table-lspace: 0pt;mso-table-rspace: 0pt;"><![endif]-->
-    <!--[if !vml]><!-->
-    <table cellpadding="0" cellspacing="0" class="icons-inner" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; display: inline-block; margin-right: -4px; padding-left: 0px; padding-right: 0px;">
-    <!--<![endif]-->
-    </table>
-    </td>
-    </tr>
-    </table>
-    </td>
-    </tr>
-    </table>
-    </td>
-    </tr>
-    </tbody>
-    </table>
-    </td>
-    </tr>
-    </tbody>
-    </table>
     </td>
     </tr>
     </tbody>
@@ -2032,7 +1784,6 @@ def send_email():
     </html>
     """
     
-    # Create a text/html message from a rendered template
     emailbody = MIMEText(
         Environment().from_string(TEMPLATE).render(
             BM_CORPORATE_PROSPECT = BM_CORPORATE_PROSPECT,
@@ -2047,11 +1798,20 @@ def send_email():
             BM_MAJOR_DONOR_CULTIVATION = BM_MAJOR_DONOR_CULTIVATION,
             BM_MAJOR_DONOR_SOLICITATION = BM_MAJOR_DONOR_SOLICITATION,
             BM_MAJOR_DONOR_COMMITTED = BM_MAJOR_DONOR_COMMITTED,
+            today_date = today_date,
             total_major_donor_prospect_amount_in_inr_crores = total_major_donor_prospect_amount_in_inr_crores,
             total_major_donor_cultivation_amount_in_inr_crores = total_major_donor_cultivation_amount_in_inr_crores,
             total_major_donor_solicitation_amount_in_inr_crores = total_major_donor_solicitation_amount_in_inr_crores,
             total_major_donor_committed_amount_in_inr_crores = total_major_donor_committed_amount_in_inr_crores,
-            LAST_BOARD_MEETING_DATE = LAST_BOARD_MEETING_DATE
+            LAST_BOARD_MEETING_DATE = LAST_BOARD_MEETING_DATE,
+            total_corporate_prospect_count = total_corporate_prospect_count,
+            total_corporate_cultivation_count = total_corporate_cultivation_count,
+            total_corporate_solicitation_count = total_corporate_solicitation_count,
+            total_corporate_committed_count = total_corporate_committed_count,
+            total_major_donor_prospect_count = total_major_donor_prospect_count,
+            total_major_donor_cultivation_count = total_major_donor_cultivation_count,
+            total_major_donor_solicitation_count = total_major_donor_solicitation_count,
+            total_major_donor_committed_count = total_major_donor_committed_count
         ), "html"
     )
     
