@@ -1842,7 +1842,7 @@ try:
     
     get_opportunity_list_from_re()
     
-    subject = "Opportunity Summary | Raisers Edge"
+    subject = "Opportunity Pipeline | Raisers Edge"
     send_email()
     
 except Exception as Argument:
