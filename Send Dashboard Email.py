@@ -59,10 +59,22 @@ BM_CORPORATE_PROSPECT = os.getenv("BM_CORPORATE_PROSPECT")
 BM_CORPORATE_CULTIVATION = os.getenv("BM_CORPORATE_CULTIVATION")
 BM_CORPORATE_SOLICITATION = os.getenv("BM_CORPORATE_SOLICITATION")
 BM_CORPORATE_COMMITTED = os.getenv("BM_CORPORATE_COMMITTED")
+BM_CORPORATE_REJECTED = os.getenv("BM_CORPORATE_REJECTED")
 BM_MAJOR_DONOR_PROSPECT = os.getenv("BM_MAJOR_DONOR_PROSPECT")
 BM_MAJOR_DONOR_CULTIVATION = os.getenv("BM_MAJOR_DONOR_CULTIVATION")
 BM_MAJOR_DONOR_SOLICITATION = os.getenv("BM_MAJOR_DONOR_SOLICITATION")
 BM_MAJOR_DONOR_COMMITTED = os.getenv("BM_MAJOR_DONOR_COMMITTED")
+BM_MAJOR_DONOR_REJECTED = os.getenv("BM_MAJOR_DONOR_REJECTED")
+BM_CORPORATE_PROSPECT_COUNT = os.getenv("BM_CORPORATE_PROSPECT_COUNT")
+BM_CORPORATE_CULTIVATION_COUNT = os.getenv("BM_CORPORATE_CULTIVATION_COUNT")
+BM_CORPORATE_SOLICITATION_COUNT = os.getenv("BM_CORPORATE_SOLICITATION_COUNT")
+BM_CORPORATE_COMMITTED_COUNT = os.getenv("BM_CORPORATE_COMMITTED_COUNT")
+BM_CORPORATE_REJECTED_COUNT = os.getenv("BM_CORPORATE_REJECTED_COUNT")
+BM_MAJOR_DONOR_PROSPECT_COUNT = os.getenv("BM_MAJOR_DONOR_PROSPECT_COUNT")
+BM_MAJOR_DONOR_CULTIVATION_COUNT = os.getenv("BM_MAJOR_DONOR_CULTIVATION_COUNT")
+BM_MAJOR_DONOR_SOLICITATION_COUNT = os.getenv("BM_MAJOR_DONOR_SOLICITATION_COUNT")
+BM_MAJOR_DONOR_COMMITTED_COUNT = os.getenv("BM_MAJOR_DONOR_COMMITTED_COUNT")
+BM_MAJOR_DONOR_REJECTED_COUNT = os.getenv("BM_MAJOR_DONOR_REJECTED_COUNT")
 
 def connect_db():
     global conn, cur
@@ -259,7 +271,7 @@ def print_json(d):
     print(json.dumps(d, indent=4))
 
 def get_opportunity_list_from_re():
-    global url, params, today_date, total_corporate_prospect_amount_in_inr_crores, total_corporate_cultivation_amount_in_inr_crores, total_corporate_solicitation_amount_in_inr_crores, total_corporate_committed_amount_in_inr_crores, total_corporate_prospect_count, total_corporate_cultivation_count, total_corporate_solicitation_count, total_corporate_committed_count, total_major_donor_prospect_amount_in_inr_crores, total_major_donor_cultivation_amount_in_inr_crores, total_major_donor_solicitation_amount_in_inr_crores, total_major_donor_committed_amount_in_inr_crores, total_major_donor_prospect_count, total_major_donor_cultivation_count, total_major_donor_solicitation_count, total_major_donor_committed_count
+    global url, params, today_date, total_corporate_prospect_amount_in_inr_crores, total_corporate_cultivation_amount_in_inr_crores, total_corporate_solicitation_amount_in_inr_crores, total_corporate_committed_amount_in_inr_crores, total_corporate_rejected_amount_in_inr_crores, total_corporate_prospect_count, total_corporate_cultivation_count, total_corporate_solicitation_count, total_corporate_committed_count, total_corporate_rejected_count, total_major_donor_prospect_amount_in_inr_crores, total_major_donor_cultivation_amount_in_inr_crores, total_major_donor_solicitation_amount_in_inr_crores, total_major_donor_committed_amount_in_inr_crores, total_major_donor_rejected_amount_in_inr_crores, total_major_donor_prospect_count, total_major_donor_cultivation_count, total_major_donor_solicitation_count, total_major_donor_committed_count, total_major_donor_rejected_count
 
     retrieve_token()
     
@@ -403,19 +415,23 @@ def get_opportunity_list_from_re():
     corporate_solicitation_amount = []
     corporate_cultivation_amount = []
     corporate_committed_amount = []
+    corporate_rejected_amount = []
     major_donor_prospect_amount = []
     major_donor_solicitation_amount = []
     major_donor_cultivation_amount = []
     major_donor_committed_amount = []
+    major_donor_rejected_amount = []
     
     corporate_prospect_count = []
     corporate_solicitation_count = []
     corporate_cultivation_count = []
     corporate_committed_count = []
+    corporate_rejected_count = []
     major_donor_prospect_count = []
     major_donor_solicitation_count = []
     major_donor_cultivation_count = []
     major_donor_committed_count = []
+    major_donor_rejected_count = []
     
     for each_file in multiple_files:
     
@@ -433,67 +449,89 @@ def get_opportunity_list_from_re():
                         
                         # Getting Prospect amount
                         print("Getting Prospect amount")
-                        try:
-                            if results['status'] == "Prospect":
-                                try:
-                                    prospect_amount = results['ask_amount']['value']
-                                    prospect_count = "1"
-                                except:
-                                    prospect_amount = "0"
-                                    prospect_count = "0"
-                                    
+                        
+                        # try:
+                        if results['status'] == "Prospect":
+                            
+                            try:
+                                prospect_amount = results['ask_amount']['value']
+                                
+                            except:
+                                prospect_amount = "0"
+                        
+                            finally:
+                                prospect_count = "1"
+                                
                                 corporate_prospect_amount.append(int(prospect_amount))
                                 corporate_prospect_count.append(int(prospect_count))
-                        except:
-                            pass
                         
                         # Getting Cultivation amount
                         print("Getting Cultivation amount")
-                        try:
-                            if results['status'] == "Cultivation":
-                                try:
-                                    cultivation_amount = results['ask_amount']['value']
-                                    cultivation_count = "1"
-                                except:
-                                    cultivation_amount = "0"
-                                    cultivation_count = "0"
-                                    
+                        
+                        if results['status'] == "Cultivation":
+                            
+                            try:
+                                cultivation_amount = results['ask_amount']['value']
+                                
+                            except:
+                                cultivation_amount = "0"
+                                
+                            finally:
+                                cultivation_count = "1"
+                                
                                 corporate_cultivation_amount.append(int(cultivation_amount))
                                 corporate_cultivation_count.append(int(cultivation_count))
-                        except:
-                            pass
                         
                         # Getting Solicitation amount
                         print("Getting Solicitation amount")
-                        try:
-                            if results['status'] == "Solicitation":
-                                try:
-                                    solicitation_amount = results['ask_amount']['value']
-                                    solicitation_count ="1"
-                                except:
-                                    solicitation_amount = "0"
-                                    solicitation_count ="0"
-                                    
+                        
+                        if results['status'] == "Solicitation":
+                            
+                            try:
+                                solicitation_amount = results['ask_amount']['value']
+                                
+                            except:
+                                solicitation_amount = "0"
+                            
+                            finally:
+                                solicitation_count ="1"
+                                                                
                                 corporate_solicitation_amount.append(int(solicitation_amount))
                                 corporate_solicitation_count.append(int(solicitation_count))
-                        except:
-                            pass
                         
                         # Getting Committed amount
                         print("Getting Committed amount")
-                        try:
-                            if results['status'] == "Committed":
-                                try:
-                                    committed_amount = results['expected_amount']['value']
-                                    committed_count = "1"
-                                except:
-                                    committed_amount = "0"
-                                    committed_count = "0"
+
+                        if results['status'] == "Committed":
+                            
+                            try:
+                                committed_amount = results['expected_amount']['value']
                                     
+                            except:
+                                committed_amount = "0"
+                            
+                            finally:
+                                committed_count = "1"
+                                
                                 corporate_committed_amount.append(int(committed_amount))
                                 corporate_committed_count.append(int(committed_count))
-                        except:
-                            pass
+                        
+                        # Getting Rejected amount
+                        print("Getting Rejected amount")
+                        
+                        if results['status'] == "Rejected":
+                            
+                            try:
+                                rejected_amount = results['ask_amount']['value']
+                                
+                            except:
+                                rejected_amount = "0"
+                            
+                            finally:
+                                rejected_count = "1"
+                                
+                                corporate_rejected_amount.append(int(rejected_amount))
+                                corporate_rejected_count.append(int(rejected_count))
                         
                         print("Getting Constituent ID")
                         constituent_id = results['constituent_id']
@@ -573,67 +611,90 @@ def get_opportunity_list_from_re():
                         
                         # Getting Prospect amount
                         print("Getting Prospect amount")
-                        try:
-                            if results['status'] == "Prospect":
-                                try:
-                                    prospect_amount = results['ask_amount']['value']
-                                    prospect_count = "1"
-                                except:
-                                    prospect_amount = "0"
-                                    prospect_count = "0"
-                                    
+                        
+                        if results['status'] == "Prospect":
+                            
+                            try:
+                                prospect_amount = results['ask_amount']['value']
+                                prospect_count = "1"
+                                
+                            except:
+                                prospect_amount = "0"
+                                prospect_count = "0"
+                                
+                            finally:                                    
                                 major_donor_prospect_amount.append(int(prospect_amount))
                                 major_donor_prospect_count.append(int(prospect_count))
-                        except:
-                            pass
-                        
+
                         # Getting Cultivation amount
                         print("Getting Cultivation amount")
-                        try:
-                            if results['status'] == "Cultivation":
-                                try:
-                                    cultivation_amount = results['ask_amount']['value']
-                                    cultivation_count = "1"
-                                except:
-                                    cultivation_amount = "0"
-                                    cultivation_count = "0"
+                        
+                        if results['status'] == "Cultivation":
+                            
+                            try:
+                                cultivation_amount = results['ask_amount']['value']
+                                
+                            except:
+                                cultivation_amount = "0"
+                            
+                            finally:
+                                cultivation_count = "1"
                                     
                                 major_donor_cultivation_amount.append(int(cultivation_amount))
                                 major_donor_cultivation_count.append(int(cultivation_count))
-                        except:
-                            pass
+
                         
                         # Getting Solicitation amount
                         print("Getting Solicitation amount")
-                        try:
-                            if results['status'] == "Solicitation":
-                                try:
-                                    solicitation_amount = results['ask_amount']['value']
-                                    solicitation_count = "1"
-                                except:
-                                    solicitation_amount = "0"
-                                    solicitation_count = "0"
-                                    
+
+                        if results['status'] == "Solicitation":
+                            
+                            try:
+                                solicitation_amount = results['ask_amount']['value']
+                                
+                            except:
+                                solicitation_amount = "0"
+                            
+                            finally:
+                                solicitation_count = "1"
+                                                                
                                 major_donor_solicitation_amount.append(int(solicitation_amount))
                                 major_donor_solicitation_count.append(int(solicitation_count))
-                        except:
-                            pass
                         
                         # Getting Committed amount
                         print("Getting Committed amount")
-                        try:
-                            if results['status'] == "Committed":
-                                try:
-                                    committed_amount = results['ask_amount']['value']
-                                    committed_count = "1"
-                                except:
-                                    committed_amount = "0"
-                                    committed_count = "0"
-                                    
+
+                        if results['status'] == "Committed":
+                            
+                            try:
+                                committed_amount = results['expected_amount']['value']
+                                
+                            except:
+                                committed_amount = "0"
+                            
+                            finally:
+                                committed_count = "1"
+                                
                                 major_donor_committed_amount.append(int(committed_amount))
                                 major_donor_committed_count.append(int(committed_count))
-                        except:
-                            pass
+                        
+                        # Getting Rejected amount
+                        print("Getting Rejected amount")
+
+                        if results['status'] == "Rejected":
+                            
+                            try:
+                                rejected_amount = results['ask_amount']['value']
+                                
+                            except:
+                                rejected_amount = "0"
+                                rejected_count = "0"
+                            
+                            finally:
+                                rejected_count = "1"
+                                    
+                                major_donor_rejected_amount.append(int(rejected_amount))
+                                major_donor_rejected_count.append(int(rejected_count))
                         
                         print("Getting Constituent ID")
                         constituent_id = results['constituent_id']
@@ -740,6 +801,14 @@ def get_opportunity_list_from_re():
     print(total_corporate_committed_amount_in_inr_crores)
     total_corporate_committed_count = sum(corporate_committed_count)
     
+    total_corporate_rejected_amount = round(sum(corporate_rejected_amount)/10000000)
+    total_corporate_rejected_amount_in_inr = locale.currency(round(total_corporate_rejected_amount), grouping=True).replace(".00", "")
+    total_corporate_rejected_amount_in_inr_crores = f"{total_corporate_rejected_amount_in_inr} Cr."
+    print(f"Total Corporate Rejected Amount = {total_corporate_rejected_amount}")
+    print(f"Total Corporate Rejected Amount in INR = {total_corporate_rejected_amount_in_inr}")
+    print(total_corporate_rejected_amount_in_inr_crores)
+    total_corporate_rejected_count = sum(corporate_rejected_count)
+    
     total_major_donor_prospect_amount = round(sum(major_donor_prospect_amount)/10000000)
     total_major_donor_prospect_amount_in_inr = locale.currency(total_major_donor_prospect_amount, grouping=True).replace(".00", "")
     total_major_donor_prospect_amount_in_inr_crores = f"{total_major_donor_prospect_amount_in_inr} Cr."
@@ -771,6 +840,16 @@ def get_opportunity_list_from_re():
     print(f"Total Major Donor Committed Amount in INR = {total_major_donor_committed_amount_in_inr}")
     print(total_major_donor_committed_amount_in_inr_crores)
     total_major_donor_committed_count = sum(major_donor_committed_count)
+    
+    total_major_donor_rejected_amount = round(sum(major_donor_rejected_amount)/10000000)
+    total_major_donor_rejected_amount_in_inr = locale.currency(round(total_major_donor_rejected_amount), grouping=True).replace(".00", "")
+    total_major_donor_rejected_amount_in_inr_crores = f"{total_major_donor_rejected_amount_in_inr} Cr."
+    print(f"Total Major Donor Rejected Amount = {total_major_donor_rejected_amount}")
+    print(f"Total Major Donor Rejected Amount in INR = {total_major_donor_rejected_amount_in_inr}")
+    print(total_major_donor_rejected_amount_in_inr_crores)
+    total_major_donor_rejected_count = sum(major_donor_rejected_count)
+    print(f"major_donor_rejected_count: {major_donor_rejected_count}")
+    print(f"total_major_donor_rejected_count: {total_major_donor_rejected_count}")
     
     # Set auto-filters
     corporate_worksheet.autofilter(0, 0, corporate_worksheet_row, corporate_worksheet_col)
@@ -1151,7 +1230,7 @@ def send_email():
     <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #284988; border-radius: 0; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
-    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="padding-top:35px;text-align:center;width:100%;padding-bottom:20px;">
@@ -1160,7 +1239,7 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1169,7 +1248,16 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+    <tr>
+    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+    <h3 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Count as on {{LAST_BOARD_MEETING_DATE}}</span></h3>
+    </td>
+    </tr>
+    </table>
+    </td>
+    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1178,7 +1266,7 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1201,7 +1289,7 @@ def send_email():
     <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
-    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #d3ddef; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="25%">
+    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #d3ddef; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1210,7 +1298,7 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1219,7 +1307,16 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+    <tr>
+    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_CORPORATE_PROSPECT_COUNT}}</span></h3>
+    </td>
+    </tr>
+    </table>
+    </td>
+    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1228,7 +1325,7 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1251,7 +1348,7 @@ def send_email():
     <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
-    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #d3ddef; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="25%">
+    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #d3ddef; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1260,7 +1357,7 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1269,7 +1366,16 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+    <tr>
+    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_CORPORATE_CULTIVATION_COUNT}}</span></h3>
+    </td>
+    </tr>
+    </table>
+    </td>
+    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1278,7 +1384,7 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1301,7 +1407,7 @@ def send_email():
     <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
-    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #d3ddef; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="25%">
+    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #d3ddef; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1310,7 +1416,7 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1319,7 +1425,17 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    </td>
+    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+    <tr>
+    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_CORPORATE_SOLICITATION_COUNT}}</span></h3>
+    </td>
+    </tr>
+    </table>
+    </td>
+    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1328,7 +1444,7 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1351,7 +1467,7 @@ def send_email():
     <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
-    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #d3ddef; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="25%">
+    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #d3ddef; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1360,7 +1476,7 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1369,7 +1485,16 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+    <tr>
+    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_CORPORATE_COMMITTED_COUNT}}</span></h3>
+    </td>
+    </tr>
+    </table>
+    </td>
+    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1378,7 +1503,7 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1394,6 +1519,65 @@ def send_email():
     </tr>
     </tbody>
     </table>
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-9" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+        <tbody>
+        <tr>
+        <td>
+        <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 900px;" width="900">
+        <tbody>
+        <tr>
+        <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #d3ddef; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="20%">
+        <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+        <tr>
+        <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+        <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Rejected</span></h3>
+        </td>
+        </tr>
+        </table>
+        </td>
+        <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
+        <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+        <tr>
+        <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+        <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_CORPORATE_REJECTED}}</span></h3>
+        </td>
+        </tr>
+        </table>
+        </td>
+        <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
+        <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+        <tr>
+        <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+        <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_CORPORATE_REJECTED_COUNT}}</span></h3>
+        </td>
+        </tr>
+        </table>
+        </td>
+        <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
+        <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+        <tr>
+        <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+        <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{total_corporate_rejected_amount_in_inr_crores}}</span></h3>
+        </td>
+        </tr>
+        </table>
+        </td>
+        <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
+        <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+        <tr>
+        <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+        <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{total_corporate_rejected_count}}</span></h3>
+        </td>
+        </tr>
+        </table>
+        </td>
+        </tr>
+        </tbody>
+        </table>
+        </td>
+        </tr>
+        </tbody>
+        </table>
     <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-10" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tbody>
     <tr>
@@ -1441,7 +1625,7 @@ def send_email():
     <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #284988; border-radius: 0; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
-    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="padding-top:35px;text-align:center;width:100%;padding-bottom:20px;">
@@ -1450,7 +1634,7 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1459,7 +1643,16 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+    <tr>
+    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+    <h3 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Count as on {{LAST_BOARD_MEETING_DATE}}</span></h3>
+    </td>
+    </tr>
+    </table>
+    </td>
+    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1468,7 +1661,7 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1491,7 +1684,7 @@ def send_email():
     <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
-    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #d3ddef; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="25%">
+    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #d3ddef; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1500,7 +1693,7 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1509,7 +1702,16 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+    <tr>
+    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_MAJOR_DONOR_PROSPECT_COUNT}}</span></h3>
+    </td>
+    </tr>
+    </table>
+    </td>
+    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1518,7 +1720,7 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1541,7 +1743,7 @@ def send_email():
     <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
-    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #d3ddef; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="25%">
+    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #d3ddef; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1550,7 +1752,7 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1559,7 +1761,16 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+    <tr>
+    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_MAJOR_DONOR_CULTIVATION_COUNT}}</span></h3>
+    </td>
+    </tr>
+    </table>
+    </td>
+    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1568,7 +1779,7 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1591,7 +1802,7 @@ def send_email():
     <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
-    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #d3ddef; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="25%">
+    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #d3ddef; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1600,7 +1811,7 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1609,7 +1820,16 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+    <tr>
+    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_MAJOR_DONOR_SOLICITATION_COUNT}}</span></h3>
+    </td>
+    </tr>
+    </table>
+    </td>
+    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1618,7 +1838,7 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1641,7 +1861,7 @@ def send_email():
     <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
-    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #d3ddef; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="25%">
+    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #d3ddef; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1650,7 +1870,7 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1659,7 +1879,16 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
+    <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+    <tr>
+    <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+    <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_MAJOR_DONOR_COMMITTED_COUNT}}</span></h3>
+    </td>
+    </tr>
+    </table>
+    </td>
+    <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1668,7 +1897,7 @@ def send_email():
     </tr>
     </table>
     </td>
-    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="25%">
+    <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
     <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tr>
     <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
@@ -1684,6 +1913,65 @@ def send_email():
     </tr>
     </tbody>
     </table>
+    <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-9" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+        <tbody>
+        <tr>
+        <td>
+        <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 900px;" width="900">
+        <tbody>
+        <tr>
+        <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #d3ddef; padding-left: 20px; padding-right: 20px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="20%">
+        <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+        <tr>
+        <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+        <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Rejected</span></h3>
+        </td>
+        </tr>
+        </table>
+        </td>
+        <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
+        <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+        <tr>
+        <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+        <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_MAJOR_DONOR_REJECTED}}</span></h3>
+        </td>
+        </tr>
+        </table>
+        </td>
+        <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
+        <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+        <tr>
+        <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+        <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{BM_MAJOR_DONOR_REJECTED_COUNT}}</span></h3>
+        </td>
+        </tr>
+        </table>
+        </td>
+        <td class="column column-3" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
+        <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+        <tr>
+        <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+        <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{total_major_donor_rejected_amount_in_inr_crores}}</span></h3>
+        </td>
+        </tr>
+        </table>
+        </td>
+        <td class="column column-4" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 0px solid #D3DDEF; border-left: 0px solid #D3DDEF; border-right: 0px solid #D3DDEF; border-top: 0px solid #D3DDEF; padding-left: 20px; padding-right: 20px; vertical-align: top;" width="20%">
+        <table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+        <tr>
+        <td class="pad" style="text-align:center;width:100%;padding-top:20px;padding-bottom:20px;">
+        <h3 style="margin: 0; color: #000000; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">{{total_major_donor_rejected_count}}</span></h3>
+        </td>
+        </tr>
+        </table>
+        </td>
+        </tr>
+        </tbody>
+        </table>
+        </td>
+        </tr>
+        </tbody>
+        </table>
     <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-17" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
     <tbody>
     <tr>
@@ -1691,13 +1979,13 @@ def send_email():
     <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content stack" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 900px;" width="900">
     <tbody>
     <tr>
-    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-left: 20px; padding-right: 20px; vertical-align: top; padding-top: 20px; padding-bottom: 20px; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="100%">
+    <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: justify; padding-left: 20px; padding-right: 20px; vertical-align: top; padding-top: 20px; padding-bottom: 20px; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="100%">
     <table border="0" cellpadding="0" cellspacing="0" class="list_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;" width="100%">
     <tr>
     <td class="pad" style="padding-top:20px;">
-    <ul start="1" style="margin: 0; padding: 0; margin-left: 20px; list-style-type: revert; color: #363a3e; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 16px; font-weight: 400; letter-spacing: 0px; line-height: 150%; text-align: left;">
+    <ul start="1" style="margin: 0; padding: 0; margin-left: 20px; list-style-type: revert; color: #363a3e; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 16px; font-weight: 400; letter-spacing: 0px; line-height: 150%; text-align: justify;">
     <li style="margin-bottom: 5px;">The Amount as on {{LAST_BOARD_MEETING_DATE}} are the ones shown to the Board of Directors at the last board meeting</li>
-    <li style="margin-bottom: 5px;">The Committed amount for 'Corporate' is calculated against the <u>Expected amount</u>, whereas for 'Major Donor' it's calculated against the <u>Asked amount</u> as recorded in Raisers Edge</li>
+    <li style="margin-bottom: 5px;">For opportunities that are in the 'Prospect' status, the amount would not have been maintained for all since it's yet to be discussed</li>
     <li>A list of all the active opportunities available and recorded in Raisers Edge is also attached with this email for your perusal</li>
     </ul>
     </td>
@@ -1790,28 +2078,44 @@ def send_email():
             BM_CORPORATE_CULTIVATION = BM_CORPORATE_CULTIVATION,
             BM_CORPORATE_SOLICITATION = BM_CORPORATE_SOLICITATION,
             BM_CORPORATE_COMMITTED = BM_CORPORATE_COMMITTED,
+            BM_CORPORATE_REJECTED = BM_CORPORATE_REJECTED,
             total_corporate_prospect_amount_in_inr_crores = total_corporate_prospect_amount_in_inr_crores,
             total_corporate_cultivation_amount_in_inr_crores = total_corporate_cultivation_amount_in_inr_crores,
             total_corporate_solicitation_amount_in_inr_crores = total_corporate_solicitation_amount_in_inr_crores,
             total_corporate_committed_amount_in_inr_crores = total_corporate_committed_amount_in_inr_crores,
+            total_corporate_rejected_amount_in_inr_crores = total_corporate_rejected_amount_in_inr_crores,
             BM_MAJOR_DONOR_PROSPECT = BM_MAJOR_DONOR_PROSPECT,
             BM_MAJOR_DONOR_CULTIVATION = BM_MAJOR_DONOR_CULTIVATION,
             BM_MAJOR_DONOR_SOLICITATION = BM_MAJOR_DONOR_SOLICITATION,
             BM_MAJOR_DONOR_COMMITTED = BM_MAJOR_DONOR_COMMITTED,
+            BM_MAJOR_DONOR_REJECTED = BM_MAJOR_DONOR_REJECTED,
             today_date = today_date,
             total_major_donor_prospect_amount_in_inr_crores = total_major_donor_prospect_amount_in_inr_crores,
             total_major_donor_cultivation_amount_in_inr_crores = total_major_donor_cultivation_amount_in_inr_crores,
             total_major_donor_solicitation_amount_in_inr_crores = total_major_donor_solicitation_amount_in_inr_crores,
             total_major_donor_committed_amount_in_inr_crores = total_major_donor_committed_amount_in_inr_crores,
+            total_major_donor_rejected_amount_in_inr_crores = total_major_donor_rejected_amount_in_inr_crores,
             LAST_BOARD_MEETING_DATE = LAST_BOARD_MEETING_DATE,
             total_corporate_prospect_count = total_corporate_prospect_count,
             total_corporate_cultivation_count = total_corporate_cultivation_count,
             total_corporate_solicitation_count = total_corporate_solicitation_count,
             total_corporate_committed_count = total_corporate_committed_count,
+            total_corporate_rejected_count = total_corporate_rejected_count,
             total_major_donor_prospect_count = total_major_donor_prospect_count,
             total_major_donor_cultivation_count = total_major_donor_cultivation_count,
             total_major_donor_solicitation_count = total_major_donor_solicitation_count,
-            total_major_donor_committed_count = total_major_donor_committed_count
+            total_major_donor_committed_count = total_major_donor_committed_count,
+            total_major_donor_rejected_count = total_major_donor_rejected_count,
+            BM_CORPORATE_PROSPECT_COUNT = BM_CORPORATE_PROSPECT_COUNT,
+            BM_CORPORATE_CULTIVATION_COUNT = BM_CORPORATE_CULTIVATION_COUNT,
+            BM_CORPORATE_SOLICITATION_COUNT = BM_CORPORATE_SOLICITATION_COUNT,
+            BM_CORPORATE_COMMITTED_COUNT = BM_CORPORATE_COMMITTED_COUNT,
+            BM_CORPORATE_REJECTED_COUNT = BM_CORPORATE_REJECTED_COUNT,
+            BM_MAJOR_DONOR_PROSPECT_COUNT = BM_MAJOR_DONOR_PROSPECT_COUNT,
+            BM_MAJOR_DONOR_CULTIVATION_COUNT = BM_MAJOR_DONOR_CULTIVATION_COUNT,
+            BM_MAJOR_DONOR_SOLICITATION_COUNT = BM_MAJOR_DONOR_SOLICITATION_COUNT,
+            BM_MAJOR_DONOR_COMMITTED_COUNT = BM_MAJOR_DONOR_COMMITTED_COUNT,
+            BM_MAJOR_DONOR_REJECTED_COUNT = BM_MAJOR_DONOR_REJECTED_COUNT
         ), "html"
     )
     
