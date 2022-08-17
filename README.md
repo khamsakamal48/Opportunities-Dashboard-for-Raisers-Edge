@@ -83,10 +83,22 @@ BM_CORPORATE_PROSPECT= # Prospect amount for Corporates as shown to the Board. F
 BM_CORPORATE_CULTIVATION= # Cultivated amount for Corporates as shown to the Board. Format as ₹100 Cr.
 BM_CORPORATE_SOLICITATION= # Solicited amount for Corporates as shown to the Board. Format as ₹100 Cr.
 BM_CORPORATE_COMMITTED= # Committed amount for Corporates as shown to the Board. Format as ₹100 Cr.
+BM_CORPORATE_REJECTED= # Rejected amount for Corporates as shown to the Board. Format as ₹100 Cr.
 BM_MAJOR_DONOR_PROSPECT= # Prospect amount for Major Donor as shown to the Board. Format as ₹100 Cr.
 BM_MAJOR_DONOR_CULTIVATION= # Cultivated amount for Major Donor as shown to the Board. Format as ₹100 Cr.
 BM_MAJOR_DONOR_SOLICITATION= # Solicited amount for Major Donor as shown to the Board. Format as ₹100 Cr.
 BM_MAJOR_DONOR_COMMITTED= # Committed amount for Major Donor as shown to the Board. Format as ₹100 Cr.
+BM_MAJOR_DONOR_REJECTED= # Rejected amount for Major Donor as shown to the Board. Format as ₹100 Cr.
+BM_CORPORATE_PROSPECT_COUNT= # Prospect count for Corporates as shown to the Board.
+BM_CORPORATE_CULTIVATION_COUNT= # Cultivated count for Corporates as shown to the Board.
+BM_CORPORATE_SOLICITATION_COUNT= # Solicited count for Corporates as shown to the Board.
+BM_CORPORATE_COMMITTED_COUNT= # Committed count for Corporates as shown to the Board.
+BM_CORPORATE_REJECTED_COUNT= # Rejected count for Corporates as shown to the Board.
+BM_MAJOR_DONOR_PROSPECT_COUNT= # Prospect count for Major Donor as shown to the Board.
+BM_MAJOR_DONOR_CULTIVATION_COUNT= # Cultivated count for Major Donor as shown to the Board.
+BM_MAJOR_DONOR_SOLICITATION_COUNT= # Solicted count for Major Donor as shown to the Board.
+BM_MAJOR_DONOR_COMMITTED_COUNT= # Committed count for Major Donor as shown to the Board.
+BM_MAJOR_DONOR_REJECTED_COUNT= # Rejected count for Major Donor as shown to the Board.
 
 ```
 
