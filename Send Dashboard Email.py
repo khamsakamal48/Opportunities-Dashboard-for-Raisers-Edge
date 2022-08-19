@@ -1985,7 +1985,8 @@ def send_email():
     <td class="pad" style="padding-top:20px;">
     <ul start="1" style="margin: 0; padding: 0; margin-left: 20px; list-style-type: revert; color: #363a3e; direction: ltr; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 16px; font-weight: 400; letter-spacing: 0px; line-height: 150%; text-align: justify;">
     <li style="margin-bottom: 5px;">The Amount as on {{LAST_BOARD_MEETING_DATE}} are the ones shown to the Board of Directors at the last board meeting</li>
-    <li style="margin-bottom: 5px;">For opportunities that are in the 'Prospect' status, the amount would not have been maintained for all since it's yet to be discussed</li>
+    <li style="margin-bottom: 5px;">The Amount reflecting at ‘Prospect’ stage may not be available for all opportunities as it is at a very initial stage of engagement</li>
+    <li style="margin-bottom: 5px;">The calculation of <b>'Committed'</b> amount is based on the '<u>Expected amount</u>' stored in Raisers Edge for both Corporate & Major Donors. Calculation of <b>‘Prospect’, ’Cultivation’, ’Solicitation’ and ‘Rejected’</b> amount is based on the '<u>Asked amount</u>'</li>
     <li>A list of all the active opportunities available and recorded in Raisers Edge is also attached with this email for your perusal</li>
     </ul>
     </td>
