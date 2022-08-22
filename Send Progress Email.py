@@ -9,7 +9,8 @@ from jinja2 import Environment
 from datetime import datetime
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
-from datetime import date
+from datetime import date, timedelta
+from pprint import pprint
 
 # Printing the output to file for debugging
 sys.stdout = open('Process.log', 'w')
@@ -199,7 +200,7 @@ def print_json(d):
     print(json.dumps(d, indent=4))
       
 def identify_current_quarter():
-    global current_quarter, current_quarter_end_date, previous_quarter_end_date
+    global current_quarter, current_quarter_end_date, previous_quarter_end_date, pp_previous_quarter_end_date
     print("Identifying current quarter")
     
     current_month = int(datetime.now().strftime("%m"))
@@ -212,38 +213,43 @@ def identify_current_quarter():
         current_quarter = "Q1"
         current_quarter_end_date = datetime.strptime(f"30-06-{current_year}", "%d-%m-%Y").date()
         previous_quarter_end_date = datetime.strptime(f"31-03-{current_year}", "%d-%m-%Y").date()
+        pp_previous_quarter_end_date = datetime.strptime(f"31-12-{current_year - 1}", "%d-%m-%Y").date()
     
     # Current month between Jul and Sep
     elif current_month >= 7 and current_month <= 9:
         current_quarter = "Q2"
         current_quarter_end_date = datetime.strptime(f"30-09-{current_year}", "%d-%m-%Y").date()
         previous_quarter_end_date = datetime.strptime(f"30-06-{current_year}", "%d-%m-%Y").date()
+        pp_previous_quarter_end_date = datetime.strptime(f"31-03-{current_year}", "%d-%m-%Y").date()
     
     # Current month between Oct and Dec    
     elif current_month >= 10 and current_month <= 12:
         current_quarter = "Q3"
         current_quarter_end_date = datetime.strptime(f"31-12-{current_year}", "%d-%m-%Y").date()
         previous_quarter_end_date = datetime.strptime(f"30-09-{current_year}", "%d-%m-%Y").date()
+        pp_previous_quarter_end_date = datetime.strptime(f"30-06-{current_year}", "%d-%m-%Y").date()
     
     # Current month between Jan and Mar    
     elif current_month >= 1 and current_month <= 3:
         current_quarter = "Q4"
         current_quarter_end_date = datetime.strptime(f"31-03-{current_year}", "%d-%m-%Y").date()
         previous_quarter_end_date = datetime.strptime(f"31-12-{current_year - 1}", "%d-%m-%Y").date()
+        pp_previous_quarter_end_date = datetime.strptime(f"30-09-{current_year - 1}", "%d-%m-%Y").date()
         
     print(f"Current Quarter: {current_quarter}")
     print(f"Current Quarter End date: {current_quarter_end_date}")
     print(f"Previous Quarter End date: {previous_quarter_end_date}")
 
-def get_corporate_pipeline_progress():
-    extract_sql = """
-    SELECT * from opportunity_list where date = '%s'
-    """
-    print(extract_sql)
-    # cur.execute(extract_sql, [query_date])
-    # result = list(cur.fetchall())
+def get_quarter_data():
+    global result
     
-    # print(result)
+    extract_sql = """
+    SELECT * from opportunity_list where date = %s
+    """
+    cur.execute(extract_sql, [query_date])
+    result = list(cur.fetchall())
+    
+    print(result)
 
 try:
     # Connect to DB
@@ -253,9 +259,52 @@ try:
     identify_current_quarter()
     
     # Get data for Current quarter
+    new_date = current_quarter_end_date
+    
     while current_quarter_end_date:
-        query_date = current_quarter_end_date
-        get_corporate_pipeline_progress()
+        query_date = new_date
+        print(f"Querying Current Quarter's data for date: {query_date}")
+        get_quarter_data()
+        
+        if result == []:
+            # Subtracting the day by 1
+            new_date = query_date - timedelta(days=1)
+            
+            # Ensuring that the reduced date is not from last quarter
+            if new_date <= previous_quarter_end_date:
+                current_quarter_data = []
+                break
+            
+        else:
+            current_quarter_data = result
+            result = []
+            break
+        
+    pprint(current_quarter_data)
+    
+    # Get data for Previous quarter
+    new_date = previous_quarter_end_date
+    
+    while previous_quarter_end_date:
+        query_date = new_date
+        print(f"Querying Previous Quarter's data for date: {query_date}")
+        get_quarter_data()
+        
+        if result == []:
+            # Subtracting the day by 1
+            new_date = query_date - timedelta(days=1)
+            
+            # Ensuring that the reduced date is not from last quarter
+            if new_date <= pp_previous_quarter_end_date:
+                previous_quarter_data = []
+                break
+            
+        else:
+            previous_quarter_data = result
+            result = []
+            break
+        
+    pprint(previous_quarter_data)
 
 except Exception as Argument:
     subject = "Error while preparing opportunity pipeline progress from Raisers Edge"
