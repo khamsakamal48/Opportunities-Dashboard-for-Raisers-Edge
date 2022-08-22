@@ -47,7 +47,7 @@ IMAP_URL = os.getenv("IMAP_URL")
 IMAP_PORT = os.getenv("IMAP_PORT")
 SMTP_URL = os.getenv("SMTP_URL")
 SMTP_PORT = os.getenv("SMTP_PORT")
-SEND_TO  = os.getenv("SEND_TO")
+ERROR_EMAILS_TO  = os.getenv("ERROR_EMAILS_TO")
 
 def connect_db():
     global conn, cur
@@ -132,7 +132,7 @@ def send_error_emails():
     message = MIMEMultipart()
     message["Subject"] = subject
     message["From"] = MAIL_USERN
-    message["To"] = SEND_TO
+    message["To"] = ERROR_EMAILS_TO
 
     # Adding Reply-to header
     message.add_header('reply-to', MAIL_USERN)
@@ -208,7 +208,7 @@ def send_error_emails():
     with smtplib.SMTP_SSL(SMTP_URL, SMTP_PORT, context=context) as server:
         server.login(MAIL_USERN, MAIL_PASSWORD)
         server.sendmail(
-            MAIL_USERN, SEND_TO, emailcontent
+            MAIL_USERN, ERROR_EMAILS_TO, emailcontent
         )
 
     # Save copy of the sent email to sent items folder
