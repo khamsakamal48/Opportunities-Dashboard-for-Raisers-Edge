@@ -9,7 +9,8 @@ sudo apt install python3-pip
 sudo apt install git
 pip3 install python-dotenv
 pip3 install psycopg2
-pip3 install xlsxwriter 
+pip3 install xlsxwriter
+pip3 install pandas 
 
 ```
 - If you encounter error on installing **pyscopg2**, then try:
