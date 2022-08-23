@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import requests, os, json, glob, csv, psycopg2, sys, smtplib, ssl, imaplib, time, datetime, logging
+import requests, os, json, glob, csv, psycopg2, sys, smtplib, ssl, imaplib, time, datetime, logging, locale
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
@@ -11,6 +11,7 @@ from requests.adapters import HTTPAdapter
 from urllib3 import Retry
 from datetime import date, timedelta
 from pprint import pprint
+import pandas as pd
 
 # Printing the output to file for debugging
 sys.stdout = open('Process.log', 'w')
@@ -31,6 +32,10 @@ http.mount("http://", adapter)
 # Set current directory
 print("Setting current directory")
 os.chdir(os.getcwd())
+
+# Setting Locale
+print("Setting Locale")
+locale.setlocale(locale.LC_ALL, 'en_IN.UTF-8')
 
 from dotenv import load_dotenv
 
@@ -251,6 +256,27 @@ def get_quarter_data():
     
     print(result)
 
+def get_prospect(type):
+    global current_quarter_corporate_prospect_total, current_quarter_major_donor_prospect_total
+    
+    if type == "Corporate":
+        print(f"Working on {type} Prospect")
+        
+        current_quarter_corporate_prospect_dataframe = current_quarter_dataframe.query(f'Type == "{type}" and Status == "Prospect"').filter(['Constituent ID', 'Opportunity ID', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount'])
+        print(current_quarter_corporate_prospect_dataframe)
+        
+        current_quarter_corporate_prospect_total = locale.currency(round(current_quarter_corporate_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
+        print(current_quarter_corporate_prospect_total)
+        
+    elif type == "Major Donor":
+        print(f"Working on {type} Prospect")
+        
+        current_quarter_major_donor_prospect_dataframe = current_quarter_dataframe.query(f'Type == "{type}" and Status == "Prospect"').filter(['Constituent ID', 'Opportunity ID', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount'])
+        print(current_quarter_major_donor_prospect_dataframe)
+        
+        current_quarter_major_donor_prospect_total = locale.currency(round(current_quarter_major_donor_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
+        print(current_quarter_major_donor_prospect_total)
+
 try:
     # Connect to DB
     connect_db()
@@ -282,6 +308,17 @@ try:
         
     pprint(current_quarter_data)
     
+    # Converting to Panda's Dataframe
+    current_quarter_dataframe = pd.DataFrame(current_quarter_data, columns = ['Opportunity ID', 'Ask Amount', 'Constituent ID', 'Date Added', 'Date Modified', 'Expected Amount', 'Funded Amount', 'Opportunity Name', 'Type', 'Status', 'Date'])
+    
+    # Setting the datatypes
+    current_quarter_dataframe[['Ask Amount']] = current_quarter_dataframe[['Ask Amount']].apply(pd.to_numeric)
+    current_quarter_dataframe[['Expected Amount']] = current_quarter_dataframe[['Expected Amount']].apply(pd.to_numeric)
+    current_quarter_dataframe[['Funded Amount']] = current_quarter_dataframe[['Funded Amount']].apply(pd.to_numeric)
+    current_quarter_dataframe[['Date']] = current_quarter_dataframe[['Date']].apply(pd.to_datetime)
+    
+    pprint(current_quarter_dataframe)
+    
     # Get data for Previous quarter
     new_date = previous_quarter_end_date
     
@@ -305,6 +342,23 @@ try:
             break
         
     pprint(previous_quarter_data)
+    
+    # Converting to Panda's Dataframe
+    previous_quarter_dataframe = pd.DataFrame(previous_quarter_data, columns = ['Opportunity ID', 'Ask Amount', 'Constituent ID', 'Date Added', 'Date Modified', 'Expected Amount', 'Funded Amount', 'Opportunity Name', 'Type', 'Status', 'Date'])
+    
+    # Setting the datatypes
+    previous_quarter_dataframe[['Ask Amount']] = previous_quarter_dataframe[['Ask Amount']].apply(pd.to_numeric)
+    previous_quarter_dataframe[['Expected Amount']] = previous_quarter_dataframe[['Expected Amount']].apply(pd.to_numeric)
+    previous_quarter_dataframe[['Funded Amount']] = previous_quarter_dataframe[['Funded Amount']].apply(pd.to_numeric)
+    previous_quarter_dataframe[['Date']] = previous_quarter_dataframe[['Date']].apply(pd.to_datetime)
+    
+    pprint(previous_quarter_dataframe)
+    
+    # Work on Corporate Pipeline
+    get_prospect("Corporate")
+    
+    # Work on Major Donor Pipeline
+    get_prospect("Major Donor")
 
 except Exception as Argument:
     subject = "Error while preparing opportunity pipeline progress from Raisers Edge"
