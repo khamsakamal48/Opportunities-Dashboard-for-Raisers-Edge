@@ -266,8 +266,8 @@ def get_prospect(type):
         # Working on Current Quarter
         print("Working on Current Quarter")
         current_quarter_corporate_prospect_dataframe = current_quarter_dataframe.query(f'Type == "{type}" and Status == "Prospect"').filter(['Constituent ID', 'Opportunity ID', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount'])
-        print("current_quarter_corporate_prospect_dataframe:")
-        pprint(current_quarter_corporate_prospect_dataframe.head())
+        print("Current Quarter Corporate Prospect Dataframe:")
+        pprint(current_quarter_corporate_prospect_dataframe)
         
         current_quarter_corporate_prospect_total = locale.currency(round(current_quarter_corporate_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
         print(f"Current Quarter Corporate Prospect Total: {current_quarter_corporate_prospect_total}")
@@ -275,18 +275,28 @@ def get_prospect(type):
         # Working on Previous Quarter
         print("Working on Previous Quarter")
         previous_quarter_corporate_prospect_dataframe = previous_quarter_dataframe.query(f'Type == "{type}" and Status == "Prospect"').filter(['Constituent ID', 'Opportunity ID', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount'])
-        print("previous_quarter_corporate_prospect_dataframe")
-        pprint(previous_quarter_corporate_prospect_dataframe.head())
+        print("Previous Quarter Corporate Prospect Dataframe")
+        pprint(previous_quarter_corporate_prospect_dataframe)
         
         previous_quarter_corporate_prospect_total = locale.currency(round(previous_quarter_corporate_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
         print(f"Previous Quarter Corporate Prospect Total: {previous_quarter_corporate_prospect_total}")
         
         # Working to get newly added prospects
         print("Working to get newly added prospects")
-        # print(current_quarter_corporate_prospect_dataframe['Opportunity ID'].difference(previous_quarter_corporate_prospect_dataframe['Opportunity ID']).values())
-        # print(set(current_quarter_corporate_prospect_dataframe['Opportunity ID']) - set(previous_quarter_corporate_prospect_dataframe['Opportunity ID']))
-        newly_added_prospects = current_quarter_corporate_prospect_dataframe['Opportunity ID'].isnotin(previous_quarter_corporate_prospect_dataframe['Opportunity ID'])
-        pprint(newly_added_prospects)
+        missing_opportunity_id = list(set(current_quarter_corporate_prospect_dataframe['Opportunity ID']) - set(previous_quarter_corporate_prospect_dataframe['Opportunity ID']) - set(previous_quarter_dataframe['Opportunity ID']))
+        print(f"Opportunity IDs of Newly added prospects: {missing_opportunity_id}")
+        
+        newly_added_corporate_prospect_dataframe = current_quarter_corporate_prospect_dataframe[current_quarter_corporate_prospect_dataframe['Opportunity ID'].isin(missing_opportunity_id)]
+        print("Newly Added Prospect Dataframe:")
+        pprint(newly_added_corporate_prospect_dataframe)
+        
+        # Count of newly added corporate prospects
+        newly_added_corporate_prospect_count = len(newly_added_corporate_prospect_dataframe.index)
+        print(f"Count of newly added {type} prospects: {newly_added_corporate_prospect_count}")
+        
+        # Amount of newly added corporate prospects
+        newly_added_corporate_prospect_total = locale.currency(round(newly_added_corporate_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
+        print(f"Amount of newly added {type} prospects: {newly_added_corporate_prospect_total}")
         
     elif type == "Major Donor":
         print(f"Working on {type} Prospect")
@@ -294,7 +304,8 @@ def get_prospect(type):
         # Working on Current Quarter
         print("Working on Current Quarter")
         current_quarter_major_donor_prospect_dataframe = current_quarter_dataframe.query(f'Type == "{type}" and Status == "Prospect"').filter(['Constituent ID', 'Opportunity ID', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount'])
-        pprint(current_quarter_major_donor_prospect_dataframe.head())
+        print("Current Quarter Major Donor Prospect Dataframe")
+        pprint(current_quarter_major_donor_prospect_dataframe)
         
         current_quarter_major_donor_prospect_total = locale.currency(round(current_quarter_major_donor_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
         print(f"Current Quarter Major Donor Prospect Total: {current_quarter_major_donor_prospect_total}")
@@ -302,7 +313,8 @@ def get_prospect(type):
         # Working on Previous Quarter
         print("Working on Previous Quarter")
         previous_quarter_major_donor_prospect_dataframe = previous_quarter_dataframe.query(f'Type == "{type}" and Status == "Prospect"').filter(['Constituent ID', 'Opportunity ID', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount'])
-        pprint(previous_quarter_major_donor_prospect_dataframe.head())
+        print("Previous Quarter Major Donor Prospect Dataframe")
+        pprint(previous_quarter_major_donor_prospect_dataframe)
         
         previous_quarter_major_donor_prospect_total = locale.currency(round(previous_quarter_major_donor_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
         print(f"Previous Quarter Major Donor Prospect Total: {previous_quarter_major_donor_prospect_total}")
@@ -352,7 +364,7 @@ try:
     current_quarter_dataframe[['Date']] = current_quarter_dataframe[['Date']].apply(pd.to_datetime)
     
     pprint("Current Quarter Dataframe:")
-    print(current_quarter_dataframe.head())
+    print(current_quarter_dataframe)
     
     # Get data for Previous quarter
     print("Getting data for Previous quarter")
@@ -392,14 +404,14 @@ try:
     previous_quarter_dataframe[['Date']] = previous_quarter_dataframe[['Date']].apply(pd.to_datetime)
     
     pprint("Previous Quarter Dataframe:")
-    print(previous_quarter_dataframe.head())
+    print(previous_quarter_dataframe)
     
-    # Work on Corporate Pipeline
-    print("Working on Corporate Pipeline")
+    # Work on Corporate Prospect
+    print("Working on Corporate Prospect")
     get_prospect("Corporate")
     
-    # Work on Major Donor Pipeline
-    print("Working on Major Donor Pipeline")
+    # Work on Major Donor Prospect
+    print("Working on Major Donor Prospect")
     get_prospect("Major Donor")
 
 except Exception as Argument:
