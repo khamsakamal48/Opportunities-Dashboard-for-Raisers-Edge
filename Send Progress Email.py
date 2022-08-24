@@ -209,11 +209,11 @@ def create_excel_file():
     
     # Create a Pandas Excel writer using XlsxWriter as the engine.
     print("Creating Excel file for Corporate")
-    corporate_workbook = pd.ExcelWriter('Corporate.xlsx', engine='xlsxwriter')
+    corporate_workbook = pd.ExcelWriter('Corporate.xlsx', engine='xlsxwriter', engine_kwargs={'options':{'strings_to_urls': False}})
     
     # Create a Pandas Excel writer using XlsxWriter as the engine.
     print("Creating Excel file for Major Donor")
-    major_donor_workbook = pd.ExcelWriter('Major Donor.xlsx', engine='xlsxwriter')
+    major_donor_workbook = pd.ExcelWriter('Major Donor.xlsx', engine='xlsxwriter', engine_kwargs={'options':{'strings_to_urls': False}})
     
 def save_excel_file():
     print("Saving Excel file for Corporate")
@@ -225,6 +225,43 @@ def save_excel_file():
 
 def write_to_excel(dataframe, workbook, worksheet):
     dataframe.to_excel(workbook, sheet_name=f'{worksheet}', index=False)
+    
+    # Begin formatting the excel
+    print("Beginning to format the excel")
+    workbook_formatted = workbook.book
+    worksheet_formatted = workbook.sheets[f'{worksheet}']
+    
+    last_row_count = len(dataframe.index)
+    last_column_count = (dataframe.shape)[1] - 1
+    
+    # Setting Header format
+    header_format = workbook_formatted.add_format(
+        {
+            'bg_color': 'orange',
+            'bold': True,
+            'font_color': 'white',
+            'border': 1,
+            'border_color': 'white',
+            'center_across': True
+        }
+    )
+    
+    # Setting cell format
+    money = workbook_formatted.add_format({'num_format' : '_(₹* #,##0.00_);_(₹* (#,##0.00);_(₹* "-"??_);_(@_)'})
+    
+    # Applying Header format
+    for col , value in enumerate(dataframe.columns.values):
+        worksheet_formatted.write(0, col, value, header_format)
+    
+    # Applying cell format
+    worksheet_formatted.set_column('D:F', 20, money)
+    worksheet_formatted.set_column('C:C', 70)
+    
+    # Freeze the header
+    worksheet_formatted.freeze_panes(1, 0)
+    
+    # Set auto filter
+    worksheet_formatted.autofilter(0, 0, last_row_count, last_column_count)
 
 def identify_current_quarter():
     global current_quarter, current_quarter_end_date, previous_quarter_end_date, pp_previous_quarter_end_date
