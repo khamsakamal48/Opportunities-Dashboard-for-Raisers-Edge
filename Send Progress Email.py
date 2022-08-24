@@ -219,7 +219,6 @@ def save_excel_file():
     print("Saving Excel file for Corporate")
     corporate_workbook.save()
     
-    # Create a Pandas Excel writer using XlsxWriter as the engine.
     print("Saving Excel file for Major Donor")
     major_donor_workbook.save()
 
@@ -336,7 +335,7 @@ def get_prospect(type):
         
         # Working on Current Quarter
         print("Working on Current Quarter")
-        current_quarter_corporate_prospect_dataframe = current_quarter_dataframe.query(f'Type == "{type}" and Status == "Prospect"').filter(['Constituent ID', 'Opportunity ID', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount'])
+        current_quarter_corporate_prospect_dataframe = current_quarter_dataframe.query(f'Type == "{type}" and Status == "Prospect"').filter(['Constituent ID', 'Opportunity ID', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount']).drop_duplicates()
         print("Current Quarter Corporate Prospect Dataframe:")
         pprint(current_quarter_corporate_prospect_dataframe)
         
@@ -346,26 +345,17 @@ def get_prospect(type):
         current_quarter_corporate_prospect_total = locale.currency(round(current_quarter_corporate_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
         print(f"Current Quarter Corporate Prospect Total: {current_quarter_corporate_prospect_total}")
         
-        # Working on Previous Quarter
-        print("Working on Previous Quarter")
-        previous_quarter_corporate_prospect_dataframe = previous_quarter_dataframe.query(f'Type == "{type}" and Status == "Prospect"').filter(['Constituent ID', 'Opportunity ID', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount'])
-        print("Previous Quarter Corporate Prospect Dataframe")
-        pprint(previous_quarter_corporate_prospect_dataframe)
-        
-        # Writing to excel
-        write_to_excel(previous_quarter_corporate_prospect_dataframe, corporate_workbook, "Prospect - Previous Quarter")
-        
-        previous_quarter_corporate_prospect_total = locale.currency(round(previous_quarter_corporate_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
-        print(f"Previous Quarter Corporate Prospect Total: {previous_quarter_corporate_prospect_total}")
-        
         # Working to get newly added prospects
         print("Working to get newly added prospects")
-        missing_opportunity_id = list(set(current_quarter_corporate_prospect_dataframe['Opportunity ID']) - set(previous_quarter_corporate_prospect_dataframe['Opportunity ID']) - set(previous_quarter_dataframe['Opportunity ID']))
-        print(f"Opportunity IDs of Newly added prospects: {missing_opportunity_id}")
+        missing_opportunity_id_corporates = list(set(current_quarter_corporate_prospect_dataframe['Opportunity ID']) - set(previous_quarter_corporate_prospect_dataframe['Opportunity ID']) - set(previous_quarter_dataframe['Opportunity ID']))
+        print(f"Opportunity IDs of Newly added prospects: {missing_opportunity_id_corporates}")
         
-        newly_added_corporate_prospect_dataframe = current_quarter_corporate_prospect_dataframe[current_quarter_corporate_prospect_dataframe['Opportunity ID'].isin(missing_opportunity_id)]
+        newly_added_corporate_prospect_dataframe = current_quarter_corporate_prospect_dataframe[current_quarter_corporate_prospect_dataframe['Opportunity ID'].isin(missing_opportunity_id_corporates)].drop_duplicates()
         print("Newly Added Prospect Dataframe:")
         pprint(newly_added_corporate_prospect_dataframe)
+        
+        # Writing to excel
+        write_to_excel(newly_added_corporate_prospect_dataframe, corporate_workbook, "Prospect - Newly added")
         
         # Count of newly added corporate prospects
         newly_added_corporate_prospect_count = len(newly_added_corporate_prospect_dataframe.index)
@@ -392,7 +382,7 @@ def get_prospect(type):
         
         # Working on Current Quarter
         print("Working on Current Quarter")
-        current_quarter_major_donor_prospect_dataframe = current_quarter_dataframe.query(f'Type == "{type}" and Status == "Prospect"').filter(['Constituent ID', 'Opportunity ID', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount'])
+        current_quarter_major_donor_prospect_dataframe = current_quarter_dataframe.query(f'Type == "{type}" and Status == "Prospect"').filter(['Constituent ID', 'Opportunity ID', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount']).drop_duplicates()
         print("Current Quarter Major Donor Prospect Dataframe")
         pprint(current_quarter_major_donor_prospect_dataframe)
         
@@ -402,17 +392,25 @@ def get_prospect(type):
         current_quarter_major_donor_prospect_total = locale.currency(round(current_quarter_major_donor_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
         print(f"Current Quarter Major Donor Prospect Total: {current_quarter_major_donor_prospect_total}")
         
-        # Working on Previous Quarter
-        print("Working on Previous Quarter")
-        previous_quarter_major_donor_prospect_dataframe = previous_quarter_dataframe.query(f'Type == "{type}" and Status == "Prospect"').filter(['Constituent ID', 'Opportunity ID', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount'])
-        print("Previous Quarter Major Donor Prospect Dataframe")
-        pprint(previous_quarter_major_donor_prospect_dataframe)
+        # Working to get newly added prospects
+        print("Working to get newly added prospects")
+        missing_opportunity_id_major_donor = list(set(current_quarter_major_donor_prospect_dataframe['Opportunity ID']) - set(previous_quarter_major_donor_prospect_dataframe['Opportunity ID']) - set(previous_quarter_dataframe['Opportunity ID']))
+        print(f"Opportunity IDs of Newly added prospects: {missing_opportunity_id_major_donor}")
+        
+        newly_added_major_donor_prospect_dataframe = current_quarter_major_donor_prospect_dataframe[current_quarter_major_donor_prospect_dataframe['Opportunity ID'].isin(missing_opportunity_id_major_donor)].drop_duplicates()
+        print("Newly Added Prospect Dataframe:")
+        pprint(newly_added_major_donor_prospect_dataframe)
         
         # Writing to excel
-        write_to_excel(previous_quarter_major_donor_prospect_dataframe, major_donor_workbook, "Prospect - Previous Quarter")
+        write_to_excel(newly_added_major_donor_prospect_dataframe, major_donor_workbook, "Prospect - Newly added")
         
-        previous_quarter_major_donor_prospect_total = locale.currency(round(previous_quarter_major_donor_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
-        print(f"Previous Quarter Major Donor Prospect Total: {previous_quarter_major_donor_prospect_total}")
+        # Count of newly added major donor prospects
+        newly_added_major_donor_prospect_count = len(newly_added_major_donor_prospect_dataframe.index)
+        print(f"Count of newly added {type} prospects: {newly_added_major_donor_prospect_count}")
+        
+        # Amount of newly added major donor prospects
+        newly_added_major_donor_prospect_total = locale.currency(round(newly_added_major_donor_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
+        print(f"Amount of newly added {type} prospects: {newly_added_major_donor_prospect_total}")
 
 try:
     # Connect to DB
