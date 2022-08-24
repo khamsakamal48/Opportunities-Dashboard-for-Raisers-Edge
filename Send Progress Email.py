@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import requests, os, json, glob, csv, psycopg2, sys, smtplib, ssl, imaplib, time, datetime, logging, locale
+import requests, os, json, glob, csv, psycopg2, sys, smtplib, ssl, imaplib, time, datetime, logging, locale, xlsxwriter
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
@@ -204,6 +204,28 @@ def attach_file_to_email(message, filename):
 def print_json(d):
     print(json.dumps(d, indent=4))
       
+def create_excel_file():
+    global corporate_workbook, major_donor_workbook
+    
+    # Create a Pandas Excel writer using XlsxWriter as the engine.
+    print("Creating Excel file for Corporate")
+    corporate_workbook = pd.ExcelWriter('Corporate.xlsx', engine='xlsxwriter')
+    
+    # Create a Pandas Excel writer using XlsxWriter as the engine.
+    print("Creating Excel file for Major Donor")
+    major_donor_workbook = pd.ExcelWriter('Major Donor.xlsx', engine='xlsxwriter')
+    
+def save_excel_file():
+    print("Saving Excel file for Corporate")
+    corporate_workbook.save()
+    
+    # Create a Pandas Excel writer using XlsxWriter as the engine.
+    print("Saving Excel file for Major Donor")
+    major_donor_workbook.save()
+
+def write_to_excel(dataframe, workbook, worksheet):
+    dataframe.to_excel(workbook, sheet_name=f'{worksheet}', index=False)
+
 def identify_current_quarter():
     global current_quarter, current_quarter_end_date, previous_quarter_end_date, pp_previous_quarter_end_date
     
@@ -269,6 +291,9 @@ def get_prospect(type):
         print("Current Quarter Corporate Prospect Dataframe:")
         pprint(current_quarter_corporate_prospect_dataframe)
         
+        # Writing to excel
+        write_to_excel(current_quarter_corporate_prospect_dataframe, corporate_workbook, "Prospect - Current Quarter")
+        
         current_quarter_corporate_prospect_total = locale.currency(round(current_quarter_corporate_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
         print(f"Current Quarter Corporate Prospect Total: {current_quarter_corporate_prospect_total}")
         
@@ -277,6 +302,9 @@ def get_prospect(type):
         previous_quarter_corporate_prospect_dataframe = previous_quarter_dataframe.query(f'Type == "{type}" and Status == "Prospect"').filter(['Constituent ID', 'Opportunity ID', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount'])
         print("Previous Quarter Corporate Prospect Dataframe")
         pprint(previous_quarter_corporate_prospect_dataframe)
+        
+        # Writing to excel
+        write_to_excel(previous_quarter_corporate_prospect_dataframe, corporate_workbook, "Prospect - Previous Quarter")
         
         previous_quarter_corporate_prospect_total = locale.currency(round(previous_quarter_corporate_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
         print(f"Previous Quarter Corporate Prospect Total: {previous_quarter_corporate_prospect_total}")
@@ -307,6 +335,9 @@ def get_prospect(type):
         print("Current Quarter Major Donor Prospect Dataframe")
         pprint(current_quarter_major_donor_prospect_dataframe)
         
+        # Writing to excel
+        write_to_excel(current_quarter_major_donor_prospect_dataframe, major_donor_workbook, "Prospect - Current Quarter")
+        
         current_quarter_major_donor_prospect_total = locale.currency(round(current_quarter_major_donor_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
         print(f"Current Quarter Major Donor Prospect Total: {current_quarter_major_donor_prospect_total}")
         
@@ -316,12 +347,18 @@ def get_prospect(type):
         print("Previous Quarter Major Donor Prospect Dataframe")
         pprint(previous_quarter_major_donor_prospect_dataframe)
         
+        # Writing to excel
+        write_to_excel(previous_quarter_major_donor_prospect_dataframe, major_donor_workbook, "Prospect - Previous Quarter")
+        
         previous_quarter_major_donor_prospect_total = locale.currency(round(previous_quarter_major_donor_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
         print(f"Previous Quarter Major Donor Prospect Total: {previous_quarter_major_donor_prospect_total}")
 
 try:
     # Connect to DB
     connect_db()
+    
+    # Create excel file
+    create_excel_file()
     
     # Identify Current Quarter
     identify_current_quarter()
@@ -422,6 +459,9 @@ except Exception as Argument:
 finally:
     # Do housekeeping
     housekeeping()
+    
+    # Save excel file
+    save_excel_file()
     
     # Disconnect DB
     disconnect_db()
