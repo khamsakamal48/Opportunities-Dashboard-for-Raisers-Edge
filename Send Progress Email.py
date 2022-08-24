@@ -322,6 +322,18 @@ def get_prospect(type):
     if type == "Corporate":
         print(f"Working on {type} Prospect")
         
+        # Working on Previous Quarter
+        print("Working on Previous Quarter")
+        previous_quarter_corporate_prospect_dataframe = previous_quarter_dataframe.query(f'Type == "{type}" and Status == "Prospect"').filter(['Constituent ID', 'Opportunity ID', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount']).drop_duplicates()
+        print("Previous Quarter Corporate Prospect Dataframe")
+        pprint(previous_quarter_corporate_prospect_dataframe)
+        
+        # Writing to excel
+        write_to_excel(previous_quarter_corporate_prospect_dataframe, corporate_workbook, "Prospect - Previous Quarter")
+        
+        previous_quarter_corporate_prospect_total = locale.currency(round(previous_quarter_corporate_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
+        print(f"Previous Quarter Corporate Prospect Total: {previous_quarter_corporate_prospect_total}")
+        
         # Working on Current Quarter
         print("Working on Current Quarter")
         current_quarter_corporate_prospect_dataframe = current_quarter_dataframe.query(f'Type == "{type}" and Status == "Prospect"').filter(['Constituent ID', 'Opportunity ID', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount'])
@@ -365,6 +377,18 @@ def get_prospect(type):
         
     elif type == "Major Donor":
         print(f"Working on {type} Prospect")
+        
+        # Working on Previous Quarter
+        print("Working on Previous Quarter")
+        previous_quarter_major_donor_prospect_dataframe = previous_quarter_dataframe.query(f'Type == "{type}" and Status == "Prospect"').filter(['Constituent ID', 'Opportunity ID', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount']).drop_duplicates()
+        print("Previous Quarter Major Donor Prospect Dataframe")
+        pprint(previous_quarter_major_donor_prospect_dataframe)
+        
+        # Writing to excel
+        write_to_excel(previous_quarter_major_donor_prospect_dataframe, major_donor_workbook, "Prospect - Previous Quarter")
+        
+        previous_quarter_major_donor_prospect_total = locale.currency(round(previous_quarter_major_donor_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
+        print(f"Previous Quarter Major Donor Prospect Total: {previous_quarter_major_donor_prospect_total}")
         
         # Working on Current Quarter
         print("Working on Current Quarter")
