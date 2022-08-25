@@ -241,26 +241,40 @@ def write_to_excel(dataframe, workbook, worksheet):
             'font_color': 'white',
             'border': 1,
             'border_color': 'white',
-            'center_across': True
+            'center_across': True,
+            'font_size': '12'
         }
     )
     
     # Setting cell format
-    money = workbook_formatted.add_format({'num_format' : '_(₹* #,##0.00_);_(₹* (#,##0.00);_(₹* "-"??_);_(@_)'})
+    money = workbook_formatted.add_format(
+        {
+            'num_format': '_(₹* #,##0.00_);_(₹* (#,##0.00);_(₹* "-"??_);_(@_)',
+            'font_size': '12'
+        }
+    )
+    
+    hyperlink = workbook_formatted.add_format(
+        {
+            'font_size': '12',
+            'font_color': '#0068DA',
+            'underline': True
+        }
+    )
     
     # Applying Header format
     for col , value in enumerate(dataframe.columns.values):
         worksheet_formatted.write(0, col, value, header_format)
     
     # Applying cell format
-    worksheet_formatted.set_column('D:F', 20, money)
-    worksheet_formatted.set_column('C:C', 70)
+    worksheet_formatted.set_column('A:B', 70, hyperlink)
+    worksheet_formatted.set_column('C:E', 30, money)
     
     # Freeze the header
     worksheet_formatted.freeze_panes(1, 0)
     
     # Set auto filter
-    worksheet_formatted.autofilter(0, 0, last_row_count, last_column_count)
+    worksheet_formatted.autofilter(0, 0, last_row_count, last_column_count)        
 
 def identify_current_quarter():
     global current_quarter, current_quarter_end_date, previous_quarter_end_date, pp_previous_quarter_end_date
@@ -314,6 +328,19 @@ def get_quarter_data():
     result = list(cur.fetchall())
     
     print(result)
+    
+def get_constituent_data():
+    global constituent_dataframe
+    
+    extract_sql = """
+    SELECT * from constituent_list
+    """
+    cur.execute(extract_sql)
+    constituent_data = list(cur.fetchall())
+    
+    # Converting to Panda's Dataframe
+    print("Converting to Panda's Dataframe")
+    constituent_dataframe = pd.DataFrame(constituent_data, columns = ['Constituent_ID', 'Constituent_Name'])
 
 def get_prospect(type):
     global current_quarter_corporate_prospect_total, current_quarter_major_donor_prospect_total, previous_quarter_corporate_prospect_total, previous_quarter_major_donor_prospect_total
@@ -323,34 +350,62 @@ def get_prospect(type):
         
         # Working on Previous Quarter
         print("Working on Previous Quarter")
-        previous_quarter_corporate_prospect_dataframe = previous_quarter_dataframe.query(f'Type == "{type}" and Status == "Prospect"').filter(['Constituent ID', 'Opportunity ID', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount']).drop_duplicates()
+        previous_quarter_corporate_prospect_dataframe = previous_quarter_dataframe.query(f'Type == "{type}" and Status == "Prospect"').filter(['Constituent_ID', 'Opportunity_ID', 'Opportunity_Name', 'Ask Amount', 'Expected Amount', 'Funded Amount']).drop_duplicates()
         print("Previous Quarter Corporate Prospect Dataframe")
         pprint(previous_quarter_corporate_prospect_dataframe)
         
+        # Adding formula and re-arranging columns
+        previous_quarter_corporate_prospect_dataframe_copy = previous_quarter_corporate_prospect_dataframe.copy()
+        previous_quarter_corporate_prospect_dataframe_copy['Opportunity Name'] = previous_quarter_corporate_prospect_dataframe_copy.apply(lambda row: f'=HYPERLINK(CONCATENATE("https://host.nxt.blackbaud.com/opportunities/",{row.Opportunity_ID},"?svcid=renxt&envid=p-dzY8gGigKUidokeljxaQiA"),"{row.Opportunity_Name}")', axis=1)
+        previous_quarter_corporate_prospect_dataframe_copy_with_constituent_name = pd.merge(
+            previous_quarter_corporate_prospect_dataframe_copy,
+            constituent_dataframe,
+            on = 'Constituent_ID',
+            how = 'inner'
+        )
+        previous_quarter_corporate_prospect_dataframe_copy_with_constituent_name['Name'] = previous_quarter_corporate_prospect_dataframe_copy_with_constituent_name.apply(lambda row: f'=HYPERLINK(CONCATENATE("https://host.nxt.blackbaud.com/constituent/records/",{row.Constituent_ID},"?svcid=renxt&envid=p-dzY8gGigKUidokeljxaQiA"),"{row.Constituent_Name}")', axis=1)
+        pprint(previous_quarter_corporate_prospect_dataframe_copy_with_constituent_name)
+        
+        previous_quarter_corporate_prospect_dataframe_excel = previous_quarter_corporate_prospect_dataframe_copy_with_constituent_name.filter(['Name', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount'])
+        
         # Writing to excel
-        write_to_excel(previous_quarter_corporate_prospect_dataframe, corporate_workbook, "Prospect - Previous Quarter")
+        write_to_excel(previous_quarter_corporate_prospect_dataframe_excel, corporate_workbook, "Prospect - Previous Quarter")
         
         previous_quarter_corporate_prospect_total = locale.currency(round(previous_quarter_corporate_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
         print(f"Previous Quarter Corporate Prospect Total: {previous_quarter_corporate_prospect_total}")
         
         # Working on Current Quarter
         print("Working on Current Quarter")
-        current_quarter_corporate_prospect_dataframe = current_quarter_dataframe.query(f'Type == "{type}" and Status == "Prospect"').filter(['Constituent ID', 'Opportunity ID', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount']).drop_duplicates()
+        current_quarter_corporate_prospect_dataframe = current_quarter_dataframe.query(f'Type == "{type}" and Status == "Prospect"').filter(['Constituent_ID', 'Opportunity_ID', 'Opportunity_Name', 'Ask Amount', 'Expected Amount', 'Funded Amount']).drop_duplicates()
         print("Current Quarter Corporate Prospect Dataframe:")
         pprint(current_quarter_corporate_prospect_dataframe)
         
+        # Adding formula and re-arranging columns
+        current_quarter_corporate_prospect_dataframe_copy = current_quarter_corporate_prospect_dataframe.copy()
+        current_quarter_corporate_prospect_dataframe_copy['Opportunity Name'] = current_quarter_corporate_prospect_dataframe_copy.apply(lambda row: f'=HYPERLINK(CONCATENATE("https://host.nxt.blackbaud.com/opportunities/",{row.Opportunity_ID},"?svcid=renxt&envid=p-dzY8gGigKUidokeljxaQiA"),"{row.Opportunity_Name}")', axis=1)
+        current_quarter_corporate_prospect_dataframe_copy_with_constituent_name = pd.merge(
+            current_quarter_corporate_prospect_dataframe_copy,
+            constituent_dataframe,
+            on = 'Constituent_ID',
+            how = 'inner'
+        )
+        current_quarter_corporate_prospect_dataframe_copy_with_constituent_name['Name'] = current_quarter_corporate_prospect_dataframe_copy_with_constituent_name.apply(lambda row: f'=HYPERLINK(CONCATENATE("https://host.nxt.blackbaud.com/constituent/records/",{row.Constituent_ID},"?svcid=renxt&envid=p-dzY8gGigKUidokeljxaQiA"),"{row.Constituent_Name}")', axis=1)
+        pprint(current_quarter_corporate_prospect_dataframe_copy_with_constituent_name)
+        
+        current_quarter_corporate_prospect_dataframe_excel = current_quarter_corporate_prospect_dataframe_copy_with_constituent_name.filter(['Name', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount'])
+        
         # Writing to excel
-        write_to_excel(current_quarter_corporate_prospect_dataframe, corporate_workbook, "Prospect - Current Quarter")
+        write_to_excel(current_quarter_corporate_prospect_dataframe_excel, corporate_workbook, "Prospect - Current Quarter")
         
         current_quarter_corporate_prospect_total = locale.currency(round(current_quarter_corporate_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
         print(f"Current Quarter Corporate Prospect Total: {current_quarter_corporate_prospect_total}")
         
         # Working to get newly added prospects
         print("Working to get newly added prospects")
-        missing_opportunity_id_corporates = list(set(current_quarter_corporate_prospect_dataframe['Opportunity ID']) - set(previous_quarter_corporate_prospect_dataframe['Opportunity ID']) - set(previous_quarter_dataframe['Opportunity ID']))
-        print(f"Opportunity IDs of Newly added prospects: {missing_opportunity_id_corporates}")
+        missing_opportunity_id_corporates = list(set(current_quarter_corporate_prospect_dataframe['Opportunity_ID']) - set(previous_quarter_corporate_prospect_dataframe['Opportunity_ID']) - set(previous_quarter_dataframe['Opportunity_ID']))
+        print(f"Opportunity_IDs of Newly added prospects: {missing_opportunity_id_corporates}")
         
-        newly_added_corporate_prospect_dataframe = current_quarter_corporate_prospect_dataframe[current_quarter_corporate_prospect_dataframe['Opportunity ID'].isin(missing_opportunity_id_corporates)].drop_duplicates()
+        newly_added_corporate_prospect_dataframe = current_quarter_corporate_prospect_dataframe[current_quarter_corporate_prospect_dataframe['Opportunity_ID'].isin(missing_opportunity_id_corporates)].drop_duplicates()
         print("Newly Added Prospect Dataframe:")
         pprint(newly_added_corporate_prospect_dataframe)
         
@@ -370,34 +425,62 @@ def get_prospect(type):
         
         # Working on Previous Quarter
         print("Working on Previous Quarter")
-        previous_quarter_major_donor_prospect_dataframe = previous_quarter_dataframe.query(f'Type == "{type}" and Status == "Prospect"').filter(['Constituent ID', 'Opportunity ID', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount']).drop_duplicates()
+        previous_quarter_major_donor_prospect_dataframe = previous_quarter_dataframe.query(f'Type == "{type}" and Status == "Prospect"').filter(['Constituent_ID', 'Opportunity_ID', 'Opportunity_Name', 'Ask Amount', 'Expected Amount', 'Funded Amount']).drop_duplicates()
         print("Previous Quarter Major Donor Prospect Dataframe")
         pprint(previous_quarter_major_donor_prospect_dataframe)
         
+        # Adding formula and re-arranging columns
+        previous_quarter_major_donor_prospect_dataframe_copy = previous_quarter_major_donor_prospect_dataframe.copy()
+        previous_quarter_major_donor_prospect_dataframe_copy['Opportunity Name'] = previous_quarter_major_donor_prospect_dataframe_copy.apply(lambda row: f'=HYPERLINK(CONCATENATE("https://host.nxt.blackbaud.com/opportunities/",{row.Opportunity_ID},"?svcid=renxt&envid=p-dzY8gGigKUidokeljxaQiA"),"{row.Opportunity_Name}")', axis=1)
+        previous_quarter_major_donor_prospect_dataframe_copy_with_constituent_name = pd.merge(
+            previous_quarter_major_donor_prospect_dataframe_copy,
+            constituent_dataframe,
+            on = 'Constituent_ID',
+            how = 'inner'
+        )
+        previous_quarter_major_donor_prospect_dataframe_copy_with_constituent_name['Name'] = previous_quarter_major_donor_prospect_dataframe_copy_with_constituent_name.apply(lambda row: f'=HYPERLINK(CONCATENATE("https://host.nxt.blackbaud.com/constituent/records/",{row.Constituent_ID},"?svcid=renxt&envid=p-dzY8gGigKUidokeljxaQiA"),"{row.Constituent_Name}")', axis=1)
+        pprint(previous_quarter_major_donor_prospect_dataframe_copy_with_constituent_name)
+        
+        previous_quarter_major_donor_prospect_dataframe_excel = previous_quarter_major_donor_prospect_dataframe_copy_with_constituent_name.filter(['Name', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount'])
+        
         # Writing to excel
-        write_to_excel(previous_quarter_major_donor_prospect_dataframe, major_donor_workbook, "Prospect - Previous Quarter")
+        write_to_excel(previous_quarter_major_donor_prospect_dataframe_excel, major_donor_workbook, "Prospect - Previous Quarter")
         
         previous_quarter_major_donor_prospect_total = locale.currency(round(previous_quarter_major_donor_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
         print(f"Previous Quarter Major Donor Prospect Total: {previous_quarter_major_donor_prospect_total}")
         
         # Working on Current Quarter
         print("Working on Current Quarter")
-        current_quarter_major_donor_prospect_dataframe = current_quarter_dataframe.query(f'Type == "{type}" and Status == "Prospect"').filter(['Constituent ID', 'Opportunity ID', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount']).drop_duplicates()
+        current_quarter_major_donor_prospect_dataframe = current_quarter_dataframe.query(f'Type == "{type}" and Status == "Prospect"').filter(['Constituent_ID', 'Opportunity_ID', 'Opportunity_Name', 'Ask Amount', 'Expected Amount', 'Funded Amount']).drop_duplicates()
         print("Current Quarter Major Donor Prospect Dataframe")
         pprint(current_quarter_major_donor_prospect_dataframe)
         
+        # Adding formula and re-arranging columns
+        current_quarter_major_donor_prospect_dataframe_copy = current_quarter_major_donor_prospect_dataframe.copy()
+        current_quarter_major_donor_prospect_dataframe_copy['Opportunity Name'] = current_quarter_major_donor_prospect_dataframe_copy.apply(lambda row: f'=HYPERLINK(CONCATENATE("https://host.nxt.blackbaud.com/opportunities/",{row.Opportunity_ID},"?svcid=renxt&envid=p-dzY8gGigKUidokeljxaQiA"),"{row.Opportunity_Name}")', axis=1)
+        current_quarter_major_donor_prospect_dataframe_copy_with_constituent_name = pd.merge(
+            current_quarter_major_donor_prospect_dataframe_copy,
+            constituent_dataframe,
+            on = 'Constituent_ID',
+            how = 'inner'
+        )
+        current_quarter_major_donor_prospect_dataframe_copy_with_constituent_name['Name'] = current_quarter_major_donor_prospect_dataframe_copy_with_constituent_name.apply(lambda row: f'=HYPERLINK(CONCATENATE("https://host.nxt.blackbaud.com/constituent/records/",{row.Constituent_ID},"?svcid=renxt&envid=p-dzY8gGigKUidokeljxaQiA"),"{row.Constituent_Name}")', axis=1)
+        pprint(current_quarter_major_donor_prospect_dataframe_copy_with_constituent_name)
+        
+        current_quarter_major_donor_prospect_dataframe_excel = current_quarter_major_donor_prospect_dataframe_copy_with_constituent_name.filter(['Name', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount'])
+        
         # Writing to excel
-        write_to_excel(current_quarter_major_donor_prospect_dataframe, major_donor_workbook, "Prospect - Current Quarter")
+        write_to_excel(current_quarter_major_donor_prospect_dataframe_excel, major_donor_workbook, "Prospect - Current Quarter")
         
         current_quarter_major_donor_prospect_total = locale.currency(round(current_quarter_major_donor_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
         print(f"Current Quarter Major Donor Prospect Total: {current_quarter_major_donor_prospect_total}")
         
         # Working to get newly added prospects
         print("Working to get newly added prospects")
-        missing_opportunity_id_major_donor = list(set(current_quarter_major_donor_prospect_dataframe['Opportunity ID']) - set(previous_quarter_major_donor_prospect_dataframe['Opportunity ID']) - set(previous_quarter_dataframe['Opportunity ID']))
-        print(f"Opportunity IDs of Newly added prospects: {missing_opportunity_id_major_donor}")
+        missing_opportunity_id_major_donor = list(set(current_quarter_major_donor_prospect_dataframe['Opportunity_ID']) - set(previous_quarter_major_donor_prospect_dataframe['Opportunity_ID']) - set(previous_quarter_dataframe['Opportunity_ID']))
+        print(f"Opportunity_IDs of Newly added prospects: {missing_opportunity_id_major_donor}")
         
-        newly_added_major_donor_prospect_dataframe = current_quarter_major_donor_prospect_dataframe[current_quarter_major_donor_prospect_dataframe['Opportunity ID'].isin(missing_opportunity_id_major_donor)].drop_duplicates()
+        newly_added_major_donor_prospect_dataframe = current_quarter_major_donor_prospect_dataframe[current_quarter_major_donor_prospect_dataframe['Opportunity_ID'].isin(missing_opportunity_id_major_donor)].drop_duplicates()
         print("Newly Added Prospect Dataframe:")
         pprint(newly_added_major_donor_prospect_dataframe)
         
@@ -421,6 +504,9 @@ try:
     
     # Identify Current Quarter
     identify_current_quarter()
+    
+    # Get constituent data
+    get_constituent_data()
     
     # Get data for Current quarter
     print("Getting data for Current quarter")
@@ -450,7 +536,7 @@ try:
     
     # Converting to Panda's Dataframe
     print("Converting to Panda's Dataframe")
-    current_quarter_dataframe = pd.DataFrame(current_quarter_data, columns = ['Opportunity ID', 'Ask Amount', 'Constituent ID', 'Date Added', 'Date Modified', 'Expected Amount', 'Funded Amount', 'Opportunity Name', 'Type', 'Status', 'Date'])
+    current_quarter_dataframe = pd.DataFrame(current_quarter_data, columns = ['Opportunity_ID', 'Ask Amount', 'Constituent_ID', 'Date Added', 'Date Modified', 'Expected Amount', 'Funded Amount', 'Opportunity_Name', 'Type', 'Status', 'Date'])
     
     # Setting the datatypes
     print("Setting the datatypes")
@@ -490,7 +576,7 @@ try:
     
     # Converting to Panda's Dataframe
     print("Converting to Panda's Dataframe")
-    previous_quarter_dataframe = pd.DataFrame(previous_quarter_data, columns = ['Opportunity ID', 'Ask Amount', 'Constituent ID', 'Date Added', 'Date Modified', 'Expected Amount', 'Funded Amount', 'Opportunity Name', 'Type', 'Status', 'Date'])
+    previous_quarter_dataframe = pd.DataFrame(previous_quarter_data, columns = ['Opportunity_ID', 'Ask Amount', 'Constituent_ID', 'Date Added', 'Date Modified', 'Expected Amount', 'Funded Amount', 'Opportunity_Name', 'Type', 'Status', 'Date'])
     
     # Setting the datatypes
     print("Setting the datatypes")
