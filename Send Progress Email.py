@@ -380,7 +380,7 @@ def add_formula_to_columns(dataframe):
         dataframe_excel = dataframe_copy_with_constituent_name.filter(['Name', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount'])
 
 def get_prospect(type):
-    global current_quarter_corporate_prospect_total, current_quarter_major_donor_prospect_total, previous_quarter_corporate_prospect_total, previous_quarter_major_donor_prospect_total
+    global current_quarter_corporate_prospect_total, current_quarter_major_donor_prospect_total, previous_quarter_corporate_prospect_total, previous_quarter_major_donor_prospect_total, newly_added_corporate_prospect_total, newly_added_major_donor_prospect_total
     
     if type == "Corporate":
         print(f"Working on {type} Prospect")
