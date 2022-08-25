@@ -262,6 +262,13 @@ def write_to_excel(dataframe, workbook, worksheet):
         }
     )
     
+    black_border = workbook_formatted.add_format(
+        {
+            'border_color': 'black',
+            'border': 1
+        }
+    )
+    
     # Applying Header format
     for col , value in enumerate(dataframe.columns.values):
         worksheet_formatted.write(0, col, value, header_format)
@@ -269,6 +276,7 @@ def write_to_excel(dataframe, workbook, worksheet):
     # Applying cell format
     worksheet_formatted.set_column('A:B', 70, hyperlink)
     worksheet_formatted.set_column('C:E', 30, money)
+    worksheet_formatted.conditional_format(1, 0, last_row_count, last_column_count, {'type': 'no_errors', 'format': black_border})
     
     # Freeze the header
     worksheet_formatted.freeze_panes(1, 0)
