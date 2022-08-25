@@ -350,6 +350,12 @@ def get_constituent_data():
     print("Converting to Panda's Dataframe")
     constituent_dataframe = pd.DataFrame(constituent_data, columns = ['Constituent_ID', 'Constituent_Name'])
 
+def create_empty_dataframe():
+    global empty_dataframe
+    
+    data = [['', '', '', '', '']]
+    empty_dataframe = pd.DataFrame(data, columns = ['Name', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount'])
+    
 def get_prospect(type):
     global current_quarter_corporate_prospect_total, current_quarter_major_donor_prospect_total, previous_quarter_corporate_prospect_total, previous_quarter_major_donor_prospect_total
     
