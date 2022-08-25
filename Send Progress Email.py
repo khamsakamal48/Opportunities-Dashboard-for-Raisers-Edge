@@ -356,6 +356,29 @@ def create_empty_dataframe():
     data = [['', '', '', '', '']]
     empty_dataframe = pd.DataFrame(data, columns = ['Name', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount'])
     
+def add_formula_to_columns(dataframe):
+    global dataframe_excel
+    
+    # Checking if dataframe is empty
+    if dataframe.empty:
+        print("Dataframe is empty")
+        create_empty_dataframe()
+        
+        dataframe_excel = empty_dataframe
+    
+    else:
+        # Adding formula and re-arranging columns
+        dataframe_copy = dataframe.copy()
+        dataframe_copy['Opportunity Name'] = dataframe_copy.apply(lambda row: f'=HYPERLINK(CONCATENATE("https://host.nxt.blackbaud.com/opportunities/",{row.Opportunity_ID},"?svcid=renxt&envid=p-dzY8gGigKUidokeljxaQiA"),"{row.Opportunity_Name}")', axis=1)
+        dataframe_copy_with_constituent_name = pd.merge(
+                                                    dataframe_copy,
+                                                    constituent_dataframe,
+                                                    on = 'Constituent_ID',
+                                                    how = 'inner'
+                                                )
+        dataframe_copy_with_constituent_name['Name'] = dataframe_copy_with_constituent_name.apply(lambda row: f'=HYPERLINK(CONCATENATE("https://host.nxt.blackbaud.com/constituent/records/",{row.Constituent_ID},"?svcid=renxt&envid=p-dzY8gGigKUidokeljxaQiA"),"{row.Constituent_Name}")', axis=1)
+        dataframe_excel = dataframe_copy_with_constituent_name.filter(['Name', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount'])
+
 def get_prospect(type):
     global current_quarter_corporate_prospect_total, current_quarter_major_donor_prospect_total, previous_quarter_corporate_prospect_total, previous_quarter_major_donor_prospect_total
     
@@ -369,18 +392,8 @@ def get_prospect(type):
         pprint(previous_quarter_corporate_prospect_dataframe)
         
         # Adding formula and re-arranging columns
-        previous_quarter_corporate_prospect_dataframe_copy = previous_quarter_corporate_prospect_dataframe.copy()
-        previous_quarter_corporate_prospect_dataframe_copy['Opportunity Name'] = previous_quarter_corporate_prospect_dataframe_copy.apply(lambda row: f'=HYPERLINK(CONCATENATE("https://host.nxt.blackbaud.com/opportunities/",{row.Opportunity_ID},"?svcid=renxt&envid=p-dzY8gGigKUidokeljxaQiA"),"{row.Opportunity_Name}")', axis=1)
-        previous_quarter_corporate_prospect_dataframe_copy_with_constituent_name = pd.merge(
-            previous_quarter_corporate_prospect_dataframe_copy,
-            constituent_dataframe,
-            on = 'Constituent_ID',
-            how = 'inner'
-        )
-        previous_quarter_corporate_prospect_dataframe_copy_with_constituent_name['Name'] = previous_quarter_corporate_prospect_dataframe_copy_with_constituent_name.apply(lambda row: f'=HYPERLINK(CONCATENATE("https://host.nxt.blackbaud.com/constituent/records/",{row.Constituent_ID},"?svcid=renxt&envid=p-dzY8gGigKUidokeljxaQiA"),"{row.Constituent_Name}")', axis=1)
-        pprint(previous_quarter_corporate_prospect_dataframe_copy_with_constituent_name)
-        
-        previous_quarter_corporate_prospect_dataframe_excel = previous_quarter_corporate_prospect_dataframe_copy_with_constituent_name.filter(['Name', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount'])
+        add_formula_to_columns(previous_quarter_corporate_prospect_dataframe)
+        previous_quarter_corporate_prospect_dataframe_excel = dataframe_excel
         
         # Writing to excel
         write_to_excel(previous_quarter_corporate_prospect_dataframe_excel, corporate_workbook, "Prospect - Previous Quarter")
@@ -395,18 +408,8 @@ def get_prospect(type):
         pprint(current_quarter_corporate_prospect_dataframe)
         
         # Adding formula and re-arranging columns
-        current_quarter_corporate_prospect_dataframe_copy = current_quarter_corporate_prospect_dataframe.copy()
-        current_quarter_corporate_prospect_dataframe_copy['Opportunity Name'] = current_quarter_corporate_prospect_dataframe_copy.apply(lambda row: f'=HYPERLINK(CONCATENATE("https://host.nxt.blackbaud.com/opportunities/",{row.Opportunity_ID},"?svcid=renxt&envid=p-dzY8gGigKUidokeljxaQiA"),"{row.Opportunity_Name}")', axis=1)
-        current_quarter_corporate_prospect_dataframe_copy_with_constituent_name = pd.merge(
-            current_quarter_corporate_prospect_dataframe_copy,
-            constituent_dataframe,
-            on = 'Constituent_ID',
-            how = 'inner'
-        )
-        current_quarter_corporate_prospect_dataframe_copy_with_constituent_name['Name'] = current_quarter_corporate_prospect_dataframe_copy_with_constituent_name.apply(lambda row: f'=HYPERLINK(CONCATENATE("https://host.nxt.blackbaud.com/constituent/records/",{row.Constituent_ID},"?svcid=renxt&envid=p-dzY8gGigKUidokeljxaQiA"),"{row.Constituent_Name}")', axis=1)
-        pprint(current_quarter_corporate_prospect_dataframe_copy_with_constituent_name)
-        
-        current_quarter_corporate_prospect_dataframe_excel = current_quarter_corporate_prospect_dataframe_copy_with_constituent_name.filter(['Name', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount'])
+        add_formula_to_columns(current_quarter_corporate_prospect_dataframe)
+        current_quarter_corporate_prospect_dataframe_excel = dataframe_excel
         
         # Writing to excel
         write_to_excel(current_quarter_corporate_prospect_dataframe_excel, corporate_workbook, "Prospect - Current Quarter")
@@ -423,8 +426,12 @@ def get_prospect(type):
         print("Newly Added Prospect Dataframe:")
         pprint(newly_added_corporate_prospect_dataframe)
         
+        # Adding formula and re-arranging columns
+        add_formula_to_columns(newly_added_corporate_prospect_dataframe)
+        newly_added_corporate_prospect_dataframe_excel = dataframe_excel
+        
         # Writing to excel
-        write_to_excel(newly_added_corporate_prospect_dataframe, corporate_workbook, "Prospect - Newly added")
+        write_to_excel(newly_added_corporate_prospect_dataframe_excel, corporate_workbook, "Prospect - Newly added")
         
         # Count of newly added corporate prospects
         newly_added_corporate_prospect_count = len(newly_added_corporate_prospect_dataframe.index)
@@ -444,19 +451,9 @@ def get_prospect(type):
         pprint(previous_quarter_major_donor_prospect_dataframe)
         
         # Adding formula and re-arranging columns
-        previous_quarter_major_donor_prospect_dataframe_copy = previous_quarter_major_donor_prospect_dataframe.copy()
-        previous_quarter_major_donor_prospect_dataframe_copy['Opportunity Name'] = previous_quarter_major_donor_prospect_dataframe_copy.apply(lambda row: f'=HYPERLINK(CONCATENATE("https://host.nxt.blackbaud.com/opportunities/",{row.Opportunity_ID},"?svcid=renxt&envid=p-dzY8gGigKUidokeljxaQiA"),"{row.Opportunity_Name}")', axis=1)
-        previous_quarter_major_donor_prospect_dataframe_copy_with_constituent_name = pd.merge(
-            previous_quarter_major_donor_prospect_dataframe_copy,
-            constituent_dataframe,
-            on = 'Constituent_ID',
-            how = 'inner'
-        )
-        previous_quarter_major_donor_prospect_dataframe_copy_with_constituent_name['Name'] = previous_quarter_major_donor_prospect_dataframe_copy_with_constituent_name.apply(lambda row: f'=HYPERLINK(CONCATENATE("https://host.nxt.blackbaud.com/constituent/records/",{row.Constituent_ID},"?svcid=renxt&envid=p-dzY8gGigKUidokeljxaQiA"),"{row.Constituent_Name}")', axis=1)
-        pprint(previous_quarter_major_donor_prospect_dataframe_copy_with_constituent_name)
-        
-        previous_quarter_major_donor_prospect_dataframe_excel = previous_quarter_major_donor_prospect_dataframe_copy_with_constituent_name.filter(['Name', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount'])
-        
+        add_formula_to_columns(previous_quarter_major_donor_prospect_dataframe)
+        previous_quarter_major_donor_prospect_dataframe_excel = dataframe_excel
+             
         # Writing to excel
         write_to_excel(previous_quarter_major_donor_prospect_dataframe_excel, major_donor_workbook, "Prospect - Previous Quarter")
         
@@ -470,18 +467,8 @@ def get_prospect(type):
         pprint(current_quarter_major_donor_prospect_dataframe)
         
         # Adding formula and re-arranging columns
-        current_quarter_major_donor_prospect_dataframe_copy = current_quarter_major_donor_prospect_dataframe.copy()
-        current_quarter_major_donor_prospect_dataframe_copy['Opportunity Name'] = current_quarter_major_donor_prospect_dataframe_copy.apply(lambda row: f'=HYPERLINK(CONCATENATE("https://host.nxt.blackbaud.com/opportunities/",{row.Opportunity_ID},"?svcid=renxt&envid=p-dzY8gGigKUidokeljxaQiA"),"{row.Opportunity_Name}")', axis=1)
-        current_quarter_major_donor_prospect_dataframe_copy_with_constituent_name = pd.merge(
-            current_quarter_major_donor_prospect_dataframe_copy,
-            constituent_dataframe,
-            on = 'Constituent_ID',
-            how = 'inner'
-        )
-        current_quarter_major_donor_prospect_dataframe_copy_with_constituent_name['Name'] = current_quarter_major_donor_prospect_dataframe_copy_with_constituent_name.apply(lambda row: f'=HYPERLINK(CONCATENATE("https://host.nxt.blackbaud.com/constituent/records/",{row.Constituent_ID},"?svcid=renxt&envid=p-dzY8gGigKUidokeljxaQiA"),"{row.Constituent_Name}")', axis=1)
-        pprint(current_quarter_major_donor_prospect_dataframe_copy_with_constituent_name)
-        
-        current_quarter_major_donor_prospect_dataframe_excel = current_quarter_major_donor_prospect_dataframe_copy_with_constituent_name.filter(['Name', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount'])
+        add_formula_to_columns(current_quarter_major_donor_prospect_dataframe)
+        current_quarter_major_donor_prospect_dataframe_excel = dataframe_excel
         
         # Writing to excel
         write_to_excel(current_quarter_major_donor_prospect_dataframe_excel, major_donor_workbook, "Prospect - Current Quarter")
@@ -498,8 +485,12 @@ def get_prospect(type):
         print("Newly Added Prospect Dataframe:")
         pprint(newly_added_major_donor_prospect_dataframe)
         
+        # Adding formula and re-arranging columns
+        add_formula_to_columns(newly_added_major_donor_prospect_dataframe)
+        newly_added_major_donor_prospect_dataframe_excel = dataframe_excel
+         
         # Writing to excel
-        write_to_excel(newly_added_major_donor_prospect_dataframe, major_donor_workbook, "Prospect - Newly added")
+        write_to_excel(newly_added_major_donor_prospect_dataframe_excel, major_donor_workbook, "Prospect - Newly added")
         
         # Count of newly added major donor prospects
         newly_added_major_donor_prospect_count = len(newly_added_major_donor_prospect_dataframe.index)
