@@ -205,7 +205,15 @@ def print_json(d):
     print(json.dumps(d, indent=4))
       
 def create_excel_file():
-    global corporate_workbook, major_donor_workbook
+    global previous_quarter_workbook, current_quarter_workbook, corporate_workbook, major_donor_workbook
+    
+    # Create a Pandas Excel writer using XlsxWriter as the engine.
+    print("Creating Excel file for Previous Quarter")
+    previous_quarter_workbook = pd.ExcelWriter('Previous_Quarter.xlsx', engine='xlsxwriter', engine_kwargs={'options':{'strings_to_urls': False}})
+    
+    # Create a Pandas Excel writer using XlsxWriter as the engine.
+    print("Creating Excel file for Current Quarter")
+    current_quarter_workbook = pd.ExcelWriter('Current_Quarter.xlsx', engine='xlsxwriter', engine_kwargs={'options':{'strings_to_urls': False}})
     
     # Create a Pandas Excel writer using XlsxWriter as the engine.
     print("Creating Excel file for Corporate")
@@ -216,13 +224,19 @@ def create_excel_file():
     major_donor_workbook = pd.ExcelWriter('Major Donor.xlsx', engine='xlsxwriter', engine_kwargs={'options':{'strings_to_urls': False}})
     
 def save_excel_file():
+    print("Saving Excel file for Previous Quarter")
+    previous_quarter_workbook.save()
+    
+    print("Saving Excel file for Current Quarter")
+    current_quarter_workbook.save()
+    
     print("Saving Excel file for Corporate")
     corporate_workbook.save()
     
     print("Saving Excel file for Major Donor")
     major_donor_workbook.save()
 
-def write_to_excel(dataframe, workbook, worksheet):
+def write_to_excel(dataframe, workbook, worksheet, formatting):
     dataframe.to_excel(workbook, sheet_name=f'{worksheet}', index=False)
     
     # Begin formatting the excel
@@ -233,50 +247,51 @@ def write_to_excel(dataframe, workbook, worksheet):
     last_row_count = len(dataframe.index)
     last_column_count = (dataframe.shape)[1] - 1
     
-    # Setting Header format
-    header_format = workbook_formatted.add_format(
-        {
-            'bg_color': 'orange',
-            'bold': True,
-            'font_color': 'white',
-            'border': 1,
-            'border_color': 'white',
-            'center_across': True,
-            'font_size': '12'
-        }
-    )
-    
-    # Setting cell format
-    money = workbook_formatted.add_format(
-        {
-            'num_format': '_(₹* #,##0.00_);_(₹* (#,##0.00);_(₹* "-"??_);_(@_)',
-            'font_size': '12'
-        }
-    )
-    
-    hyperlink = workbook_formatted.add_format(
-        {
-            'font_size': '12',
-            'font_color': '#0068DA',
-            'underline': True
-        }
-    )
-    
-    black_border = workbook_formatted.add_format(
-        {
-            'border_color': 'black',
-            'border': 1
-        }
-    )
-    
-    # Applying Header format
-    for col , value in enumerate(dataframe.columns.values):
-        worksheet_formatted.write(0, col, value, header_format)
-    
-    # Applying cell format
-    worksheet_formatted.set_column('A:B', 70, hyperlink)
-    worksheet_formatted.set_column('C:E', 30, money)
-    worksheet_formatted.conditional_format(1, 0, last_row_count, last_column_count, {'type': 'no_errors', 'format': black_border})
+    if formatting == "required":
+        # Setting Header format
+        header_format = workbook_formatted.add_format(
+            {
+                'bg_color': 'orange',
+                'bold': True,
+                'font_color': 'white',
+                'border': 1,
+                'border_color': 'white',
+                'center_across': True,
+                'font_size': '12'
+            }
+        )
+        
+        # Setting cell format
+        money = workbook_formatted.add_format(
+            {
+                'num_format': '_(₹* #,##0.00_);_(₹* (#,##0.00);_(₹* "-"??_);_(@_)',
+                'font_size': '12'
+            }
+        )
+        
+        hyperlink = workbook_formatted.add_format(
+            {
+                'font_size': '12',
+                'font_color': '#0068DA',
+                'underline': True
+            }
+        )
+        
+        black_border = workbook_formatted.add_format(
+            {
+                'border_color': 'black',
+                'border': 1
+            }
+        )
+        
+        # Applying Header format
+        for col , value in enumerate(dataframe.columns.values):
+            worksheet_formatted.write(0, col, value, header_format)
+        
+        # Applying cell format
+        worksheet_formatted.set_column('A:B', 70, hyperlink)
+        worksheet_formatted.set_column('C:E', 30, money)
+        worksheet_formatted.conditional_format(1, 0, last_row_count, last_column_count, {'type': 'no_errors', 'format': black_border})
     
     # Freeze the header
     worksheet_formatted.freeze_panes(1, 0)
@@ -396,7 +411,7 @@ def get_prospect(type):
         previous_quarter_corporate_prospect_dataframe_excel = dataframe_excel
         
         # Writing to excel
-        write_to_excel(previous_quarter_corporate_prospect_dataframe_excel, corporate_workbook, "Prospect - Previous Quarter")
+        write_to_excel(previous_quarter_corporate_prospect_dataframe_excel, corporate_workbook, "Prospect - Previous Quarter", "required")
         
         previous_quarter_corporate_prospect_total = locale.currency(round(previous_quarter_corporate_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
         print(f"Previous Quarter Corporate Prospect Total: {previous_quarter_corporate_prospect_total}")
@@ -412,7 +427,7 @@ def get_prospect(type):
         current_quarter_corporate_prospect_dataframe_excel = dataframe_excel
         
         # Writing to excel
-        write_to_excel(current_quarter_corporate_prospect_dataframe_excel, corporate_workbook, "Prospect - Current Quarter")
+        write_to_excel(current_quarter_corporate_prospect_dataframe_excel, corporate_workbook, "Prospect - Current Quarter", "required")
         
         current_quarter_corporate_prospect_total = locale.currency(round(current_quarter_corporate_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
         print(f"Current Quarter Corporate Prospect Total: {current_quarter_corporate_prospect_total}")
@@ -431,7 +446,7 @@ def get_prospect(type):
         newly_added_corporate_prospect_dataframe_excel = dataframe_excel
         
         # Writing to excel
-        write_to_excel(newly_added_corporate_prospect_dataframe_excel, corporate_workbook, "Prospect - Newly added")
+        write_to_excel(newly_added_corporate_prospect_dataframe_excel, corporate_workbook, "Prospect - Newly added", "required")
         
         # Count of newly added corporate prospects
         newly_added_corporate_prospect_count = len(newly_added_corporate_prospect_dataframe.index)
@@ -440,6 +455,19 @@ def get_prospect(type):
         # Amount of newly added corporate prospects
         newly_added_corporate_prospect_total = locale.currency(round(newly_added_corporate_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
         print(f"Amount of newly added {type} prospects: {newly_added_corporate_prospect_total}")
+        
+        # Working to get rejected prospects
+        current_quarter_rejected_dataframe = current_quarter_dataframe.query(f'Type == "{type}" and Status == "Rejected"').filter(['Constituent_ID', 'Opportunity_ID', 'Opportunity_Name', 'Ask Amount', 'Expected Amount', 'Funded Amount']).drop_duplicates()
+        print(f"Current Quarter Rejected Dataframe:")
+        pprint(current_quarter_rejected_dataframe)
+        
+        print("Working to get rejected prospects")
+        rejected_opportunity_id_corporates = list(current_quarter_rejected_dataframe['Opportunity_ID'])
+        print(rejected_opportunity_id_corporates)
+        rejected_corporate_prospect_dataframe = previous_quarter_corporate_prospect_dataframe[previous_quarter_corporate_prospect_dataframe['Opportunity_ID'].isin(rejected_opportunity_id_corporates)].drop_duplicates()
+        pprint(rejected_corporate_prospect_dataframe)
+        
+        # Working to get moved prospects
         
     elif type == "Major Donor":
         print(f"Working on {type} Prospect")
@@ -455,7 +483,7 @@ def get_prospect(type):
         previous_quarter_major_donor_prospect_dataframe_excel = dataframe_excel
              
         # Writing to excel
-        write_to_excel(previous_quarter_major_donor_prospect_dataframe_excel, major_donor_workbook, "Prospect - Previous Quarter")
+        write_to_excel(previous_quarter_major_donor_prospect_dataframe_excel, major_donor_workbook, "Prospect - Previous Quarter", "required")
         
         previous_quarter_major_donor_prospect_total = locale.currency(round(previous_quarter_major_donor_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
         print(f"Previous Quarter Major Donor Prospect Total: {previous_quarter_major_donor_prospect_total}")
@@ -471,7 +499,7 @@ def get_prospect(type):
         current_quarter_major_donor_prospect_dataframe_excel = dataframe_excel
         
         # Writing to excel
-        write_to_excel(current_quarter_major_donor_prospect_dataframe_excel, major_donor_workbook, "Prospect - Current Quarter")
+        write_to_excel(current_quarter_major_donor_prospect_dataframe_excel, major_donor_workbook, "Prospect - Current Quarter", "required")
         
         current_quarter_major_donor_prospect_total = locale.currency(round(current_quarter_major_donor_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
         print(f"Current Quarter Major Donor Prospect Total: {current_quarter_major_donor_prospect_total}")
@@ -490,7 +518,7 @@ def get_prospect(type):
         newly_added_major_donor_prospect_dataframe_excel = dataframe_excel
          
         # Writing to excel
-        write_to_excel(newly_added_major_donor_prospect_dataframe_excel, major_donor_workbook, "Prospect - Newly added")
+        write_to_excel(newly_added_major_donor_prospect_dataframe_excel, major_donor_workbook, "Prospect - Newly added", "required")
         
         # Count of newly added major donor prospects
         newly_added_major_donor_prospect_count = len(newly_added_major_donor_prospect_dataframe.index)
@@ -552,6 +580,9 @@ try:
     
     pprint("Current Quarter Dataframe:")
     print(current_quarter_dataframe)
+        
+    # Writing to excel
+    write_to_excel(current_quarter_dataframe, current_quarter_workbook, "Sheet1", "not_required")
     
     # Get data for Previous quarter
     print("Getting data for Previous quarter")
@@ -592,6 +623,9 @@ try:
     
     pprint("Previous Quarter Dataframe:")
     print(previous_quarter_dataframe)
+        
+    # Writing to excel
+    write_to_excel(previous_quarter_dataframe, previous_quarter_workbook, "Sheet1", "not_required")
     
     # Work on Corporate Prospect
     print("Working on Corporate Prospect")
