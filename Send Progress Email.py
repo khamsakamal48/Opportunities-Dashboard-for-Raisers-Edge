@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import requests, os, json, glob, csv, psycopg2, sys, smtplib, ssl, imaplib, time, datetime, logging, locale, xlsxwriter
+import requests, os, json, glob, csv, psycopg2, sys, smtplib, ssl, imaplib, time, datetime, logging, locale, xlsxwriter, pretty_html_table
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
@@ -12,6 +12,7 @@ from urllib3 import Retry
 from datetime import date, timedelta
 from pprint import pprint
 import pandas as pd
+from pretty_html_table import build_table
 
 # Printing the output to file for debugging
 sys.stdout = open('Process.log', 'w')
@@ -394,8 +395,14 @@ def add_formula_to_columns(dataframe):
         dataframe_copy_with_constituent_name['Name'] = dataframe_copy_with_constituent_name.apply(lambda row: f'=HYPERLINK(CONCATENATE("https://host.nxt.blackbaud.com/constituent/records/",{row.Constituent_ID},"?svcid=renxt&envid=p-dzY8gGigKUidokeljxaQiA"),"{row.Constituent_Name}")', axis=1)
         dataframe_excel = dataframe_copy_with_constituent_name.filter(['Name', 'Opportunity Name', 'Ask Amount', 'Expected Amount', 'Funded Amount'])
 
+# def get_pipeline(type, stage, status, quarter):
+#     print(f"Working on {type} {stage}")
+    
+#     print("Working on {quarter} Quarter")
+#     quarter_type_stage_dataframe = 
+
 def get_prospect(type):
-    global current_quarter_corporate_prospect_total, current_quarter_major_donor_prospect_total, previous_quarter_corporate_prospect_total, previous_quarter_major_donor_prospect_total, newly_added_corporate_prospect_total, newly_added_major_donor_prospect_total
+    global corporate_prospect_table_html
     
     if type == "Corporate":
         print(f"Working on {type} Prospect")
@@ -430,7 +437,11 @@ def get_prospect(type):
         write_to_excel(current_quarter_corporate_prospect_dataframe_excel, corporate_workbook, "Prospect - Current Quarter", "required")
         
         current_quarter_corporate_prospect_total = locale.currency(round(current_quarter_corporate_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
-        print(f"Current Quarter Corporate Prospect Total: {current_quarter_corporate_prospect_total}")
+        print(f"Current Quarter {type} Prospect Total: {current_quarter_corporate_prospect_total}")
+        
+        # Count of carried forwarded corporate prospects
+        current_quarter_corporate_prospect_count = len(current_quarter_corporate_prospect_dataframe.index)
+        print(f"Current Quarter {type} Prospect Count: {current_quarter_corporate_prospect_count}")
         
         # Working to get newly added prospects
         print("Working to get newly added prospects")
@@ -457,17 +468,68 @@ def get_prospect(type):
         print(f"Amount of newly added {type} prospects: {newly_added_corporate_prospect_total}")
         
         # Working to get rejected prospects
-        current_quarter_rejected_dataframe = current_quarter_dataframe.query(f'Type == "{type}" and Status == "Rejected"').filter(['Constituent_ID', 'Opportunity_ID', 'Opportunity_Name', 'Ask Amount', 'Expected Amount', 'Funded Amount']).drop_duplicates()
+        corporate_current_quarter_rejected_dataframe = current_quarter_dataframe.query(f'Type == "{type}" and Status == "Rejected"').filter(['Constituent_ID', 'Opportunity_ID', 'Opportunity_Name', 'Ask Amount', 'Expected Amount', 'Funded Amount']).drop_duplicates()
         print(f"Current Quarter Rejected Dataframe:")
-        pprint(current_quarter_rejected_dataframe)
+        pprint(corporate_current_quarter_rejected_dataframe)
         
         print("Working to get rejected prospects")
-        rejected_opportunity_id_corporates = list(current_quarter_rejected_dataframe['Opportunity_ID'])
+        rejected_opportunity_id_corporates = list(corporate_current_quarter_rejected_dataframe['Opportunity_ID'])
         print(rejected_opportunity_id_corporates)
+        
         rejected_corporate_prospect_dataframe = previous_quarter_corporate_prospect_dataframe[previous_quarter_corporate_prospect_dataframe['Opportunity_ID'].isin(rejected_opportunity_id_corporates)].drop_duplicates()
         pprint(rejected_corporate_prospect_dataframe)
         
+        # Adding formula and re-arranging columns
+        add_formula_to_columns(rejected_corporate_prospect_dataframe)
+        rejected_corporate_prospect_dataframe_excel = dataframe_excel
+        
+        # Writing to excel
+        write_to_excel(rejected_corporate_prospect_dataframe_excel, corporate_workbook, "Prospect - Rejected", "required")
+        
+        # Count of rejected corporate prospects
+        rejected_corporate_prospect_count = len(rejected_corporate_prospect_dataframe.index)
+        print(f"Count of Rejected {type} prospects: {rejected_corporate_prospect_count}")
+        
+        # Amount of rejected corporate prospects
+        rejected_corporate_prospect_total = locale.currency(round(rejected_corporate_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
+        print(f"Amount of Rejected {type} prospects: {rejected_corporate_prospect_total}")
+        
         # Working to get moved prospects
+        moved_prospect_opportunity_id_corporate = list(set(previous_quarter_corporate_prospect_dataframe) - set(current_quarter_corporate_prospect_dataframe) - set(corporate_current_quarter_rejected_dataframe))
+        print(f"Opportunity IDs of moved {type} prospects: {moved_prospect_opportunity_id_corporate}")
+        
+        corporate_current_quarter_prospect_moved_dataframe = previous_quarter_corporate_prospect_dataframe[previous_quarter_corporate_prospect_dataframe['Opportunity_ID'].isin(moved_prospect_opportunity_id_corporate)].drop_duplicates()
+        print(f"Current Quarter {type} Prospect that moved Dataframe:")
+        pprint(corporate_current_quarter_prospect_moved_dataframe)
+        
+        # Adding formula and re-arranging columns
+        add_formula_to_columns(corporate_current_quarter_prospect_moved_dataframe)
+        corporate_current_quarter_prospect_moved_dataframe_excel = dataframe_excel
+        
+        # Writing to excel
+        write_to_excel(corporate_current_quarter_prospect_moved_dataframe_excel, corporate_workbook, "Prospect - Moved", "required")
+        
+        # Count of moved corporate prospects
+        corporate_current_quarter_prospect_moved_count = len(corporate_current_quarter_prospect_moved_dataframe.index)
+        print(f"Count of Prospect Moved {type} prospects: {corporate_current_quarter_prospect_moved_count}")
+        
+        # Amount of moved corporate prospects
+        corporate_current_quarter_prospect_moved_total = locale.currency(round(corporate_current_quarter_prospect_moved_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
+        print(f"Amount of Prospect Moved {type} prospects: {corporate_current_quarter_prospect_moved_total}")
+        
+        # Prepare HTML for Corporate Prospect
+        corporate_prospect_table = {
+            'Total as on previous quarter end': [
+                previous_quarter_corporate_prospect_total
+            ],
+            'Total as on this quarter end': [
+                current_quarter_corporate_prospect_total
+            ]
+        }
+        
+        prepare_html_table(corporate_prospect_table, "center")
+        corporate_prospect_table_html = html_output
+        print(corporate_prospect_table_html)
         
     elif type == "Major Donor":
         print(f"Working on {type} Prospect")
@@ -504,6 +566,10 @@ def get_prospect(type):
         current_quarter_major_donor_prospect_total = locale.currency(round(current_quarter_major_donor_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
         print(f"Current Quarter Major Donor Prospect Total: {current_quarter_major_donor_prospect_total}")
         
+        # Count of carried forwarded major donor prospects
+        current_quarter_major_donor_prospect_count = len(current_quarter_major_donor_prospect_dataframe.index)
+        print(f"Current Quarter {type} Prospect Count: {current_quarter_major_donor_prospect_count}")
+        
         # Working to get newly added prospects
         print("Working to get newly added prospects")
         missing_opportunity_id_major_donor = list(set(current_quarter_major_donor_prospect_dataframe['Opportunity_ID']) - set(previous_quarter_major_donor_prospect_dataframe['Opportunity_ID']) - set(previous_quarter_dataframe['Opportunity_ID']))
@@ -527,7 +593,77 @@ def get_prospect(type):
         # Amount of newly added major donor prospects
         newly_added_major_donor_prospect_total = locale.currency(round(newly_added_major_donor_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
         print(f"Amount of newly added {type} prospects: {newly_added_major_donor_prospect_total}")
+        
+        # Working to get rejected prospects
+        major_donor_current_quarter_rejected_dataframe = current_quarter_dataframe.query(f'Type == "{type}" and Status == "Rejected"').filter(['Constituent_ID', 'Opportunity_ID', 'Opportunity_Name', 'Ask Amount', 'Expected Amount', 'Funded Amount']).drop_duplicates()
+        print(f"Current Quarter Rejected Dataframe:")
+        pprint(major_donor_current_quarter_rejected_dataframe)
+        
+        print("Working to get rejected prospects")
+        rejected_opportunity_id_major_donor = list(major_donor_current_quarter_rejected_dataframe['Opportunity_ID'])
+        print(rejected_opportunity_id_major_donor)
+        
+        rejected_major_donor_prospect_dataframe = previous_quarter_major_donor_prospect_dataframe[previous_quarter_major_donor_prospect_dataframe['Opportunity_ID'].isin(rejected_opportunity_id_major_donor)].drop_duplicates()
+        pprint(rejected_major_donor_prospect_dataframe)
+        
+        # Adding formula and re-arranging columns
+        add_formula_to_columns(rejected_major_donor_prospect_dataframe)
+        rejected_major_donor_prospect_dataframe_excel = dataframe_excel
+        
+        # Writing to excel
+        write_to_excel(rejected_major_donor_prospect_dataframe_excel, major_donor_workbook, "Prospect - Rejected", "required")
+        
+        # Count of rejected corporate prospects
+        rejected_major_donor_prospect_count = len(rejected_major_donor_prospect_dataframe.index)
+        print(f"Count of Rejected {type} prospects: {rejected_major_donor_prospect_count}")
+        
+        # Amount of rejected corporate prospects
+        rejected_major_donor_prospect_total = locale.currency(round(rejected_major_donor_prospect_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
+        print(f"Amount of Rejected {type} prospects: {rejected_major_donor_prospect_total}")
+        
+        # Working to get moved prospects
+        moved_prospect_opportunity_id_major_donor = list(set(previous_quarter_major_donor_prospect_dataframe) - set(current_quarter_major_donor_prospect_dataframe) - set(major_donor_current_quarter_rejected_dataframe))
+        print(f"Opportunity IDs of moved {type} prospects: {moved_prospect_opportunity_id_major_donor}")
+        
+        major_donor_current_quarter_prospect_moved_dataframe = previous_quarter_major_donor_prospect_dataframe[previous_quarter_major_donor_prospect_dataframe['Opportunity_ID'].isin(moved_prospect_opportunity_id_major_donor)].drop_duplicates()
+        print(f"Current Quarter {type} Prospect that moved Dataframe:")
+        pprint(major_donor_current_quarter_prospect_moved_dataframe)
+        
+        # Adding formula and re-arranging columns
+        add_formula_to_columns(major_donor_current_quarter_prospect_moved_dataframe)
+        major_donor_current_quarter_prospect_moved_dataframe_excel = dataframe_excel
+        
+        # Writing to excel
+        write_to_excel(major_donor_current_quarter_prospect_moved_dataframe_excel, major_donor_workbook, "Prospect - Moved", "required")
+        
+        # Count of moved major donor prospects
+        major_donor_current_quarter_prospect_moved_count = len(major_donor_current_quarter_prospect_moved_dataframe.index)
+        print(f"Count of Prospect Moved {type} prospects: {major_donor_current_quarter_prospect_moved_count}")
+        
+        # Amount of moved corporate prospects
+        major_donor_current_quarter_prospect_moved_total = locale.currency(round(major_donor_current_quarter_prospect_moved_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
+        print(f"Amount of Prospect Moved {type} prospects: {major_donor_current_quarter_prospect_moved_total}")
+        
+        # Prepare HTML for Corporate Prospect
+        major_donor_prospect_table = {
+            'Total as on previous quarter end': [
+                previous_quarter_major_donor_prospect_total
+            ],
+            'Total as on this quarter end': [
+                current_quarter_major_donor_prospect_total
+            ]
+        }
+        
+        prepare_html_table(major_donor_prospect_table, "center")
+        major_donor_prospect_table_html = html_output
+        print(major_donor_prospect_table_html)
 
+def prepare_html_table(dataframe, text_align):
+    global html_output
+    
+    data = pd.DataFrame(dataframe)
+    html_output = (build_table(data, 'blue_dark', font_family='Open Sans, Helvetica, Arial, sans-serif', even_color='black', padding='10px', width='900px', font_size='16px', text_align=text_align)).replace("background-color: #D9E1F2;font-family: Open Sans", "background-color: #D9E1F2; color: black;font-family: Open Sans")
+        
 try:
     # Connect to DB
     connect_db()
