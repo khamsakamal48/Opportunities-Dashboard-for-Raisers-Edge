@@ -12,6 +12,7 @@ pip3 install psycopg2
 pip3 install xlsxwriter
 pip3 install pandas 
 pip3 install pretty_html_table
+pip3 install quickchart.io
 
 ```
 - If you encounter error on installing **pyscopg2**, then try:
