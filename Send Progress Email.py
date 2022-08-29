@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import requests, os, json, glob, csv, psycopg2, sys, smtplib, ssl, imaplib, time, datetime, logging, locale, xlsxwriter, pretty_html_table, quickchart
+import requests, os, json, glob, csv, psycopg2, sys, smtplib, ssl, imaplib, time, datetime, logging, locale, xlsxwriter, pretty_html_table, shutil
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
@@ -13,7 +13,6 @@ from datetime import date, timedelta
 from pprint import pprint
 import pandas as pd
 from pretty_html_table import build_table
-from quickchart import QuickChart, QuickChartFunction
 
 # Printing the output to file for debugging
 sys.stdout = open('Process.log', 'w')
@@ -437,7 +436,7 @@ def get_stagewise_data(opportunity_id, dataframe, quarter, type, stage, classifi
     print(f"Amount of {classification} {type} {stage}: {new_dataframe_total}")
 
 def get_prospect(type):
-    global html_output_prospect_summary_table
+    global previous_quarter_prospect_total, html_output_prospect_summary_table
     
     if type == "Corporate":
         workbook = corporate_workbook
@@ -454,13 +453,12 @@ def get_prospect(type):
     get_quarterwise_data(current_quarter_dataframe, "Current", f"{type}", "Prospect", workbook)
     current_quarter_prospect_dataframe = quarter_dataframe
     current_quarter_prospect_total = quarter_dataframe_total
-    ### Count of carried forwarded corporate prospects
     current_quarter_prospect_count = len(current_quarter_prospect_dataframe.index)
     
     ## Working to get newly added prospects
     missing_opportunity_id = list(set(current_quarter_prospect_dataframe['Opportunity_ID']) - set(previous_quarter_prospect_dataframe['Opportunity_ID']) - set(previous_quarter_dataframe['Opportunity_ID']))
     get_stagewise_data(missing_opportunity_id, current_quarter_prospect_dataframe, "Current", f"{type}", "Prospect", "Newly added", workbook)
-    newly_added_prospect_count = new_dataframe
+    newly_added_prospect = new_dataframe
     newly_added_prospect_count = new_dataframe_count
     newly_added_prospect_total = new_dataframe_total
     
@@ -473,11 +471,18 @@ def get_prospect(type):
     rejected_prospect_total = new_dataframe_total
     
     ## Working to get moved prospects
-    moved_prospect_opportunity_id = list(set(previous_quarter_prospect_dataframe) - set(current_quarter_prospect_dataframe) - set(current_quarter_rejected_dataframe))
+    moved_prospect_opportunity_id = list(set(previous_quarter_prospect_dataframe['Opportunity_ID']) - set(current_quarter_prospect_dataframe['Opportunity_ID']) - set(current_quarter_rejected_dataframe['Opportunity_ID']))
     get_stagewise_data(moved_prospect_opportunity_id, previous_quarter_prospect_dataframe, "Current", f"{type}", "Prospect", "Moved", workbook)
     moved_prospect_dataframe = new_dataframe        
     moved_prospect_dataframe_count = new_dataframe_count
     moved_prospect_dataframe_total = new_dataframe_total
+    
+    ## Working to get carried forward prospects
+    carried_forward_prospect_opportunity_id = list(set(previous_quarter_prospect_dataframe['Opportunity_ID']) - set(rejected_prospect_dataframe['Opportunity_ID']) - set(newly_added_prospect['Opportunity_ID']))
+    get_stagewise_data(carried_forward_prospect_opportunity_id, previous_quarter_prospect_dataframe, "Current", f"{type}", "Prospect", "Carried Forward", workbook)
+    carried_forward_prospect_dataframe = new_dataframe        
+    carried_forward_prospect_dataframe_count = new_dataframe_count
+    carried_forward_prospect_dataframe_total = new_dataframe_total
     
     # Prepare HTML for Corporate Prospect Summary
     prepare_summary_table(previous_quarter_prospect_total, current_quarter_prospect_total)
@@ -485,7 +490,7 @@ def get_prospect(type):
     print(html_output_prospect_summary_table)
     
     prepare_detailed_table(newly_added_prospect_total, newly_added_prospect_count, moved_prospect_dataframe_total, moved_prospect_dataframe_count,
-                           rejected_prospect_total, rejected_prospect_count, current_quarter_prospect_total, current_quarter_prospect_count, "", "", "Prospect")
+                           rejected_prospect_total, rejected_prospect_count, carried_forward_prospect_dataframe_count, carried_forward_prospect_dataframe_total, "", "", "Prospect")
     
     html_output_prospect_detailed_table = html_output.replace("Newly added", "<b>Newly added</b>").replace("Moved to the next stage", "<b>Moved to the next stage</b>").replace("Rejected", "<b>Rejected</b>").replace("Carried Forward", "<b>Carried Forward</b>").replace("Moved to the previous stage", "<b>Moved to the previous stage</b>")
     print(html_output_prospect_detailed_table)
@@ -514,40 +519,23 @@ def prepare_detailed_table(newly_added, newly_added_count, moved, moved_count, r
             ]
         }
         
-    prepare_html_table(table, "center")
-    
-    table_chart = {
+        previous_quarter_prospect_total = 100
+        carried_forward = 85
+        rejected = 10
+        moved = 15
+        newly_added = 20
         
-    }
+        url = f"https://quickchart.io/chart/render/zm-023b7940-b8d1-4128-8223-3dcc557557b6?title={stage} Movement&data1={previous_quarter_prospect_total},{carried_forward}&data2=0,{rejected}&data3=0,{moved}&data4=0,{newly_added}"
+        
+    prepare_html_table(table, "center")
+    prepare_chart(url)
 
-def prepare_chart(data):
-    qc = QuickChart()
-    qc.width = 900
-    qc.height = 300
-    qc.device_pixel_ratio = 2.0
-    qc.config = {
-        'type': 'bar',
-        'data': data,
-        'options': {
-            'indexAxis': 'y',
-            'plugins': {
-                'position': 'right',
-            },
-            'title': {
-                'display': 'true',
-                'text': 'Chart.js Bar Chart - Stacked'
-            }
-        },
-        'responsive': 'true',
-        'scales': {
-            'x': {
-                'stacked': 'true'
-            },
-            'y': {
-                'stacked': 'true'
-            }
-        }
-    }
+def prepare_chart(url):
+    response = requests.get(url, stream=True)
+    with open('mychart.png', 'wb') as out_file:
+        shutil.copyfileobj(response.raw, out_file)
+        
+    del response
 
 def prepare_html_table(dataframe, text_align):
     global html_output
