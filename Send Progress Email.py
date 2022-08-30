@@ -525,7 +525,341 @@ def prepare_detailed_table(newly_added, newly_added_count, moved, moved_count, r
         moved = 15
         newly_added = 20
         
-        url = f"https://quickchart.io/chart/render/zm-023b7940-b8d1-4128-8223-3dcc557557b6?title={stage} Movement&data1={previous_quarter_prospect_total},{carried_forward}&data2=0,{rejected}&data3=0,{moved}&data4=0,{newly_added}"
+        # api_data = {
+        #         "type": "horizontalBar",
+        #         "data": {
+        #             "datasets": [
+        #             {
+        #                 "label": "Carried Forward",
+        #                 "backgroundColor": "rgba(198, 195, 195, 0.5)",
+        #                 "borderColor": "gray",
+        #                 "borderWidth": 1,
+        #                 "data": [
+        #                 110,
+        #                 85
+        #                 ],
+        #                 "fill": false,
+        #                 "spanGaps": false,
+        #                 "lineTension": 0.4,
+        #                 "pointRadius": 3,
+        #                 "pointHoverRadius": 3,
+        #                 "pointStyle": "circle",
+        #                 "borderDash": [
+        #                 0,
+        #                 0
+        #                 ],
+        #                 "barPercentage": 0.9,
+        #                 "categoryPercentage": 0.8,
+        #                 "type": "horizontalBar",
+        #                 "hidden": false
+        #             },
+        #             {
+        #                 "label": "Rejected",
+        #                 "backgroundColor": "rgba(255, 0, 0, 0.35)",
+        #                 "borderColor": "red",
+        #                 "borderWidth": 1,
+        #                 "data": [
+        #                 0,
+        #                 5
+        #                 ],
+        #                 "fill": false,
+        #                 "spanGaps": false,
+        #                 "lineTension": 0.4,
+        #                 "pointRadius": 3,
+        #                 "pointHoverRadius": 3,
+        #                 "pointStyle": "circle",
+        #                 "borderDash": [
+        #                 0,
+        #                 0
+        #                 ],
+        #                 "barPercentage": 0.9,
+        #                 "categoryPercentage": 0.8,
+        #                 "type": "horizontalBar",
+        #                 "hidden": false
+        #             },
+        #             {
+        #                 "label": "Newly Added",
+        #                 "backgroundColor": "rgba(54, 162, 235, 0.5)",
+        #                 "borderColor": "rgb(54, 162, 235)",
+        #                 "borderWidth": 1,
+        #                 "data": [
+        #                 0,
+        #                 5
+        #                 ],
+        #                 "fill": false,
+        #                 "spanGaps": false,
+        #                 "lineTension": 0.4,
+        #                 "pointRadius": 3,
+        #                 "pointHoverRadius": 3,
+        #                 "pointStyle": "circle",
+        #                 "borderDash": [
+        #                 0,
+        #                 0
+        #                 ],
+        #                 "barPercentage": 0.9,
+        #                 "categoryPercentage": 0.8,
+        #                 "type": "horizontalBar",
+        #                 "hidden": false
+        #             },
+        #             {
+        #                 "label": "Moved to next stage",
+        #                 "backgroundColor": "rgba(17, 179, 0, 0.35)",
+        #                 "borderColor": "green",
+        #                 "borderWidth": 1,
+        #                 "data": [
+        #                 0,
+        #                 5
+        #                 ],
+        #                 "fill": false,
+        #                 "spanGaps": false,
+        #                 "lineTension": 0.4,
+        #                 "pointRadius": 3,
+        #                 "pointHoverRadius": 3,
+        #                 "pointStyle": "circle",
+        #                 "borderDash": [
+        #                 0,
+        #                 0
+        #                 ],
+        #                 "barPercentage": 0.9,
+        #                 "categoryPercentage": 0.8,
+        #                 "type": "horizontalBar",
+        #                 "hidden": false
+        #             }
+        #             ],
+        #             "labels": [
+        #             "Previous\nQuarter",
+        #             "Current\nQuarter"
+        #             ]
+        #         },
+        #         "options": {
+        #             "title": {
+        #             "text": "Prospect Movement",
+        #             "display": true,
+        #             "position": "top",
+        #             "fontSize": 16,
+        #             "fontFamily": "sans-serif",
+        #             "fontColor": "#000000",
+        #             "fontStyle": "bold",
+        #             "padding": 10,
+        #             "lineHeight": 1.5
+        #             },
+        #             "layout": {
+        #             "padding": {
+        #                 "left": 0,
+        #                 "right": 0,
+        #                 "top": 0,
+        #                 "bottom": 0
+        #             }
+        #             },
+        #             "legend": {
+        #             "position": "top",
+        #             "display": true,
+        #             "align": "center",
+        #             "fullWidth": true,
+        #             "reverse": false,
+        #             "labels": {
+        #                 "fontSize": 12,
+        #                 "fontFamily": "sans-serif",
+        #                 "fontColor": "#000000",
+        #                 "fontStyle": "normal",
+        #                 "padding": 10
+        #             }
+        #             },
+        #             "scales": {
+        #             "xAxes": [
+        #                 {
+        #                 "stacked": true,
+        #                 "ticks": {
+        #                     "display": true,
+        #                     "fontSize": 12,
+        #                     "fontFamily": "sans-serif",
+        #                     "fontColor": "#000000",
+        #                     "fontStyle": "bold",
+        #                     "padding": 0,
+        #                     "stepSize": null,
+        #                     "minRotation": 0,
+        #                     "maxRotation": 50,
+        #                     "mirror": false,
+        #                     "reverse": false
+        #                 },
+        #                 "scaleLabel": {
+        #                     "display": true,
+        #                     "labelString": "Amount in Crores",
+        #                     "lineHeight": 1,
+        #                     "fontColor": "#000000",
+        #                     "fontFamily": "sans-serif",
+        #                     "fontSize": 12,
+        #                     "fontStyle": "bold",
+        #                     "padding": 10
+        #                 },
+        #                 "id": "X1",
+        #                 "display": true,
+        #                 "position": "bottom",
+        #                 "type": "linear",
+        #                 "time": {
+        #                     "unit": false,
+        #                     "stepSize": 1,
+        #                     "displayFormats": {
+        #                     "millisecond": "h:mm:ss.SSS a",
+        #                     "second": "h:mm:ss a",
+        #                     "minute": "h:mm a",
+        #                     "hour": "hA",
+        #                     "day": "MMM D",
+        #                     "week": "ll",
+        #                     "month": "MMM YYYY",
+        #                     "quarter": "[Q]Q - YYYY",
+        #                     "year": "YYYY"
+        #                     }
+        #                 },
+        #                 "distribution": "linear",
+        #                 "gridLines": {
+        #                     "display": true,
+        #                     "color": "rgba(0, 0, 0, 0.1)",
+        #                     "borderDash": [
+        #                     0,
+        #                     0
+        #                     ],
+        #                     "lineWidth": 1,
+        #                     "drawBorder": true,
+        #                     "drawOnChartArea": true,
+        #                     "drawTicks": true,
+        #                     "tickMarkLength": 10,
+        #                     "zeroLineWidth": 1,
+        #                     "zeroLineColor": "rgba(0, 0, 0, 0.25)",
+        #                     "zeroLineBorderDash": [
+        #                     0,
+        #                     0
+        #                     ]
+        #                 },
+        #                 "angleLines": {
+        #                     "display": true,
+        #                     "color": "rgba(0, 0, 0, 0.1)",
+        #                     "borderDash": [
+        #                     0,
+        #                     0
+        #                     ],
+        #                     "lineWidth": 1
+        #                 },
+        #                 "pointLabels": {
+        #                     "display": true,
+        #                     "fontColor": "#666",
+        #                     "fontSize": 10,
+        #                     "fontStyle": "normal"
+        #                 }
+        #                 }
+        #             ],
+        #             "yAxes": [
+        #                 {
+        #                 "stacked": true,
+        #                 "ticks": {
+        #                     "display": true,
+        #                     "fontSize": 12,
+        #                     "fontFamily": "sans-serif",
+        #                     "fontColor": "#000000",
+        #                     "fontStyle": "bold",
+        #                     "padding": 0,
+        #                     "stepSize": null,
+        #                     "minRotation": 0,
+        #                     "maxRotation": 50,
+        #                     "mirror": false,
+        #                     "reverse": false
+        #                 },
+        #                 "id": "Y1",
+        #                 "display": true,
+        #                 "position": "left",
+        #                 "type": "category",
+        #                 "time": {
+        #                     "unit": false,
+        #                     "stepSize": 1,
+        #                     "displayFormats": {
+        #                     "millisecond": "h:mm:ss.SSS a",
+        #                     "second": "h:mm:ss a",
+        #                     "minute": "h:mm a",
+        #                     "hour": "hA",
+        #                     "day": "MMM D",
+        #                     "week": "ll",
+        #                     "month": "MMM YYYY",
+        #                     "quarter": "[Q]Q - YYYY",
+        #                     "year": "YYYY"
+        #                     }
+        #                 },
+        #                 "distribution": "linear",
+        #                 "gridLines": {
+        #                     "display": true,
+        #                     "color": "rgba(0, 0, 0, 0.1)",
+        #                     "borderDash": [
+        #                     0,
+        #                     0
+        #                     ],
+        #                     "lineWidth": 1,
+        #                     "drawBorder": true,
+        #                     "drawOnChartArea": true,
+        #                     "drawTicks": true,
+        #                     "tickMarkLength": 10,
+        #                     "zeroLineWidth": 1,
+        #                     "zeroLineColor": "rgba(0, 0, 0, 0.25)",
+        #                     "zeroLineBorderDash": [
+        #                     0,
+        #                     0
+        #                     ]
+        #                 },
+        #                 "angleLines": {
+        #                     "display": true,
+        #                     "color": "rgba(0, 0, 0, 0.1)",
+        #                     "borderDash": [
+        #                     0,
+        #                     0
+        #                     ],
+        #                     "lineWidth": 1
+        #                 },
+        #                 "pointLabels": {
+        #                     "display": true,
+        #                     "fontColor": "#666",
+        #                     "fontSize": 10,
+        #                     "fontStyle": "normal"
+        #                 },
+        #                 "scaleLabel": {
+        #                     "display": false,
+        #                     "labelString": "Axis label",
+        #                     "lineHeight": 1.2,
+        #                     "fontColor": "#666666",
+        #                     "fontFamily": "sans-serif",
+        #                     "fontSize": 12,
+        #                     "fontStyle": "normal",
+        #                     "padding": 4
+        #                 }
+        #                 }
+        #             ]
+        #             },
+        #             "plugins": {
+        #             "datalabels": {
+        #                 "display": false,
+        #                 "align": "center",
+        #                 "anchor": "center",
+        #                 "backgroundColor": "#eee",
+        #                 "borderColor": "#ddd",
+        #                 "borderRadius": 6,
+        #                 "borderWidth": 1,
+        #                 "padding": 4,
+        #                 "color": "#666666",
+        #                 "font": {
+        #                 "family": "sans-serif",
+        #                 "size": 10,
+        #                 "style": "normal"
+        #                 }
+        #             },
+        #             "tickFormat": ""
+        #             },
+        #             "indexAxis": "y",
+        #             "cutoutPercentage": 50,
+        #             "rotation": -1.5707963267948966,
+        #             "circumference": 6.283185307179586,
+        #             "startAngle": -1.5707963267948966
+        #         }
+        #         }
+        
+        url = f"https://quickchart.io/chart/render/zm-c503bb71-6e5d-4aff-ba5f-2d7d16de50e5?width=900&height=250&title={stage} Movement&data1={previous_quarter_prospect_total},{carried_forward}&data2=0,{rejected}&data3=0,{moved}&data4=0,{newly_added}"
+        
         
     prepare_html_table(table, "center")
     prepare_chart(url)
