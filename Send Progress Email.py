@@ -597,6 +597,8 @@ def get_pipeline(stage, type):
                 
                 frames = [previous_solicitation_dataframe, previous_committed_dataframe]
                 next_stage_dataframe = pd.concat(frames)
+                
+                current_stage = cultivation_dataframe
           
           elif stage == "Solicitation":
                 frames = [prospect_dataframe, cultivation_dataframe]
@@ -605,11 +607,15 @@ def get_pipeline(stage, type):
                 frames = [previous_committed_dataframe, previous_converted_dataframe]
                 next_stage_dataframe = pd.concat(frames)
                 
+                current_stage = solicitation_dataframe
+                
           elif stage == "Committed":
                 frames = [prospect_dataframe, cultivation_dataframe, solicitation_dataframe]
                 previous_stage_dataframe = pd.concat(frames)
                 
                 next_stage_dataframe = previous_converted_dataframe
+                
+                current_stage = committed_dataframe
           
     else:
           create_empty_dataframe()
@@ -617,6 +623,8 @@ def get_pipeline(stage, type):
           
           frames = [previous_cultivation_dataframe, previous_solicitation_dataframe, previous_committed_dataframe, previous_converted_dataframe]
           next_stage_dataframe = pd.concat(frames)
+          
+          current_stage = prospect_dataframe
   
     moved_stage_opportunity_id = list(set(previous_quarter_stage_dataframe['Opportunity_ID']) - set(current_quarter_stage_dataframe['Opportunity_ID']) - set(current_quarter_rejected_dataframe['Opportunity_ID']) - set(previous_stage_dataframe['Opportunity_ID']))
     get_stagewise_data(moved_stage_opportunity_id, previous_quarter_stage_dataframe, "Current", type, stage, "Moved", workbook)
@@ -625,14 +633,15 @@ def get_pipeline(stage, type):
     moved_stage_dataframe_total = new_dataframe_total
     
     ## Working to get carried forward
-    carried_forward_stage_opportunity_id = list(set(previous_quarter_stage_dataframe['Opportunity_ID']) - set(rejected_stage_dataframe['Opportunity_ID']) - set(newly_added_stage['Opportunity_ID']))
+    carried_forward_stage_opportunity_id = list(set(previous_quarter_stage_dataframe['Opportunity_ID']) - set(current_quarter_rejected_dataframe['Opportunity_ID']) - set(newly_added_stage['Opportunity_ID']) - set(moved_stage_dataframe['Opportunity_ID']))
     get_stagewise_data(carried_forward_stage_opportunity_id, previous_quarter_stage_dataframe, "Current", type, stage, "Carried Forward", workbook)
     carried_forward_stage_dataframe = new_dataframe        
     carried_forward_stage_dataframe_count = new_dataframe_count
     carried_forward_stage_dataframe_total = new_dataframe_total
     
     ## Working to get moved from previous stages
-    withdrawn_to_opportunity_id = list(set(current_quarter_stage_dataframe['Opportunity_ID']) - set(previous_quarter_stage_dataframe['Opportunity_ID']) - set(rejected_stage_dataframe['Opportunity_ID']) - set(newly_added_stage['Opportunity_ID']) - set(moved_stage_dataframe['Opportunity_ID']))
+    withdrawn_to_opportunity_id = list(set(current_quarter_stage_dataframe['Opportunity_ID']) - set(previous_quarter_stage_dataframe['Opportunity_ID']) - set(current_quarter_rejected_dataframe['Opportunity_ID']) - set(newly_added_stage['Opportunity_ID']) - set(moved_stage_dataframe['Opportunity_ID']))
+    # withdrawn_to_opportunity_id = list(set(next_stage_dataframe['Opportunity_ID']) - set(current_stage['Opportunity_ID']) - set(rejected_stage_dataframe['Opportunity_ID']) - set(newly_added_stage['Opportunity_ID']) - set(moved_stage_dataframe['Opportunity_ID']) - set(carried_forward_stage_dataframe['Opportunity_ID']))
     get_stagewise_data(withdrawn_to_opportunity_id, current_quarter_stage_dataframe, "Current", type, stage, "Withdrawn", workbook)
     withdrawn_to_stage_dataframe = new_dataframe        
     withdrawn_to_stage_dataframe_count = new_dataframe_count
@@ -644,8 +653,9 @@ def get_pipeline(stage, type):
     moved_to_stage_dataframe_total = ""
     
     if stage != "Prospect":
-          moved_to_previous_opportunity_id = list(set(current_quarter_dataframe['Opportunity_ID']) - set(previous_quarter_stage_dataframe['Opportunity_ID']) - set(next_stage_dataframe['Opportunity_ID']))
-          get_stagewise_data(moved_to_previous_opportunity_id, current_quarter_stage_dataframe, "Current", type, stage, "Moved Back", workbook)
+          # moved_to_previous_opportunity_id = list(set(current_quarter_dataframe['Opportunity_ID']) - set(previous_quarter_stage_dataframe['Opportunity_ID']) - set(next_stage_dataframe['Opportunity_ID']) - set(current_stage['Opportunity_ID']))
+          moved_to_previous_opportunity_id = list(set(previous_quarter_stage_dataframe['Opportunity_ID']) - set(current_quarter_stage_dataframe['Opportunity_ID']) - set(next_stage_dataframe['Opportunity_ID']) - set(current_quarter_rejected_dataframe['Opportunity_ID']))
+          get_stagewise_data(moved_to_previous_opportunity_id, previous_quarter_stage_dataframe, "Current", type, stage, "Moved Back", workbook)
           moved_to_stage_dataframe = new_dataframe        
           moved_to_stage_dataframe_count = new_dataframe_count
           moved_to_stage_dataframe_total = new_dataframe_total
@@ -1048,7 +1058,7 @@ def prepare_detailed_table(newly_added, newly_added_count, moved, moved_count, r
             }
         """
         
-    elif stage == "Cultivation":        
+    else:        
         table = {
             'Progress in this quarter': [
                 'Withdrawn',
@@ -1200,7 +1210,31 @@ def prepare_detailed_table(newly_added, newly_added_count, moved, moved_count, r
                         "categoryPercentage": 0.8,
                         "type": "horizontalBar",
                         "hidden": false
-                    }
+                    },
+                    {
+                        "label": "Moved to previous stage",
+                        "backgroundColor": "rgba(255, 233, 99, 0.61)",
+                        "borderColor": "#ffd100",
+                        "borderWidth": 1,
+                        "data": [
+                        0,
+                        {{moved_back}}
+                        ],
+                        "fill": false,
+                        "spanGaps": false,
+                        "lineTension": 0.4,
+                        "pointRadius": 3,
+                        "pointHoverRadius": 3,
+                        "pointStyle": "circle",
+                        "borderDash": [
+                        0,
+                        0
+                        ],
+                        "barPercentage": 0.9,
+                        "categoryPercentage": 0.8,
+                        "type": "horizontalBar",
+                        "hidden": false
+                    },
                     ],
                     "labels": [
                     "Previous Quarter",
@@ -1442,7 +1476,8 @@ def prepare_detailed_table(newly_added, newly_added_count, moved, moved_count, r
         rejected = str(rejected).replace("₹", "").replace(" Cr.", ""),
         moved = str(moved).replace("₹", "").replace(" Cr.", ""),
         newly_added = str(newly_added).replace("₹", "").replace(" Cr.", ""),
-        withdrawn_to = str(withdrawn_to).replace("₹", "").replace(" Cr.", "")
+        withdrawn_to = str(withdrawn_to).replace("₹", "").replace(" Cr.", ""),
+        moved_back = str(moved_back).replace("₹", "").replace(" Cr.", "")
     )
 
     chart_encoded = (urllib.parse.quote(chart.replace("  ", "").replace("  ", "").replace("\r", "").replace("\n", ""))).replace("Previous%20Quarter", "Previous%5CnQuarter").replace("Current%20Quarter", "Current%5CnQuarter")
@@ -2963,7 +2998,7 @@ def send_email():
                                       </td> 
                                     </tr> 
                                     <tr> 
-                                      <td align="center" style="padding:0;Margin:0;padding-left:20px;padding-right:20px;font-size:0px"><img class="adapt-img" src="data:image/jpg;base64,{{corporate_prospect_pipeline_image}}" alt style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic" width="858" height="286"></td> 
+                                      <td align="center" style="padding:0;Margin:0;padding-left:20px;padding-right:20px;font-size:0px"><img class="adapt-img" src="data:image/jpg;base64,{{corporate_prospect_image}}" alt style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic" width="858" height="286"></td> 
                                     </tr> 
                                     <tr> 
                                       <td align="center" style="padding:0;Margin:0;padding-bottom:20px;padding-left:20px;padding-right:20px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px"><br></p> 
@@ -2973,14 +3008,33 @@ def send_email():
                                       <td align="center" style="padding:20px;Margin:0"><h2 style="Margin:0;line-height:29px;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:24px;font-style:normal;font-weight:normal;color:#000000;text-align:center"><strong>Cultivation</strong></h2></td> 
                                     </tr> 
                                     <tr> 
-                                      <td align="center" style="padding:20px;Margin:0"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px">Text</p></td> 
-                                    </tr> 
+                                        <td align="center" style="padding:0;Margin:0;padding-bottom:20px;padding-left:20px;padding-right:20px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px"><br></p> 
+                                        {{corporate_html_output_cultivation_summary_table}} 
+                                        </td> 
+                                      </tr> 
+                                      <tr> 
+                                        <td align="center" style="padding:0;Margin:0;padding-left:20px;padding-right:20px;font-size:0px"><img class="adapt-img" src="data:image/jpg;base64,{{corporate_cultivation_image}}" alt style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic" width="858" height="286"></td> 
+                                      </tr> 
+                                      <tr> 
+                                        <td align="center" style="padding:0;Margin:0;padding-bottom:20px;padding-left:20px;padding-right:20px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px"><br></p> 
+                                        {{corporate_html_output_cultivation_detailed_table}}</td> 
+                                      </tr> 
                                     <tr> 
                                       <td align="center" style="padding:20px;Margin:0"><h2 style="Margin:0;line-height:29px;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:24px;font-style:normal;font-weight:normal;color:#000000;text-align:center"><strong>Solicitation</strong></h2></td> 
                                     </tr> 
                                     <tr> 
-                                      <td align="center" style="padding:20px;Margin:0"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px">Text</p></td> 
-                                    </tr> 
+                                        <td align="center" style="padding:0;Margin:0;padding-bottom:20px;padding-left:20px;padding-right:20px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px"><br></p> 
+                                        {{corporate_html_output_solicitation_summary_table}} 
+                                        </td> 
+                                      </tr> 
+                                      <tr> 
+                                        <td align="center" style="padding:0;Margin:0;padding-left:20px;padding-right:20px;font-size:0px"><img class="adapt-img" src="data:image/jpg;base64,{{corporate_solicitation_image}}" alt style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic" width="858" height="286"></td> 
+                                      </tr> 
+                                      <tr> 
+                                        <td align="center" style="padding:0;Margin:0;padding-bottom:20px;padding-left:20px;padding-right:20px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px"><br></p> 
+                                        {{corporate_html_output_solicitation_detailed_table}}</td> 
+                                      </tr> 
+                                    <tr>
                                     <tr> 
                                       <td align="center" style="padding:20px;Margin:0"><h2 style="Margin:0;line-height:29px;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:24px;font-style:normal;font-weight:normal;color:#000000;text-align:center"><strong>Committed</strong></h2></td> 
                                     </tr> 
@@ -3052,7 +3106,7 @@ def send_email():
                                         </td> 
                                       </tr> 
                                         <tr>
-                                          <td align="center" style="padding:0;Margin:0;padding-left:20px;padding-right:20px;font-size:0px"><img class="adapt-img" src="data:image/jpg;base64,{{major_donor_prospect_pipeline_image}}" alt style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic" width="858" height="286"></td> 
+                                          <td align="center" style="padding:0;Margin:0;padding-left:20px;padding-right:20px;font-size:0px"><img class="adapt-img" src="data:image/jpg;base64,{{major_donor_prospect_image}}" alt style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic" width="858" height="286"></td> 
                                         </tr>
                                         <tr> 
                                           <td align="center" style="padding:0;Margin:0;padding-bottom:20px;padding-left:20px;padding-right:20px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px"><br></p> 
@@ -3063,15 +3117,33 @@ def send_email():
                                       <td align="center" style="padding:20px;Margin:0"><h2 style="Margin:0;line-height:29px;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:24px;font-style:normal;font-weight:normal;color:#000000;text-align:center"><strong>Cultivation</strong></h2></td> 
                                     </tr> 
                                     <tr> 
-                                      <td align="center" style="padding:20px;Margin:0"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px">Text</p></td> 
-                                    </tr> 
+                                        <td align="center" style="padding:0;Margin:0;padding-bottom:20px;padding-left:20px;padding-right:20px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px"><br></p> 
+                                        {{major_donor_html_output_cultivation_summary_table}} 
+                                        </td> 
+                                      </tr> 
+                                      <tr> 
+                                        <td align="center" style="padding:0;Margin:0;padding-left:20px;padding-right:20px;font-size:0px"><img class="adapt-img" src="data:image/jpg;base64,{{major_donor_cultivation_image}}" alt style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic" width="858" height="286"></td> 
+                                      </tr> 
+                                      <tr> 
+                                        <td align="center" style="padding:0;Margin:0;padding-bottom:20px;padding-left:20px;padding-right:20px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px"><br></p> 
+                                        {{major_donor_html_output_cultivation_detailed_table}}</td> 
+                                      </tr> 
                                     <tr> 
                                       <td align="center" style="padding:20px;Margin:0"><h2 style="Margin:0;line-height:29px;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:24px;font-style:normal;font-weight:normal;color:#000000;text-align:center"><strong>Solicitation</strong></h2></td> 
                                     </tr> 
                                     <tr> 
-                                      <td align="center" style="padding:20px;Margin:0"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px">Text</p></td> 
-                                    </tr> 
-                                    <tr> 
+                                        <td align="center" style="padding:0;Margin:0;padding-bottom:20px;padding-left:20px;padding-right:20px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px"><br></p> 
+                                        {{major_donor_html_output_solicitation_summary_table}} 
+                                        </td> 
+                                      </tr> 
+                                      <tr> 
+                                        <td align="center" style="padding:0;Margin:0;padding-left:20px;padding-right:20px;font-size:0px"><img class="adapt-img" src="data:image/jpg;base64,{{major_donor_solicitation_image}}" alt style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic" width="858" height="286"></td> 
+                                      </tr> 
+                                      <tr> 
+                                        <td align="center" style="padding:0;Margin:0;padding-bottom:20px;padding-left:20px;padding-right:20px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px"><br></p> 
+                                        {{major_donor_html_output_solicitation_detailed_table}}</td> 
+                                      </tr> 
+                                    <tr>
                                       <td align="center" style="padding:20px;Margin:0"><h2 style="Margin:0;line-height:29px;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:24px;font-style:normal;font-weight:normal;color:#000000;text-align:center"><strong>Comitted</strong></h2></td> 
                                     </tr> 
                                     <tr> 
@@ -3171,19 +3243,31 @@ def send_email():
     emailbody = MIMEText(
         Environment().from_string(TEMPLATE).render(
             corporate_html_output_prospect_summary_table = corporate_html_output_prospect_summary_table,
-            corporate_prospect_pipeline_image = corporate_prospect_pipeline_image,
+            corporate_prospect_image = corporate_prospect_image,
             corporate_html_output_prospect_detailed_table = corporate_html_output_prospect_detailed_table,
             major_donor_html_output_prospect_summary_table = major_donor_html_output_prospect_summary_table,
-            major_donor_prospect_pipeline_image = major_donor_prospect_pipeline_image,
-            major_donor_html_output_prospect_detailed_table = major_donor_html_output_prospect_detailed_table
+            major_donor_prospect_image = major_donor_prospect_image,
+            major_donor_html_output_prospect_detailed_table = major_donor_html_output_prospect_detailed_table,
+            corporate_html_output_cultivation_summary_table = corporate_html_output_cultivation_summary_table,
+            corporate_cultivation_image = corporate_cultivation_image,
+            corporate_html_output_cultivation_detailed_table = corporate_html_output_cultivation_detailed_table,
+            major_donor_html_output_cultivation_summary_table = major_donor_html_output_cultivation_summary_table,
+            major_donor_cultivation_image = major_donor_cultivation_image,
+            major_donor_html_output_cultivation_detailed_table = major_donor_html_output_cultivation_detailed_table,
+            corporate_html_output_solicitation_summary_table = corporate_html_output_solicitation_summary_table,
+            corporate_solicitation_image = corporate_solicitation_image,
+            corporate_html_output_solicitation_detailed_table = corporate_html_output_solicitation_detailed_table,
+            major_donor_html_output_solicitation_summary_table = major_donor_html_output_solicitation_summary_table,
+            major_donor_solicitation_image = major_donor_solicitation_image,
+            major_donor_html_output_solicitation_detailed_table = major_donor_html_output_solicitation_detailed_table
         ), "html"
     )
     
     message.attach(emailbody)
     attach_file_to_email(message, 'Corporate.xlsx')
     attach_file_to_email(message, 'Major_Donor.xlsx')
-    attach_file_to_email(message, 'Current_Quarter.xlsx')
-    attach_file_to_email(message, 'Previous_Quarter.xlsx')
+    # attach_file_to_email(message, 'Current_Quarter.xlsx')
+    # attach_file_to_email(message, 'Previous_Quarter.xlsx')
     emailcontent = message.as_string()
     
     # Create secure connection with server and send email
@@ -3306,21 +3390,39 @@ try:
   # Work on Corporate Prospect
   get_pipeline("Prospect", "Corporate")
   corporate_html_output_prospect_summary_table = html_output_summary_table
-  corporate_prospect_pipeline_image = encoded_image
+  corporate_prospect_image = encoded_image
   corporate_html_output_prospect_detailed_table = html_output_detailed_table
   
   # Work on Major Donor Prospect
   get_pipeline("Prospect", "Major Donor")
   major_donor_html_output_prospect_summary_table = html_output_summary_table
-  major_donor_prospect_pipeline_image = encoded_image
+  major_donor_prospect_image = encoded_image
   major_donor_html_output_prospect_detailed_table = html_output_detailed_table
   
   # Work on Corporate Cultivation
   get_pipeline("Cultivation", "Corporate")
+  corporate_html_output_cultivation_summary_table = html_output_summary_table
+  corporate_cultivation_image = encoded_image
+  corporate_html_output_cultivation_detailed_table = html_output_detailed_table
   
   # Work on Major Donor Cultivation
+  get_pipeline("Cultivation", "Major Donor")
+  major_donor_html_output_cultivation_summary_table = html_output_summary_table
+  major_donor_cultivation_image = encoded_image
+  major_donor_html_output_cultivation_detailed_table = html_output_detailed_table
+  
   # Work on Corporate Solicitation
+  get_pipeline("Solicitation", "Corporate")
+  corporate_html_output_solicitation_summary_table = html_output_summary_table
+  corporate_solicitation_image = encoded_image
+  corporate_html_output_solicitation_detailed_table = html_output_detailed_table
+  
   # Work on Major Donor Solicitation
+  get_pipeline("Solicitation", "Major Donor")
+  major_donor_html_output_solicitation_summary_table = html_output_summary_table
+  major_donor_solicitation_image = encoded_image
+  major_donor_html_output_solicitation_detailed_table = html_output_detailed_table
+  
   # Work on Corporate Committed
   # Work on Major Donor Committed
   
