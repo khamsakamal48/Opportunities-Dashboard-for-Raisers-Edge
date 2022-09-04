@@ -101,6 +101,28 @@ def housekeeping():
             os.remove(each_file)
         except:
             pass
+          
+    # Housekeeping
+    multiple_files = glob.glob("*.xlsx")
+
+    # Iterate over the list of filepaths & remove each file.
+    print("Removing old files")
+    for each_file in multiple_files:
+        try:
+            os.remove(each_file)
+        except:
+            pass
+          
+    # Housekeeping
+    multiple_files = glob.glob("*.png")
+
+    # Iterate over the list of filepaths & remove each file.
+    print("Removing old files")
+    for each_file in multiple_files:
+        try:
+            os.remove(each_file)
+        except:
+            pass
 
 def send_error_emails():
     print("Sending email for an error")
@@ -225,7 +247,7 @@ def create_excel_file():
     
     # Create a Pandas Excel writer using XlsxWriter as the engine.
     print("Creating Excel file for Major Donor")
-    major_donor_workbook = pd.ExcelWriter('Major Donor.xlsx', engine='xlsxwriter', engine_kwargs={'options':{'strings_to_urls': False}})
+    major_donor_workbook = pd.ExcelWriter('Major_Donor.xlsx', engine='xlsxwriter', engine_kwargs={'options':{'strings_to_urls': False}})
     
 def save_excel_file():
     print("Saving Excel file for Previous Quarter")
@@ -405,7 +427,7 @@ def get_quarterwise_data(dataframe, quarter, type, stage, workbook): # dataframe
     
     quarter_dataframe = dataframe.query(f'Type == "{type}" and Status == "{stage}"').filter(['Constituent_ID', 'Opportunity_ID', 'Opportunity_Name', 'Ask Amount', 'Expected Amount', 'Funded Amount']).drop_duplicates()
     
-    print("{quarter} quarter {type} {stage} dataframe")
+    print(f"{quarter} quarter {type} {stage} dataframe")
     pprint(quarter_dataframe)
     
     # Adding formula and re-arranging columns
@@ -439,7 +461,7 @@ def get_stagewise_data(opportunity_id, dataframe, quarter, type, stage, classifi
     print(f"Amount of {classification} {type} {stage}: {new_dataframe_total}")
 
 def get_prospect(type):
-    global previous_quarter_prospect_total, html_output_prospect_summary_table, corporate_html_output_prospect_summary_table, corporate_prospect_pipeline_image, corporate_html_output_prospect_detailed_table, major_donor_html_output_prospect_summary_table, major_donor_prospect_pipeline_image, major_donor_html_output_prospect_detailed_table
+    global previous_quarter_prospect_total, html_output_prospect_summary_table, html_output_prospect_detailed_table
     
     if type == "Corporate":
         workbook = corporate_workbook
@@ -448,19 +470,19 @@ def get_prospect(type):
         workbook = major_donor_workbook
     
     ## Previous Quarter
-    get_quarterwise_data(previous_quarter_dataframe, "Previous", f"{type}", "Prospect", workbook)
+    get_quarterwise_data(previous_quarter_dataframe, "Previous", type, "Prospect", workbook)
     previous_quarter_prospect_dataframe = quarter_dataframe
     previous_quarter_prospect_total = quarter_dataframe_total
     
     ## Current Quarter
-    get_quarterwise_data(current_quarter_dataframe, "Current", f"{type}", "Prospect", workbook)
+    get_quarterwise_data(current_quarter_dataframe, "Current", type, "Prospect", workbook)
     current_quarter_prospect_dataframe = quarter_dataframe
     current_quarter_prospect_total = quarter_dataframe_total
     current_quarter_prospect_count = len(current_quarter_prospect_dataframe.index)
     
     ## Working to get newly added prospects
     missing_opportunity_id = list(set(current_quarter_prospect_dataframe['Opportunity_ID']) - set(previous_quarter_prospect_dataframe['Opportunity_ID']) - set(previous_quarter_dataframe['Opportunity_ID']))
-    get_stagewise_data(missing_opportunity_id, current_quarter_prospect_dataframe, "Current", f"{type}", "Prospect", "Newly added", workbook)
+    get_stagewise_data(missing_opportunity_id, current_quarter_prospect_dataframe, "Current", type, "Prospect", "Newly added", workbook)
     newly_added_prospect = new_dataframe
     newly_added_prospect_count = new_dataframe_count
     newly_added_prospect_total = new_dataframe_total
@@ -468,24 +490,31 @@ def get_prospect(type):
     ## Working to get rejected prospects
     current_quarter_rejected_dataframe = current_quarter_dataframe.query(f'Type == "{type}" and Status == "Rejected"').filter(['Constituent_ID', 'Opportunity_ID', 'Opportunity_Name', 'Ask Amount', 'Expected Amount', 'Funded Amount']).drop_duplicates()
     rejected_opportunity_id = list(current_quarter_rejected_dataframe['Opportunity_ID'])
-    get_stagewise_data(rejected_opportunity_id, previous_quarter_prospect_dataframe, "Current", f"{type}", "Rejected", "Prospect", workbook)
+    get_stagewise_data(rejected_opportunity_id, previous_quarter_prospect_dataframe, "Current", type, "Rejected", "Prospect", workbook)
     rejected_prospect_dataframe = new_dataframe
     rejected_prospect_count = new_dataframe_count
     rejected_prospect_total = new_dataframe_total
     
     ## Working to get moved prospects
     moved_prospect_opportunity_id = list(set(previous_quarter_prospect_dataframe['Opportunity_ID']) - set(current_quarter_prospect_dataframe['Opportunity_ID']) - set(current_quarter_rejected_dataframe['Opportunity_ID']))
-    get_stagewise_data(moved_prospect_opportunity_id, previous_quarter_prospect_dataframe, "Current", f"{type}", "Prospect", "Moved", workbook)
+    get_stagewise_data(moved_prospect_opportunity_id, previous_quarter_prospect_dataframe, "Current", type, "Prospect", "Moved", workbook)
     moved_prospect_dataframe = new_dataframe        
     moved_prospect_dataframe_count = new_dataframe_count
     moved_prospect_dataframe_total = new_dataframe_total
     
     ## Working to get carried forward prospects
     carried_forward_prospect_opportunity_id = list(set(previous_quarter_prospect_dataframe['Opportunity_ID']) - set(rejected_prospect_dataframe['Opportunity_ID']) - set(newly_added_prospect['Opportunity_ID']))
-    get_stagewise_data(carried_forward_prospect_opportunity_id, previous_quarter_prospect_dataframe, "Current", f"{type}", "Prospect", "Carried Forward", workbook)
+    get_stagewise_data(carried_forward_prospect_opportunity_id, previous_quarter_prospect_dataframe, "Current", type, "Prospect", "Carried Forward", workbook)
     carried_forward_prospect_dataframe = new_dataframe        
     carried_forward_prospect_dataframe_count = new_dataframe_count
     carried_forward_prospect_dataframe_total = new_dataframe_total
+    
+    ## Working to get moved from previous stages prospects
+    withdrawn_to_opportunity_id = list(set(current_quarter_prospect_dataframe['Opportunity_ID']) - set(previous_quarter_prospect_dataframe['Opportunity_ID']) - set(rejected_prospect_dataframe['Opportunity_ID']) - set(newly_added_prospect['Opportunity_ID']) - set(moved_prospect_dataframe['Opportunity_ID']))
+    get_stagewise_data(withdrawn_to_opportunity_id, current_quarter_prospect_dataframe, "Current", type, "Prospect", "Withdrawn", workbook)
+    withdrawn_to_prospect_dataframe = new_dataframe        
+    withdrawn_to_prospect_dataframe_count = new_dataframe_count
+    withdrawn_to_prospect_dataframe_total = new_dataframe_total
     
     # Prepare HTML for Corporate Prospect Summary
     prepare_summary_table(previous_quarter_prospect_total, current_quarter_prospect_total)
@@ -493,42 +522,36 @@ def get_prospect(type):
     print(html_output_prospect_summary_table)
     
     prepare_detailed_table(newly_added_prospect_total, newly_added_prospect_count, moved_prospect_dataframe_total, moved_prospect_dataframe_count,
-                           rejected_prospect_total, rejected_prospect_count, carried_forward_prospect_dataframe_count, carried_forward_prospect_dataframe_total, "", "", "Prospect")
+                           rejected_prospect_total, rejected_prospect_count, carried_forward_prospect_dataframe_total, carried_forward_prospect_dataframe_count, 
+                           "", "", withdrawn_to_prospect_dataframe_total, withdrawn_to_prospect_dataframe_count, "Prospect")
     
-    html_output_prospect_detailed_table = html_output.replace("Newly added", "<b>Newly added</b>").replace("Moved to the next stage", "<b>Moved to the next stage</b>").replace("Rejected", "<b>Rejected</b>").replace("Carried Forward", "<b>Carried Forward</b>").replace("Moved to the previous stage", "<b>Moved to the previous stage</b>")
+    html_output_prospect_detailed_table = html_output.replace("Newly added", "<b>Newly added</b>").replace("Moved to the next stage", "<b>Moved to the next stage</b>").replace("Rejected", "<b>Rejected</b>").replace("Carried Forward", "<b>Carried Forward</b>").replace("Moved to the previous stage", "<b>Moved to the previous stage</b>").replace("Withdrawn", "<b>Withdrawn</b>")
     print(html_output_prospect_detailed_table)
     
-    if type == "Corporate":
-        corporate_html_output_prospect_summary_table = html_output_prospect_summary_table
-        corporate_prospect_pipeline_image = encoded_image
-        corporate_html_output_prospect_detailed_table = html_output_prospect_detailed_table
-        
-    elif type == "Major Donor":
-        major_donor_html_output_prospect_summary_table = html_output_prospect_summary_table
-        major_donor_prospect_pipeline_image = encoded_image
-        major_donor_html_output_prospect_detailed_table = html_output_prospect_detailed_table
+def prepare_detailed_table(newly_added, newly_added_count, moved, moved_count, rejected, rejected_count, carried_forward, carried_forward_count, moved_back, moved_back_count, withdrawn_to, withdrawn_to_count, stage):
     
-def prepare_detailed_table(newly_added, newly_added_count, moved, moved_count, rejected, rejected_count, carried_forward, carried_forward_count, moved_back, moved_back_count, stage):
-    
-    if stage == "Prospect":
+    if stage == "Prospect":        
         table = {
             'Progress in this quarter': [
+                'Withdrawn',
+                'Carried Forward',
                 'Newly added',
-                'Moved to the next stage',
                 'Rejected',
-                'Carried Forward'
+                'Moved to the next stage'
             ],
             'Amount': [
+                withdrawn_to,
+                carried_forward,
                 newly_added,
-                moved,
                 rejected,
-                carried_forward
+                moved
             ],
             'Count': [
+                withdrawn_to_count,
+                carried_forward_count,
                 newly_added_count,
-                moved_count,
                 rejected_count,
-                carried_forward_count
+                moved_count
             ]
         }
 
@@ -537,6 +560,30 @@ def prepare_detailed_table(newly_added, newly_added_count, moved, moved_count, r
                 "type": "horizontalBar",
                 "data": {
                     "datasets": [
+                    {
+                        "label": "Withdrawn",
+                        "backgroundColor": "rgba(68, 61, 62, 0.4)",
+                        "borderColor": "#736e6e",
+                        "borderWidth": 1,
+                        "data": [
+                        0,
+                        {{withdrawn_to}}
+                        ],
+                        "fill": false,
+                        "spanGaps": false,
+                        "lineTension": 0.4,
+                        "pointRadius": 3,
+                        "pointHoverRadius": 3,
+                        "pointStyle": "circle",
+                        "borderDash": [
+                        0,
+                        0
+                        ],
+                        "barPercentage": 0.9,
+                        "categoryPercentage": 0.8,
+                        "type": "horizontalBar",
+                        "hidden": false
+                    },
                     {
                         "label": "Carried Forward",
                         "backgroundColor": "rgba(198, 195, 195, 0.5)",
@@ -562,13 +609,13 @@ def prepare_detailed_table(newly_added, newly_added_count, moved, moved_count, r
                         "hidden": false
                     },
                     {
-                        "label": "Rejected",
-                        "backgroundColor": "rgba(255, 0, 0, 0.35)",
-                        "borderColor": "red",
+                        "label": "Newly Added",
+                        "backgroundColor": "rgba(54, 162, 235, 0.5)",
+                        "borderColor": "rgb(54, 162, 235)",
                         "borderWidth": 1,
                         "data": [
                         0,
-                        {{rejected}}
+                        {{newly_added}}
                         ],
                         "fill": false,
                         "spanGaps": false,
@@ -586,13 +633,13 @@ def prepare_detailed_table(newly_added, newly_added_count, moved, moved_count, r
                         "hidden": false
                     },
                     {
-                        "label": "Newly Added",
-                        "backgroundColor": "rgba(54, 162, 235, 0.5)",
-                        "borderColor": "rgb(54, 162, 235)",
+                        "label": "Rejected",
+                        "backgroundColor": "rgba(255, 0, 0, 0.35)",
+                        "borderColor": "red",
                         "borderWidth": 1,
                         "data": [
                         0,
-                        {{newly_added}}
+                        {{rejected}}
                         ],
                         "fill": false,
                         "spanGaps": false,
@@ -873,12 +920,13 @@ def prepare_detailed_table(newly_added, newly_added_count, moved, moved_count, r
             carried_forward = str(carried_forward).replace("₹", "").replace(" Cr.", ""),
             rejected = str(rejected).replace("₹", "").replace(" Cr.", ""),
             moved = str(moved).replace("₹", "").replace(" Cr.", ""),
-            newly_added = str(newly_added).replace("₹", "").replace(" Cr.", "")
+            newly_added = str(newly_added).replace("₹", "").replace(" Cr.", ""),
+            withdrawn_to = str(withdrawn_to).replace("₹", "").replace(" Cr.", "")
         )
         
-        chart_encoded = (urllib.parse.quote(chart.replace("\r", "").replace("\n", ""))).replace("Previous%20Quarter", "Previous%5CnQuarter").replace("Current%20Quarter", "Current%5CnQuarter")
+        chart_encoded = (urllib.parse.quote(chart.replace("  ", "").replace("  ", "").replace("\r", "").replace("\n", ""))).replace("Previous%20Quarter", "Previous%5CnQuarter").replace("Current%20Quarter", "Current%5CnQuarter")
         
-        url = f"https://quickchart.io/chart?width=1920&height=550&devicePixelRatio=2.0&backgroundColor=white&c={chart_encoded}"
+        url = f"https://quickchart.io/chart?width=1920&height=550&devicePixelRatio=2.0&backgroundColor=white&encoding=url&c={chart_encoded}"
         
     prepare_html_table(table, "center")
     prepare_chart(url)
@@ -893,7 +941,6 @@ def prepare_chart(url):
     # Converting to base64
     with open("mychart.png", "rb") as image_file:
         encoded_image = base64.b64encode(image_file.read()).decode("utf-8")
-        # encoded_image = encoded.decode("utf-8")
         
     del response
     
@@ -2605,13 +2652,17 @@ a[x-apple-data-detectors] {
             corporate_html_output_prospect_summary_table = corporate_html_output_prospect_summary_table,
             corporate_prospect_pipeline_image = corporate_prospect_pipeline_image,
             corporate_html_output_prospect_detailed_table = corporate_html_output_prospect_detailed_table,
-            major_donor_html_output_prospect_summary_table = corporate_html_output_prospect_summary_table,
-            major_donor_prospect_pipeline_image = corporate_prospect_pipeline_image,
-            major_donor_html_output_prospect_detailed_table = corporate_html_output_prospect_detailed_table
+            major_donor_html_output_prospect_summary_table = major_donor_html_output_prospect_summary_table,
+            major_donor_prospect_pipeline_image = major_donor_prospect_pipeline_image,
+            major_donor_html_output_prospect_detailed_table = major_donor_html_output_prospect_detailed_table
         ), "html"
     )
     
     message.attach(emailbody)
+    attach_file_to_email(message, 'Corporate.xlsx')
+    attach_file_to_email(message, 'Major_Donor.xlsx')
+    # attach_file_to_email(message, 'Current_Quarter.xlsx')
+    # attach_file_to_email(message, 'Previous_Quarter.xlsx')
     emailcontent = message.as_string()
     
     # Create secure connection with server and send email
@@ -2629,131 +2680,142 @@ a[x-apple-data-detectors] {
         imap.logout()
 
 try:
-    # Connect to DB
-    connect_db()
-    
-    # Create excel file
-    create_excel_file()
-    
-    # Identify Current Quarter
-    identify_current_quarter()
-    
-    # Get constituent data
-    get_constituent_data()
-    
-    # Get data for Current quarter
-    print("Getting data for Current quarter")
-    new_date = current_quarter_end_date
-    
-    while current_quarter_end_date:
-        query_date = new_date
-        print(f"Querying Current Quarter's data for date: {query_date}")
-        get_quarter_data()
-        
-        if result == []:
-            # Subtracting the day by 1
-            new_date = query_date - timedelta(days=1)
-            
-            # Ensuring that the reduced date is not from last quarter
-            if new_date <= previous_quarter_end_date:
-                current_quarter_data = []
-                break
-            
-        else:
-            current_quarter_data = result
-            result = []
-            break
-        
-    print("Current Quarter Data:")
-    pprint(current_quarter_data)
-    
-    # Converting to Panda's Dataframe
-    print("Converting to Panda's Dataframe")
-    current_quarter_dataframe = pd.DataFrame(current_quarter_data, columns = ['Opportunity_ID', 'Ask Amount', 'Constituent_ID', 'Date Added', 'Date Modified', 'Expected Amount', 'Funded Amount', 'Opportunity_Name', 'Type', 'Status', 'Date'])
-    
-    # Setting the datatypes
-    print("Setting the datatypes")
-    current_quarter_dataframe[['Ask Amount']] = current_quarter_dataframe[['Ask Amount']].apply(pd.to_numeric)
-    current_quarter_dataframe[['Expected Amount']] = current_quarter_dataframe[['Expected Amount']].apply(pd.to_numeric)
-    current_quarter_dataframe[['Funded Amount']] = current_quarter_dataframe[['Funded Amount']].apply(pd.to_numeric)
-    current_quarter_dataframe[['Date']] = current_quarter_dataframe[['Date']].apply(pd.to_datetime)
-    
-    pprint("Current Quarter Dataframe:")
-    print(current_quarter_dataframe)
-        
-    # Writing to excel
-    write_to_excel(current_quarter_dataframe, current_quarter_workbook, "Sheet1", "not_required")
-    
-    # Get data for Previous quarter
-    print("Getting data for Previous quarter")
-    new_date = previous_quarter_end_date
-    
-    while previous_quarter_end_date:
-        query_date = new_date
-        print(f"Querying Previous Quarter's data for date: {query_date}")
-        get_quarter_data()
-        
-        if result == []:
-            # Subtracting the day by 1
-            new_date = query_date - timedelta(days=1)
-            
-            # Ensuring that the reduced date is not from last quarter
-            if new_date <= pp_previous_quarter_end_date:
-                previous_quarter_data = []
-                break
-            
-        else:
-            previous_quarter_data = result
-            result = []
-            break
-        
-    print("Previous Quarter Data:")
-    pprint(previous_quarter_data)
-    
-    # Converting to Panda's Dataframe
-    print("Converting to Panda's Dataframe")
-    previous_quarter_dataframe = pd.DataFrame(previous_quarter_data, columns = ['Opportunity_ID', 'Ask Amount', 'Constituent_ID', 'Date Added', 'Date Modified', 'Expected Amount', 'Funded Amount', 'Opportunity_Name', 'Type', 'Status', 'Date'])
-    
-    # Setting the datatypes
-    print("Setting the datatypes")
-    previous_quarter_dataframe[['Ask Amount']] = previous_quarter_dataframe[['Ask Amount']].apply(pd.to_numeric)
-    previous_quarter_dataframe[['Expected Amount']] = previous_quarter_dataframe[['Expected Amount']].apply(pd.to_numeric)
-    previous_quarter_dataframe[['Funded Amount']] = previous_quarter_dataframe[['Funded Amount']].apply(pd.to_numeric)
-    previous_quarter_dataframe[['Date']] = previous_quarter_dataframe[['Date']].apply(pd.to_datetime)
-    
-    pprint("Previous Quarter Dataframe:")
-    print(previous_quarter_dataframe)
-        
-    # Writing to excel
-    write_to_excel(previous_quarter_dataframe, previous_quarter_workbook, "Sheet1", "not_required")
-    
-    # Work on Corporate Prospect
-    get_prospect("Corporate")
-    
-    # Work on Major Donor Prospect
-    get_prospect("Major Donor")
-    
-    # Work on Corporate Cultivation
-    # Work on Major Donor Cultivation
-    # Work on Corporate Solicitation
-    # Work on Major Donor Solicitation
-    # Work on Corporate Committed
-    # Work on Major Donor Committed
-    
-    # Send Email
-    send_email()
+  
+  # Housekeeping
+  housekeeping()
+  
+  # Connect to DB
+  connect_db()
+  
+  # Create excel file
+  create_excel_file()
+  
+  # Identify Current Quarter
+  identify_current_quarter()
+  
+  # Get constituent data
+  get_constituent_data()
+  
+  # Get data for Current quarter
+  print("Getting data for Current quarter")
+  new_date = current_quarter_end_date
+  
+  while current_quarter_end_date:
+      query_date = new_date
+      print(f"Querying Current Quarter's data for date: {query_date}")
+      get_quarter_data()
+      
+      if result == []:
+          # Subtracting the day by 1
+          new_date = query_date - timedelta(days=1)
+          
+          # Ensuring that the reduced date is not from last quarter
+          if new_date <= previous_quarter_end_date:
+              current_quarter_data = []
+              break
+          
+      else:
+          current_quarter_data = result
+          result = []
+          break
+      
+  print("Current Quarter Data:")
+  pprint(current_quarter_data)
+  
+  # Converting to Panda's Dataframe
+  print("Converting to Panda's Dataframe")
+  current_quarter_dataframe = pd.DataFrame(current_quarter_data, columns = ['Opportunity_ID', 'Ask Amount', 'Constituent_ID', 'Date Added', 'Date Modified', 'Expected Amount', 'Funded Amount', 'Opportunity_Name', 'Type', 'Status', 'Date'])
+  
+  # Setting the datatypes
+  print("Setting the datatypes")
+  current_quarter_dataframe[['Ask Amount']] = current_quarter_dataframe[['Ask Amount']].apply(pd.to_numeric)
+  current_quarter_dataframe[['Expected Amount']] = current_quarter_dataframe[['Expected Amount']].apply(pd.to_numeric)
+  current_quarter_dataframe[['Funded Amount']] = current_quarter_dataframe[['Funded Amount']].apply(pd.to_numeric)
+  current_quarter_dataframe[['Date']] = current_quarter_dataframe[['Date']].apply(pd.to_datetime)
+  
+  pprint("Current Quarter Dataframe:")
+  print(current_quarter_dataframe)
+      
+  # Writing to excel
+  write_to_excel(current_quarter_dataframe, current_quarter_workbook, "Sheet1", "not_required")
+  
+  # Get data for Previous quarter
+  print("Getting data for Previous quarter")
+  new_date = previous_quarter_end_date
+  
+  while previous_quarter_end_date:
+      query_date = new_date
+      print(f"Querying Previous Quarter's data for date: {query_date}")
+      get_quarter_data()
+      
+      if result == []:
+          # Subtracting the day by 1
+          new_date = query_date - timedelta(days=1)
+          
+          # Ensuring that the reduced date is not from last quarter
+          if new_date <= pp_previous_quarter_end_date:
+              previous_quarter_data = []
+              break
+          
+      else:
+          previous_quarter_data = result
+          result = []
+          break
+      
+  print("Previous Quarter Data:")
+  pprint(previous_quarter_data)
+  
+  # Converting to Panda's Dataframe
+  print("Converting to Panda's Dataframe")
+  previous_quarter_dataframe = pd.DataFrame(previous_quarter_data, columns = ['Opportunity_ID', 'Ask Amount', 'Constituent_ID', 'Date Added', 'Date Modified', 'Expected Amount', 'Funded Amount', 'Opportunity_Name', 'Type', 'Status', 'Date'])
+  
+  # Setting the datatypes
+  print("Setting the datatypes")
+  previous_quarter_dataframe[['Ask Amount']] = previous_quarter_dataframe[['Ask Amount']].apply(pd.to_numeric)
+  previous_quarter_dataframe[['Expected Amount']] = previous_quarter_dataframe[['Expected Amount']].apply(pd.to_numeric)
+  previous_quarter_dataframe[['Funded Amount']] = previous_quarter_dataframe[['Funded Amount']].apply(pd.to_numeric)
+  previous_quarter_dataframe[['Date']] = previous_quarter_dataframe[['Date']].apply(pd.to_datetime)
+  
+  pprint("Previous Quarter Dataframe:")
+  print(previous_quarter_dataframe)
+      
+  # Writing to excel
+  write_to_excel(previous_quarter_dataframe, previous_quarter_workbook, "Sheet1", "not_required")
+  
+  # Work on Corporate Prospect
+  get_prospect("Corporate")
+  corporate_html_output_prospect_summary_table = html_output_prospect_summary_table
+  corporate_prospect_pipeline_image = encoded_image
+  corporate_html_output_prospect_detailed_table = html_output_prospect_detailed_table
+  
+  # Work on Major Donor Prospect
+  get_prospect("Major Donor")
+  major_donor_html_output_prospect_summary_table = html_output_prospect_summary_table
+  major_donor_prospect_pipeline_image = encoded_image
+  major_donor_html_output_prospect_detailed_table = html_output_prospect_detailed_table
+  
+  # Work on Corporate Cultivation
+  # Work on Major Donor Cultivation
+  # Work on Corporate Solicitation
+  # Work on Major Donor Solicitation
+  # Work on Corporate Committed
+  # Work on Major Donor Committed
+  
+  # Save excel file
+  save_excel_file()
+  
+  # Send Email
+  send_email()
 
 except Exception as Argument:
-    subject = "Error while preparing opportunity pipeline progress from Raisers Edge"
-    print(subject)
-    send_error_emails()
+  subject = "Error while preparing opportunity pipeline progress from Raisers Edge"
+  print(subject)
+  send_error_emails()
     
-finally:  
-    # Save excel file
-    save_excel_file()
-    
-    # Do housekeeping
-    housekeeping()
-    
-    # Disconnect DB
-    disconnect_db()
+finally:
+
+  # Do housekeeping
+  housekeeping()
+  
+  # Disconnect DB
+  disconnect_db()
