@@ -442,7 +442,9 @@ def get_quarterwise_data(dataframe, quarter, type, stage, workbook): # dataframe
     # Writing to excel
     write_to_excel(dataframe_excel, workbook, f"{stage} - {quarter} Quarter", "required")
     
-    quarter_dataframe_total = locale.currency(round(quarter_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
+    # quarter_dataframe_total = locale.currency(round(quarter_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
+    # quarter_dataframe_total = locale.currency(quarter_dataframe['Ask Amount'].sum()/10000000, grouping=True).replace(".00", "") + " Cr."
+    quarter_dataframe_total = locale.currency(quarter_dataframe['Ask Amount'].sum()/10000000, grouping=True) + " Cr."
     print(f"{quarter} Quarter {type} {stage} Total: {quarter_dataframe_total}")
 
 def get_stagewise_data(opportunity_id, dataframe, quarter, type, stage, classification, workbook): # opportunity IDs to query on, current/previous quarter, Corporate/Major Donor, Newly added/Rejected, excel workbook
@@ -467,7 +469,15 @@ def get_stagewise_data(opportunity_id, dataframe, quarter, type, stage, classifi
     print(f"Count of {classification} {type} {stage}: {new_dataframe_count}")
     
     # Get Amount
-    new_dataframe_total = locale.currency(round(new_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
+    if stage == "Committed":
+          # new_dataframe_total = locale.currency(round(new_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
+          # new_dataframe_total = locale.currency(new_dataframe['Ask Amount'].sum()/10000000, grouping=True).replace(".00", "") + " Cr."
+          new_dataframe_total = locale.currency(new_dataframe['Expected Amount'].sum()/10000000, grouping=True) + " Cr."
+    else:
+          # new_dataframe_total = locale.currency(round(new_dataframe['Ask Amount'].sum()/10000000), grouping=True).replace(".00", "") + " Cr."
+          # new_dataframe_total = locale.currency(new_dataframe['Ask Amount'].sum()/10000000, grouping=True).replace(".00", "") + " Cr."
+          new_dataframe_total = locale.currency(new_dataframe['Ask Amount'].sum()/10000000, grouping=True) + " Cr."
+          
     print(f"Amount of {classification} {type} {stage}: {new_dataframe_total}")
 
 # def get_prospect(type):
@@ -595,10 +605,15 @@ def get_pipeline(stage, type):
           if stage == "Cultivation":
                 previous_stage_dataframe = prospect_dataframe
                 
-                frames = [previous_solicitation_dataframe, previous_committed_dataframe]
+                frames = [previous_solicitation_dataframe, previous_committed_dataframe, previous_converted_dataframe]
                 next_stage_dataframe = pd.concat(frames)
                 
+                frames = [solicitation_dataframe, committed_dataframe, converted_dataframe]
+                next_stage_dataframe_current = pd.concat(frames)
+                
                 current_stage = cultivation_dataframe
+                
+                previous_stage = previous_cultivation_dataframe
           
           elif stage == "Solicitation":
                 frames = [prospect_dataframe, cultivation_dataframe]
@@ -607,7 +622,12 @@ def get_pipeline(stage, type):
                 frames = [previous_committed_dataframe, previous_converted_dataframe]
                 next_stage_dataframe = pd.concat(frames)
                 
+                frames = [committed_dataframe, converted_dataframe]
+                next_stage_dataframe_current = pd.concat(frames)
+                
                 current_stage = solicitation_dataframe
+                
+                previous_stage = previous_solicitation_dataframe
                 
           elif stage == "Committed":
                 frames = [prospect_dataframe, cultivation_dataframe, solicitation_dataframe]
@@ -615,7 +635,11 @@ def get_pipeline(stage, type):
                 
                 next_stage_dataframe = previous_converted_dataframe
                 
+                next_stage_dataframe_current = converted_dataframe
+                
                 current_stage = committed_dataframe
+                
+                previous_stage = previous_committed_dataframe
           
     else:
           create_empty_dataframe()
@@ -624,17 +648,26 @@ def get_pipeline(stage, type):
           frames = [previous_cultivation_dataframe, previous_solicitation_dataframe, previous_committed_dataframe, previous_converted_dataframe]
           next_stage_dataframe = pd.concat(frames)
           
+          frames = [cultivation_dataframe, solicitation_dataframe, committed_dataframe, converted_dataframe]
+          next_stage_dataframe_current = pd.concat(frames)
+          
           current_stage = prospect_dataframe
+          
+          previous_stage = previous_prospect_dataframe
   
-    moved_stage_opportunity_id = list(set(previous_quarter_stage_dataframe['Opportunity_ID']) - set(current_quarter_stage_dataframe['Opportunity_ID']) - set(current_quarter_rejected_dataframe['Opportunity_ID']) - set(previous_stage_dataframe['Opportunity_ID']))
-    get_stagewise_data(moved_stage_opportunity_id, previous_quarter_stage_dataframe, "Current", type, stage, "Moved", workbook)
+    moved_to_next = previous_quarter_stage_dataframe.merge(next_stage_dataframe_current, on=['Opportunity_ID'])
+    # # moved_stage_opportunity_id = list(set(previous_quarter_stage_dataframe['Opportunity_ID']) - set(current_quarter_stage_dataframe['Opportunity_ID']) - set(current_quarter_rejected_dataframe['Opportunity_ID']) - set(previous_stage_dataframe['Opportunity_ID']))
+    # moved_stage_opportunity_id = list(set(previous_quarter_stage_dataframe['Opportunity_ID']) - set(next_stage_dataframe['Opportunity_ID']))
+    moved_stage_opportunity_id = list(set(moved_to_next['Opportunity_ID']))
+    get_stagewise_data(moved_stage_opportunity_id, current_quarter_dataframe, "Current", type, stage, "Moved", workbook)
     moved_stage_dataframe = new_dataframe        
     moved_stage_dataframe_count = new_dataframe_count
     moved_stage_dataframe_total = new_dataframe_total
     
     ## Working to get carried forward
-    carried_forward_stage_opportunity_id = list(set(previous_quarter_stage_dataframe['Opportunity_ID']) - set(current_quarter_rejected_dataframe['Opportunity_ID']) - set(newly_added_stage['Opportunity_ID']) - set(moved_stage_dataframe['Opportunity_ID']))
-    get_stagewise_data(carried_forward_stage_opportunity_id, previous_quarter_stage_dataframe, "Current", type, stage, "Carried Forward", workbook)
+    carried_forward = previous_quarter_stage_dataframe.merge(current_quarter_stage_dataframe, on=['Opportunity_ID'])
+    carried_forward_stage_opportunity_id = list(set(carried_forward['Opportunity_ID']))
+    get_stagewise_data(carried_forward_stage_opportunity_id, current_quarter_stage_dataframe, "Current", type, stage, "Carried Forward", workbook)
     carried_forward_stage_dataframe = new_dataframe        
     carried_forward_stage_dataframe_count = new_dataframe_count
     carried_forward_stage_dataframe_total = new_dataframe_total
@@ -642,7 +675,7 @@ def get_pipeline(stage, type):
     ## Working to get moved from previous stages
     withdrawn_to_opportunity_id = list(set(current_quarter_stage_dataframe['Opportunity_ID']) - set(previous_quarter_stage_dataframe['Opportunity_ID']) - set(current_quarter_rejected_dataframe['Opportunity_ID']) - set(newly_added_stage['Opportunity_ID']) - set(moved_stage_dataframe['Opportunity_ID']))
     # withdrawn_to_opportunity_id = list(set(next_stage_dataframe['Opportunity_ID']) - set(current_stage['Opportunity_ID']) - set(rejected_stage_dataframe['Opportunity_ID']) - set(newly_added_stage['Opportunity_ID']) - set(moved_stage_dataframe['Opportunity_ID']) - set(carried_forward_stage_dataframe['Opportunity_ID']))
-    get_stagewise_data(withdrawn_to_opportunity_id, current_quarter_stage_dataframe, "Current", type, stage, "Withdrawn", workbook)
+    get_stagewise_data(withdrawn_to_opportunity_id, current_quarter_stage_dataframe, "Current", type, stage, "Moved from other", workbook)
     withdrawn_to_stage_dataframe = new_dataframe        
     withdrawn_to_stage_dataframe_count = new_dataframe_count
     withdrawn_to_stage_dataframe_total = new_dataframe_total
@@ -653,8 +686,10 @@ def get_pipeline(stage, type):
     moved_to_stage_dataframe_total = ""
     
     if stage != "Prospect":
+          moved_to_previous = previous_quarter_stage_dataframe.merge(previous_stage_dataframe, on=['Opportunity_ID'])
           # moved_to_previous_opportunity_id = list(set(current_quarter_dataframe['Opportunity_ID']) - set(previous_quarter_stage_dataframe['Opportunity_ID']) - set(next_stage_dataframe['Opportunity_ID']) - set(current_stage['Opportunity_ID']))
-          moved_to_previous_opportunity_id = list(set(previous_quarter_stage_dataframe['Opportunity_ID']) - set(current_quarter_stage_dataframe['Opportunity_ID']) - set(next_stage_dataframe['Opportunity_ID']) - set(current_quarter_rejected_dataframe['Opportunity_ID']))
+          moved_to_previous_opportunity_id = list(set(moved_to_previous['Opportunity_ID']))
+          # moved_to_previous_opportunity_id = list(set(previous_quarter_stage_dataframe['Opportunity_ID']) - set(current_quarter_stage_dataframe['Opportunity_ID']) - set(next_stage_dataframe['Opportunity_ID']) - set(current_quarter_rejected_dataframe['Opportunity_ID']))
           get_stagewise_data(moved_to_previous_opportunity_id, previous_quarter_stage_dataframe, "Current", type, stage, "Moved Back", workbook)
           moved_to_stage_dataframe = new_dataframe        
           moved_to_stage_dataframe_count = new_dataframe_count
@@ -669,7 +704,7 @@ def get_pipeline(stage, type):
                            rejected_stage_total, rejected_stage_count, carried_forward_stage_dataframe_total, carried_forward_stage_dataframe_count, 
                            moved_to_stage_dataframe_total, moved_to_stage_dataframe_count, withdrawn_to_stage_dataframe_total, withdrawn_to_stage_dataframe_count, stage)
     
-    html_output_detailed_table = html_output.replace("Newly added", "<b>Newly added</b>").replace("Moved to the next stage", "<b>Moved to the next stage</b>").replace("Rejected", "<b>Rejected</b>").replace("Carried Forward", "<b>Carried Forward</b>").replace("Moved to the previous stage", "<b>Moved to the previous stage</b>").replace("Withdrawn", "<b>Withdrawn</b>")
+    html_output_detailed_table = html_output.replace("Newly added", "<b>Newly added</b>").replace("Moved to the next stage", "<b>Moved to the next stage</b>").replace("Rejected", "<b>Rejected</b>").replace("Carried Forward", "<b>Carried Forward</b>").replace("Moved to the previous stage", "<b>Moved to the previous stage</b>").replace("Moved from other stages", "<b>Moved from other stages</b>")
     print(html_output_detailed_table)
     
 def prepare_detailed_table(newly_added, newly_added_count, moved, moved_count, rejected, rejected_count, carried_forward, carried_forward_count, moved_back, moved_back_count, withdrawn_to, withdrawn_to_count, stage):
@@ -677,7 +712,7 @@ def prepare_detailed_table(newly_added, newly_added_count, moved, moved_count, r
     if stage == "Prospect":        
         table = {
             'Progress in this quarter': [
-                'Withdrawn',
+                'Moved from other stages',
                 'Carried Forward',
                 'Newly added',
                 'Rejected',
@@ -705,7 +740,7 @@ def prepare_detailed_table(newly_added, newly_added_count, moved, moved_count, r
                 "data": {
                     "datasets": [
                     {
-                        "label": "Withdrawn",
+                        "label": "Moved from other stages",
                         "backgroundColor": "rgba(68, 61, 62, 0.4)",
                         "borderColor": "#736e6e",
                         "borderWidth": 1,
@@ -1061,7 +1096,7 @@ def prepare_detailed_table(newly_added, newly_added_count, moved, moved_count, r
     else:        
         table = {
             'Progress in this quarter': [
-                'Withdrawn',
+                'Moved from other stages',
                 'Carried Forward',
                 'Newly added',
                 'Rejected',
@@ -1092,7 +1127,7 @@ def prepare_detailed_table(newly_added, newly_added_count, moved, moved_count, r
                 "data": {
                     "datasets": [
                     {
-                        "label": "Withdrawn",
+                        "label": "Moved from other stages",
                         "backgroundColor": "rgba(68, 61, 62, 0.4)",
                         "borderColor": "#736e6e",
                         "borderWidth": 1,
@@ -3039,8 +3074,18 @@ def send_email():
                                       <td align="center" style="padding:20px;Margin:0"><h2 style="Margin:0;line-height:29px;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:24px;font-style:normal;font-weight:normal;color:#000000;text-align:center"><strong>Committed</strong></h2></td> 
                                     </tr> 
                                     <tr> 
-                                      <td align="center" style="padding:20px;Margin:0"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px">Text</p></td> 
-                                    </tr> 
+                                        <td align="center" style="padding:0;Margin:0;padding-bottom:20px;padding-left:20px;padding-right:20px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px"><br></p> 
+                                        {{corporate_html_output_committed_summary_table}} 
+                                        </td> 
+                                      </tr> 
+                                      <tr> 
+                                        <td align="center" style="padding:0;Margin:0;padding-left:20px;padding-right:20px;font-size:0px"><img class="adapt-img" src="data:image/jpg;base64,{{corporate_committed_image}}" alt style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic" width="858" height="286"></td> 
+                                      </tr> 
+                                      <tr> 
+                                        <td align="center" style="padding:0;Margin:0;padding-bottom:20px;padding-left:20px;padding-right:20px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px"><br></p> 
+                                        {{corporate_html_output_committed_detailed_table}}</td> 
+                                      </tr> 
+                                    <tr> 
                                     <tr> 
                                       <td align="center" height="20" style="padding:0;Margin:0"></td> 
                                     </tr> 
@@ -3144,11 +3189,21 @@ def send_email():
                                         {{major_donor_html_output_solicitation_detailed_table}}</td> 
                                       </tr> 
                                     <tr>
-                                      <td align="center" style="padding:20px;Margin:0"><h2 style="Margin:0;line-height:29px;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:24px;font-style:normal;font-weight:normal;color:#000000;text-align:center"><strong>Comitted</strong></h2></td> 
+                                      <td align="center" style="padding:20px;Margin:0"><h2 style="Margin:0;line-height:29px;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:24px;font-style:normal;font-weight:normal;color:#000000;text-align:center"><strong>Committed</strong></h2></td> 
                                     </tr> 
                                     <tr> 
-                                      <td align="center" style="padding:20px;Margin:0"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px">Text</p></td> 
-                                    </tr> 
+                                        <td align="center" style="padding:0;Margin:0;padding-bottom:20px;padding-left:20px;padding-right:20px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px"><br></p> 
+                                        {{major_donor_html_output_committed_summary_table}} 
+                                        </td> 
+                                      </tr> 
+                                      <tr> 
+                                        <td align="center" style="padding:0;Margin:0;padding-left:20px;padding-right:20px;font-size:0px"><img class="adapt-img" src="data:image/jpg;base64,{{major_donor_committed_image}}" alt style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic" width="858" height="286"></td> 
+                                      </tr> 
+                                      <tr> 
+                                        <td align="center" style="padding:0;Margin:0;padding-bottom:20px;padding-left:20px;padding-right:20px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px"><br></p> 
+                                        {{major_donor_html_output_committed_detailed_table}}</td> 
+                                      </tr> 
+                                    <tr> 
                                   </table></td> 
                                 </tr> 
                               </table></td> 
@@ -3259,7 +3314,13 @@ def send_email():
             corporate_html_output_solicitation_detailed_table = corporate_html_output_solicitation_detailed_table,
             major_donor_html_output_solicitation_summary_table = major_donor_html_output_solicitation_summary_table,
             major_donor_solicitation_image = major_donor_solicitation_image,
-            major_donor_html_output_solicitation_detailed_table = major_donor_html_output_solicitation_detailed_table
+            major_donor_html_output_solicitation_detailed_table = major_donor_html_output_solicitation_detailed_table,
+            corporate_html_output_committed_summary_table = corporate_html_output_committed_summary_table,
+            corporate_committed_image = corporate_committed_image,
+            corporate_html_output_committed_detailed_table = corporate_html_output_committed_detailed_table,
+            major_donor_html_output_committed_summary_table = major_donor_html_output_committed_summary_table,
+            major_donor_committed_image = major_donor_committed_image,
+            major_donor_html_output_committed_detailed_table = major_donor_html_output_committed_detailed_table
         ), "html"
     )
     
@@ -3424,7 +3485,16 @@ try:
   major_donor_html_output_solicitation_detailed_table = html_output_detailed_table
   
   # Work on Corporate Committed
+  get_pipeline("Committed", "Corporate")
+  corporate_html_output_committed_summary_table = html_output_summary_table
+  corporate_committed_image = encoded_image
+  corporate_html_output_committed_detailed_table = html_output_detailed_table
+  
   # Work on Major Donor Committed
+  get_pipeline("Committed", "Major Donor")
+  major_donor_html_output_committed_summary_table = html_output_summary_table
+  major_donor_committed_image = encoded_image
+  major_donor_html_output_committed_detailed_table = html_output_detailed_table
   
   # Save excel file
   save_excel_file()
@@ -3433,6 +3503,7 @@ try:
   send_email()
 
 except Exception as Argument:
+  
   subject = "Error while preparing opportunity pipeline progress from Raisers Edge"
   print(subject)
   send_error_emails()
