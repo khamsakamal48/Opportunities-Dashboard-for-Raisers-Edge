@@ -2956,7 +2956,18 @@ def send_email():
                                   <td valign="top" align="center" style="padding:0;Margin:0;width:900px"> 
                                   <table width="100%" cellspacing="0" cellpadding="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px"> 
                                     <tr> 
-                                      <td align="left" style="padding:20px;Margin:0"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px">Dear Team,<br><br>Please find the below progress report of the Opportunities as recorded in Raisers Edge.</p></td> 
+                                      <td align="left" style="padding:20px;Margin:0"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px">Dear Team,<br><br>Please find the below progress report of the Opportunities as recorded in Raisers Edge.
+                                      <br><br>
+                                      <b><u>Definitions:</u></b>
+                                      <ul style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px">
+                                        <li><b>Moved from other stages:</b> Opportunities that were in a different status in the last quarter, but for the current quarter has moved to the existing status</li>
+                                        <li><b>Carried forward:</b> Opportunities that got carried forward from the last quarter as their status in the current quarter is same as in the last quarter</li>
+                                        <li><b>Newly added:</b> Opportunities that were added only in the current quarter</li>
+                                        <li><b>Rejected:</b> Opportunities that got rejected in the current quarter</li>
+                                        <li><b>Moved to the next stage:</b> Opportunities that progressed to the next stage of pipeline in the current quarter</li>
+                                        <li><b>Moved to the previous stage:</b> Opportunities that falled back to a former stage of pipeline in the current quarter</li>
+                                      </ul>
+                                      </p></td> 
                                     </tr> 
                                   </table></td> 
                                 </tr> 
@@ -3040,7 +3051,7 @@ def send_email():
                                       {{corporate_html_output_prospect_detailed_table}}</td> 
                                     </tr> 
                                     <tr> 
-                                      <td align="center" style="padding:20px;Margin:0"><h2 style="Margin:0;line-height:29px;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:24px;font-style:normal;font-weight:normal;color:#000000;text-align:center"><strong>Cultivation</strong></h2></td> 
+                                      <td align="center" style="padding:0;Margin:0;padding-top:20px;padding-bottom:0px;padding-left:20px;padding-right:20px;"><h2 style="Margin:0;line-height:29px;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:24px;font-style:normal;font-weight:normal;color:#000000;text-align:center"><strong>Cultivation</strong></h2></td> 
                                     </tr> 
                                     <tr> 
                                         <td align="center" style="padding:0;Margin:0;padding-bottom:20px;padding-left:20px;padding-right:20px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px"><br></p> 
@@ -3055,7 +3066,7 @@ def send_email():
                                         {{corporate_html_output_cultivation_detailed_table}}</td> 
                                       </tr> 
                                     <tr> 
-                                      <td align="center" style="padding:20px;Margin:0"><h2 style="Margin:0;line-height:29px;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:24px;font-style:normal;font-weight:normal;color:#000000;text-align:center"><strong>Solicitation</strong></h2></td> 
+                                      <td align="center" style="padding:0;Margin:0;padding-top:20px;padding-bottom:0px;padding-left:20px;padding-right:20px;"><h2 style="Margin:0;line-height:29px;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:24px;font-style:normal;font-weight:normal;color:#000000;text-align:center"><strong>Solicitation</strong></h2></td> 
                                     </tr> 
                                     <tr> 
                                         <td align="center" style="padding:0;Margin:0;padding-bottom:20px;padding-left:20px;padding-right:20px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px"><br></p> 
@@ -3071,7 +3082,7 @@ def send_email():
                                       </tr> 
                                     <tr>
                                     <tr> 
-                                      <td align="center" style="padding:20px;Margin:0"><h2 style="Margin:0;line-height:29px;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:24px;font-style:normal;font-weight:normal;color:#000000;text-align:center"><strong>Committed</strong></h2></td> 
+                                      <td align="center" style="padding:0;Margin:0;padding-top:20px;padding-bottom:0px;padding-left:20px;padding-right:20px;"><h2 style="Margin:0;line-height:29px;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:24px;font-style:normal;font-weight:normal;color:#000000;text-align:center"><strong>Committed</strong></h2></td> 
                                     </tr> 
                                     <tr> 
                                         <td align="center" style="padding:0;Margin:0;padding-bottom:20px;padding-left:20px;padding-right:20px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px"><br></p> 
@@ -3143,7 +3154,7 @@ def send_email():
                                       </table></td> 
                                     </tr> 
                                     <tr> 
-                                      <td align="center" style="padding:20px;Margin:0"><h2 style="Margin:0;line-height:29px;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:24px;font-style:normal;font-weight:normal;color:#000000;text-align:center"><strong>Prospect</strong></h2></td> 
+                                      <td align="center" style="padding:0;Margin:0;padding-top:20px;padding-bottom:0px;padding-left:20px;padding-right:20px;"><h2 style="Margin:0;line-height:29px;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:24px;font-style:normal;font-weight:normal;color:#000000;text-align:center"><strong>Prospect</strong></h2></td> 
                                     </tr> 
                                       <tr> 
                                         <td align="center" style="padding:0;Margin:0;padding-bottom:20px;padding-left:20px;padding-right:20px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px"><br></p> 
@@ -3159,7 +3170,7 @@ def send_email():
                                           </td> 
                                         </tr> 
                                     <tr> 
-                                      <td align="center" style="padding:20px;Margin:0"><h2 style="Margin:0;line-height:29px;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:24px;font-style:normal;font-weight:normal;color:#000000;text-align:center"><strong>Cultivation</strong></h2></td> 
+                                      <td align="center" style="padding:0;Margin:0;padding-top:20px;padding-bottom:0px;padding-left:20px;padding-right:20px;"><h2 style="Margin:0;line-height:29px;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:24px;font-style:normal;font-weight:normal;color:#000000;text-align:center"><strong>Cultivation</strong></h2></td> 
                                     </tr> 
                                     <tr> 
                                         <td align="center" style="padding:0;Margin:0;padding-bottom:20px;padding-left:20px;padding-right:20px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px"><br></p> 
@@ -3174,7 +3185,7 @@ def send_email():
                                         {{major_donor_html_output_cultivation_detailed_table}}</td> 
                                       </tr> 
                                     <tr> 
-                                      <td align="center" style="padding:20px;Margin:0"><h2 style="Margin:0;line-height:29px;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:24px;font-style:normal;font-weight:normal;color:#000000;text-align:center"><strong>Solicitation</strong></h2></td> 
+                                      <td align="center" style="padding:0;Margin:0;padding-top:20px;padding-bottom:0px;padding-left:20px;padding-right:20px;"><h2 style="Margin:0;line-height:29px;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:24px;font-style:normal;font-weight:normal;color:#000000;text-align:center"><strong>Solicitation</strong></h2></td> 
                                     </tr> 
                                     <tr> 
                                         <td align="center" style="padding:0;Margin:0;padding-bottom:20px;padding-left:20px;padding-right:20px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px"><br></p> 
@@ -3189,7 +3200,7 @@ def send_email():
                                         {{major_donor_html_output_solicitation_detailed_table}}</td> 
                                       </tr> 
                                     <tr>
-                                      <td align="center" style="padding:20px;Margin:0"><h2 style="Margin:0;line-height:29px;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:24px;font-style:normal;font-weight:normal;color:#000000;text-align:center"><strong>Committed</strong></h2></td> 
+                                      <td align="center" style="padding:0;Margin:0;padding-top:20px;padding-bottom:0px;padding-left:20px;padding-right:20px;"><h2 style="Margin:0;line-height:29px;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:24px;font-style:normal;font-weight:normal;color:#000000;text-align:center"><strong>Committed</strong></h2></td> 
                                     </tr> 
                                     <tr> 
                                         <td align="center" style="padding:0;Margin:0;padding-bottom:20px;padding-left:20px;padding-right:20px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px"><br></p> 
