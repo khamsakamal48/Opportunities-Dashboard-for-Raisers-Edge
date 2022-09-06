@@ -102,16 +102,16 @@ def housekeeping():
         except:
             pass
           
-    # # Housekeeping
-    # multiple_files = glob.glob("*.xlsx")
+    # Housekeeping
+    multiple_files = glob.glob("*.xlsx")
 
-    # # Iterate over the list of filepaths & remove each file.
-    # print("Removing old files")
-    # for each_file in multiple_files:
-    #     try:
-    #         os.remove(each_file)
-    #     except:
-    #         pass
+    # Iterate over the list of filepaths & remove each file.
+    print("Removing old files")
+    for each_file in multiple_files:
+        try:
+            os.remove(each_file)
+        except:
+            pass
           
     # Housekeeping
     multiple_files = glob.glob("*.png")
