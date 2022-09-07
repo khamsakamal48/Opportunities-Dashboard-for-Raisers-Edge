@@ -130,11 +130,16 @@ python3 'Refresh Access Token.py'
 
 ```
 
-Set a CRON job to refresh token and start the program
+Set CRON jobs to refresh token and start the program
 ```bash
 
 */42 * * * * cd Opportunities-Dashboard-for-Raisers-Edge/ && python3 Refresh\ Access\ Token.py > /dev/null 2>&1
 @weekly cd Opportunities-Dashboard-for-Raisers-Edge/ && python3 Download\ Opportunities\ from\ RE.py > /dev/null 2>&1
-0 9 * * 1 cd Opportunities-Dashboard-for-Raisers-Edge/ && python3 Send\ Dashboard\ Email.py > /dev/null 2>&1
+
+# Sending Opportunity Dashboard on the first and third mondays of a month at 10AM
+0 10 1-7,15-22 * * [ "$(date '+\%u')" = "1" ] && cd Opportunities-Dashboard-for-Raisers-Edge/ && python3 Send\ Dashboard\ Email.py > /dev/null 2>&1
+
+# Sending Opportunity Progress on the first Monday of a month at 10AM
+0 10 1-7 * * [ "$(date '+\%u')" = "1" ] && cd Opportunities-Dashboard-for-Raisers-Edge/ && python3 Send\ Progress\ Email.py > /dev/null 2>&1
 
 ```
