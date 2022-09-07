@@ -241,7 +241,7 @@ def get_constituent_from_re():
     
     # Request parameters for Blackbaud API request
     params = {
-        'fields': 'id, name',
+        'fields': 'id, name, type',
         'limit': '5000'
     }
     
@@ -269,7 +269,7 @@ def get_constituent_from_re():
             
     # Parse from JSON and write to CSV file
     # Header of CSV file
-    header = ['constituent_id', 'name']
+    header = ['constituent_id', 'name', 'type']
 
     with open('Constituents_in_RE.csv', 'w', encoding='UTF8') as csv_file:
         writer = csv.writer(csv_file, delimiter = ";")
@@ -293,7 +293,7 @@ def get_constituent_from_re():
             json_content = json.load(json_file)
 
             for results in json_content['value']:
-                data = (results['id'],results['name'].replace(";", ","))
+                data = (results['id'],results['name'].replace(";", ","),results['type'])
                 
                 with open('Constituents_in_RE.csv', 'a', encoding='UTF8') as csv_file:
                     writer = csv.writer(csv_file, delimiter = ";")
