@@ -55,7 +55,8 @@ CREATE TABLE opportunity_list
 CREATE TABLE constituent_list
 (
     constituent_id character varying,
-    name character varying
+    name character varying,
+    type character varying
 );
 
 ```
@@ -139,7 +140,7 @@ Set CRON jobs to refresh token and start the program
 # Sending Opportunity Dashboard on the first and third mondays of a month at 10AM
 0 10 1-7,15-22 * * [ "$(date '+\%u')" = "1" ] && cd Opportunities-Dashboard-for-Raisers-Edge/ && python3 Send\ Dashboard\ Email.py > /dev/null 2>&1
 
-# Sending Opportunity Progress on the first Monday of a month at 10AM
-0 10 1-7 * * [ "$(date '+\%u')" = "1" ] && cd Opportunities-Dashboard-for-Raisers-Edge/ && python3 Send\ Progress\ Email.py > /dev/null 2>&1
+# Sending Opportunity Progress on the first Monday of a month at 11AM
+0 11 1-7 * * [ "$(date '+\%u')" = "1" ] && cd Opportunities-Dashboard-for-Raisers-Edge/ && python3 Send\ Progress\ Email.py > /dev/null 2>&1
 
 ```
