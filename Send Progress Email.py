@@ -389,7 +389,7 @@ def get_constituent_data():
     
     # Converting to Panda's Dataframe
     print("Converting to Panda's Dataframe")
-    constituent_dataframe = pd.DataFrame(constituent_data, columns = ['Constituent_ID', 'Constituent_Name'])
+    constituent_dataframe = pd.DataFrame(constituent_data, columns = ['Constituent_ID', 'Constituent_Name', 'Type'])
 
 def create_empty_dataframe():
     global empty_dataframe, empty_dataframe_with_id
