@@ -315,6 +315,7 @@ def get_donation(start_date):
     pagination_api_request(url)
     
 def pagination_api_request(url):
+    global donation_dataframe
     
     params = {}
     
@@ -328,6 +329,9 @@ def pagination_api_request(url):
             i += 1
         with open("Gift_List_in_RE_%s.json" % i, "w") as list_output:
             json.dump(re_api_response, list_output,ensure_ascii=False, sort_keys=True, indent=4)
+            
+        # Add to dataframe
+        add_to_dataframe(i)
         
         # Check if a variable is present in file
         with open("Gift_List_in_RE_%s.json" % i) as list_output_last:
@@ -336,9 +340,19 @@ def pagination_api_request(url):
             else:
                 break
     
-    # Get a list of all the file paths that ends with wildcard from in specified directory
-    global fileList
-    fileList = glob.glob('Gift_List_in_RE_*.json')
+def add_to_dataframe(i):
+    
+    global dataframe
+    
+    with open(f'Gift_List_in_RE_{i}.json','r') as f:
+        value = json.loads(f.read())
+    
+    if i == 1:
+        dataframe = pd.json_normalize(value, record_path =['value'])
+            
+    else:
+        dataframe_new = pd.json_normalize(value, record_path =['value'])
+        dataframe.append(dataframe_new)
 
 try:
     
@@ -365,6 +379,8 @@ try:
     print(f"Start Date: {start_date}")
     
     get_donation(start_date)
+    donation_dataframe = dataframe.copy()
+    pprint(donation_dataframe)
     
 except Exception as Argument:
   
