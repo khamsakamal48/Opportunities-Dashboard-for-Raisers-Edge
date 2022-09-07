@@ -1561,7 +1561,8 @@ def send_email():
     message = MIMEMultipart()
     message["Subject"] = subject
     message["From"] = MAIL_USERN
-    message["To"] = ERROR_EMAILS_TO
+    message["To"] = SEND_TO
+    message['Cc'] = CC_TO
 
     # Adding Reply-to header
     message.add_header('reply-to', MAIL_USERN)
@@ -3347,7 +3348,7 @@ def send_email():
     with smtplib.SMTP_SSL(SMTP_URL, SMTP_PORT, context=context) as server:
         server.login(MAIL_USERN, MAIL_PASSWORD)
         server.sendmail(
-            MAIL_USERN, ERROR_EMAILS_TO, emailcontent
+            MAIL_USERN, SEND_TO.split(',') + CC_TO.split(','), emailcontent
         )
 
     # Save copy of the sent email to sent items folder
