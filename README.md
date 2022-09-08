@@ -59,6 +59,12 @@ CREATE TABLE constituent_list
     type character varying
 );
 
+CREATE TABLE campaign_list
+(
+    campaign_id character varying,
+    description character varying
+);
+
 ```
 
 - Create a **.env** file with below parameters. ***`Replace # ... with appropriate values`***
