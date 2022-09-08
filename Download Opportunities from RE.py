@@ -420,6 +420,80 @@ def get_opportunity_list_from_re():
     # Commit changes
     conn.commit()
     
+def get_campaign_list_from_re():
+    
+    global url
+    
+    retrieve_token()
+    
+    housekeeping()
+    
+    # Blackbaud API URL
+    url = 'https://api.sky.blackbaud.com/fundraising/v1/campaigns?include_inactive=true&limit=5000'
+    
+    # Pagination request to retreive list
+    while url:
+        # Blackbaud API GET request
+        get_request_re()
+        
+    # Incremental File name
+        i = 1
+        while os.path.exists("Campaign_List_from_RE_%s.json" % i):
+            i += 1
+        with open("Campaign_List_from_RE_%s.json" % i, "w") as list_output:
+            json.dump(re_api_response, list_output,ensure_ascii=False, sort_keys=True, indent=4)
+            
+        # Check if a variable is present in file
+        with open("Campaign_List_from_RE_%s.json" % i) as list_output_last:
+            if 'next_link' in list_output_last.read():
+                url = re_api_response["next_link"]
+            else:
+                break
+            
+    # Parse from JSON and write to CSV file
+    # Header of CSV file
+    header = ['campaign_id', 'description']
+    
+    with open('Campaigns_in_RE.csv', 'w', encoding='UTF8') as csv_file:
+        writer = csv.writer(csv_file, delimiter = ";")
+        
+        # Write the header
+        writer.writerow(header)
+        
+    # Read each file
+    print("Parsing content from Campaign_List_from_RE_*.json files and adding to DB")
+    multiple_files = glob.glob("Campaign_List_from_RE_*.json")
+    for each_file in multiple_files:
+        
+        # Open JSON file
+        with open(each_file, 'r') as json_file:
+            json_content = json.load(json_file)
+            
+            for results in json_content['value']:
+                campaign_id = results['id']
+                
+                try:
+                    description = results['description']
+                except:
+                    description = ""
+                    
+                data = (campaign_id, description.replace(";", ",").replace("-", ","))
+                
+                with open('Campaigns_in_RE.csv', 'a', encoding='UTF8') as csv_file:
+                    writer = csv.writer(csv_file, delimiter = ";")
+                    writer.writerow(data)
+        
+        os.remove(each_file)
+        
+    # Copying contents of CSV file to PostgreSQL DB
+    with open('Campaigns_in_RE.csv', 'r') as input_csv:
+        # Skip the header row.
+        next(input_csv)
+        cur.copy_from(input_csv, 'campaign_list', sep=';')
+
+    # Commit changes
+    conn.commit()
+    
 try:
     connect_db()
     
@@ -431,6 +505,11 @@ try:
     print("Get opportunity list from RE")
     params = ""
     get_opportunity_list_from_re()
+    
+    # Get opportunity list from RE
+    print("Get campaign list from RE")
+    params = ""
+    get_campaign_list_from_re()
 
 except Exception as Argument:
     print("Error while downloading opportunity list from Raisers Edge")
