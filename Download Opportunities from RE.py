@@ -500,6 +500,86 @@ def get_campaign_list_from_re():
     # Commit changes
     conn.commit()
     
+def get_constituency_list_from_re():
+    
+    global url
+    
+    retrieve_token()
+    
+    housekeeping()
+    
+    # Blackbaud API URL
+    url = 'https://api.sky.blackbaud.com/constituent/v1/constituents/constituentcodes?include_inactive=true&limit=5000'
+    
+    # Pagination request to retreive list
+    while url:
+        # Blackbaud API GET request
+        get_request_re()
+        
+    # Incremental File name
+        i = 1
+        while os.path.exists("Constituency_List_from_RE_%s.json" % i):
+            i += 1
+        with open("Constituency_List_from_RE_%s.json" % i, "w") as list_output:
+            json.dump(re_api_response, list_output,ensure_ascii=False, sort_keys=True, indent=4)
+            
+        # Check if a variable is present in file
+        with open("Constituency_List_from_RE_%s.json" % i) as list_output_last:
+            if 'next_link' in list_output_last.read():
+                url = re_api_response["next_link"]
+            else:
+                break
+            
+    # Parse from JSON and write to CSV file
+    # Header of CSV file
+    header = ['id', 'constituent_id', 'description', 'inactive', 'sequence']
+    
+    with open('Constituency_in_RE.csv', 'w', encoding='UTF8') as csv_file:
+        writer = csv.writer(csv_file, delimiter = ";")
+        
+        # Write the header
+        writer.writerow(header)
+    
+    # Read each file
+    print("Parsing content from Constituency_List_from_RE_*.json files and adding to DB")
+    multiple_files = glob.glob("Constituency_List_from_RE_*.json")
+    
+    for each_file in multiple_files:
+        
+        # Open JSON file
+        with open(each_file, 'r') as json_file:
+            json_content = json.load(json_file)
+            
+            for results in json_content['value']:
+                id = results['id']
+                constituent_id = results['constituent_id']
+                description = results['description']
+                inactive = results['inactive']
+                sequence = results['sequence']
+                
+                data = (id, constituent_id, description, inactive, sequence)
+                
+                with open('Constituency_in_RE.csv', 'a', encoding='UTF8') as csv_file:
+                    writer = csv.writer(csv_file, delimiter = ";")
+                    writer.writerow(data)
+        
+        os.remove(each_file)
+        
+    # Delete rows in table
+    cur.execute("truncate constituency_list;")
+    
+    # Commit changes
+    conn.commit()
+        
+    # Copying contents of CSV file to PostgreSQL DB
+    with open('Constituency_in_RE.csv', 'r') as input_csv:
+        # Skip the header row.
+        next(input_csv)
+        cur.copy_from(input_csv, 'constituency_list', sep=';')
+
+    # Commit changes
+    conn.commit()
+    
 try:
     connect_db()
     
@@ -512,10 +592,15 @@ try:
     params = ""
     get_opportunity_list_from_re()
     
-    # Get opportunity list from RE
+    # Get campaign list from RE
     print("Get campaign list from RE")
     params = ""
     get_campaign_list_from_re()
+    
+    # Get constituency list from RE
+    print("Get constituency list from RE")
+    params = ""
+    get_constituency_list_from_re()
 
 except Exception as Argument:
     print("Error while downloading opportunity list from Raisers Edge")
