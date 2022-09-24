@@ -56,7 +56,7 @@ CREATE TABLE constituent_list
 (
     constituent_id character varying,
     name character varying,
-    type character varying
+    date_added date
 );
 
 CREATE TABLE campaign_list
