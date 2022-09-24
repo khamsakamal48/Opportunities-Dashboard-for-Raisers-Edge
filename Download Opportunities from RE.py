@@ -485,6 +485,12 @@ def get_campaign_list_from_re():
         
         os.remove(each_file)
         
+    # Delete rows in table
+    cur.execute("truncate campaign_list;")
+    
+    # Commit changes
+    conn.commit()
+        
     # Copying contents of CSV file to PostgreSQL DB
     with open('Campaigns_in_RE.csv', 'r') as input_csv:
         # Skip the header row.
