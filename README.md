@@ -56,6 +56,7 @@ CREATE TABLE constituent_list
 (
     constituent_id character varying,
     name character varying,
+    type character varying,
     date_added date
 );
 
@@ -63,6 +64,15 @@ CREATE TABLE campaign_list
 (
     campaign_id character varying,
     description character varying
+);
+
+CREATE TABLE constituency_list
+(
+    id character varying,
+    constituent_id character varying,
+    description character varying,
+    inactive character varying,
+    sequence character varying
 );
 
 ```
