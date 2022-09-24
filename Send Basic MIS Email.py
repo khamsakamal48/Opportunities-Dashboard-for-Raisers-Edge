@@ -219,7 +219,7 @@ def get_constituent_data():
     
     # Converting to Panda's Dataframe
     print("Converting to Panda's Dataframe")
-    constituent_dataframe = pd.DataFrame(constituent_data, columns = ['Constituent_ID', 'Constituent_Name', 'Type'])
+    constituent_dataframe = pd.DataFrame(constituent_data, columns = ['Constituent_ID', 'Constituent_Name', 'Type', 'Date_Added'])
 
 def pagination_api_request(url):
     global donation_dataframe
