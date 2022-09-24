@@ -133,3 +133,4 @@ dmypy.json
 *.json*
 *.xls*
 *.png
+Test.*
