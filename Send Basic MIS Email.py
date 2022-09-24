@@ -278,7 +278,118 @@ def check_for_errors():
         # Send emails
         print ("Will send email now")
         send_error_emails()
+        
+def get_constituency_data():
+    
+    global constituency_dataframe
+    
+    extract_sql = """
+    SELECT * from constituency_list
+    """
+    cur.execute(extract_sql)
+    constituency_data = list(cur.fetchall())
+    
+    # Converting to Panda's Dataframe
+    print("Converting to Panda's Dataframe")
+    constituency_dataframe = pd.DataFrame(constituency_data, columns = ['Constituency_ID', 'Constituent_ID', 'Description', 'Inactive', 'Sequence'])
 
+def identify_current_quarter():
+    global financial_year, Q1_start_date, Q1_end_date, Q2_start_date, Q2_end_date, Q3_start_date, Q3_end_date, Q4_start_date, Q4_end_date
+    
+    print("Identifying current quarter")
+    
+    current_month = int(datetime.now().strftime("%m"))
+    current_year = int(datetime.now().strftime("%Y"))
+    
+    if int(current_month) <= 4:
+        financial_year = int(datetime.now().strftime("%Y")) - 1
+    else:
+        financial_year = current_year
+    
+    # Check if current month falls between Jan and March
+    if current_month >= 1 and current_month <= 3:
+        
+        ## Q1
+        Q1_start_date = datetime.strptime(f"{current_year - 1}-04-01", "%Y-%m-%d").date()
+        Q1_end_date = datetime.strptime(f"{current_year - 1}-06-30", "%Y-%m-%d").date()
+        
+        ## Q2
+        Q2_start_date = datetime.strptime(f"{current_year - 1}-07-01", "%Y-%m-%d").date()
+        Q2_end_date = datetime.strptime(f"{current_year - 1}-09-30", "%Y-%m-%d").date()
+        
+        ## Q3
+        Q3_start_date = datetime.strptime(f"{current_year - 1}-10-01", "%Y-%m-%d").date()
+        Q3_end_date = datetime.strptime(f"{current_year - 1}-12-31", "%Y-%m-%d").date()
+        
+        ## Q4
+        Q4_start_date = datetime.strptime(f"{current_year}-01-01", "%Y-%m-%d").date()
+        Q4_end_date = datetime.strptime(f"{current_year}-03-31", "%Y-%m-%d").date()
+    
+    else:
+        
+        ## Q1
+        Q1_start_date = datetime.strptime(f"{current_year}-04-01", "%Y-%m-%d").date()
+        Q1_end_date = datetime.strptime(f"{current_year}-06-30", "%Y-%m-%d").date()
+        
+        ## Q2
+        Q2_start_date = datetime.strptime(f"{current_year}-07-01", "%Y-%m-%d").date()
+        Q2_end_date = datetime.strptime(f"{current_year}-09-30", "%Y-%m-%d").date()
+        
+        ## Q3
+        Q3_start_date = datetime.strptime(f"{current_year}-10-01", "%Y-%m-%d").date()
+        Q3_end_date = datetime.strptime(f"{current_year}-12-31", "%Y-%m-%d").date()
+        
+        ## Q4
+        Q4_start_date = datetime.strptime(f"{current_year + 1}-01-01", "%Y-%m-%d").date()
+        Q4_end_date = datetime.strptime(f"{current_year + 1}-03-31", "%Y-%m-%d").date()
+
+def get_constituent_breakup():
+    
+    # Get primary constituent code
+    primary_constituency = constituency_dataframe.query('Description == "Alumni"').filter(['Constituent_ID', 'Description']).drop_duplicates()
+    
+    # Make complete constituent dataframe
+    complete_constituent_dataframe = pd.merge(constituent_dataframe, primary_constituency, on='Constituent_ID', how='outer')
+    pprint(complete_constituent_dataframe)
+    
+    # Convert the date to datetime64
+    complete_constituent_dataframe['Date_Added'] = pd.to_datetime(complete_constituent_dataframe['Date_Added'], format='%Y-%m-%d')
+    
+    # Constituent Breakup list
+    constituent_breakup_list = {
+        'Timeline': [
+            'Since Inception',
+            'Created in Q1',
+            'Created in Q2',
+            'Created in Q3',
+            'Created in Q4'
+        ],
+        'Individuals': [
+            len(complete_constituent_dataframe.query('Type == "Individual"').index),
+            len(complete_constituent_dataframe.query(f'Type == "Individual" and Date_Added >= "{Q1_start_date}" and Date_Added <= "{Q1_end_date}"').index),
+            len(complete_constituent_dataframe.query(f'Type == "Individual" and Date_Added >= "{Q2_start_date}" and Date_Added <= "{Q2_end_date}"').index),
+            len(complete_constituent_dataframe.query(f'Type == "Individual" and Date_Added >= "{Q3_start_date}" and Date_Added <= "{Q3_end_date}"').index),
+            len(complete_constituent_dataframe.query(f'Type == "Individual" and Date_Added >= "{Q4_start_date}" and Date_Added <= "{Q4_end_date}"').index)
+        ],
+        'Corporate': [
+            len(complete_constituent_dataframe.query('Type == "Organization"').index),
+            len(complete_constituent_dataframe.query(f'Type == "Organization" and Date_Added >= "{Q1_start_date}" and Date_Added <= "{Q1_end_date}"').index),
+            len(complete_constituent_dataframe.query(f'Type == "Organization" and Date_Added >= "{Q2_start_date}" and Date_Added <= "{Q2_end_date}"').index),
+            len(complete_constituent_dataframe.query(f'Type == "Organization" and Date_Added >= "{Q3_start_date}" and Date_Added <= "{Q3_end_date}"').index),
+            len(complete_constituent_dataframe.query(f'Type == "Organization" and Date_Added >= "{Q4_start_date}" and Date_Added <= "{Q4_end_date}"').index)            
+        ]
+    }
+    
+    prepare_html_table(constituent_breakup_list, 'center')
+
+def prepare_html_table(dataframe, text_align):
+    global html_output
+    
+    data = pd.DataFrame(dataframe)
+    html_output = (build_table(data, 'blue_dark', font_family='Open Sans, Helvetica, Arial, sans-serif', even_color='black', padding='10px', width='900px', font_size='16px', text_align=text_align)).replace("background-color: #D9E1F2;font-family: Open Sans", "background-color: #D9E1F2; color: black;font-family: Open Sans")
+    
+    print(html_output)
+    
 try:
     
     # Retrieve Token
