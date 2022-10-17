@@ -75,6 +75,32 @@ CREATE TABLE constituency_list
     sequence character varying
 );
 
+CREATE TABLE gift_list
+(
+    id character varying,
+    acknowledgement_status character varying,
+    amount character varying,
+    constituent_id character varying,
+    date date,
+    date_added date,
+    date_modified date,
+    gift_splits_id character varying,
+    gift_splits_amount character varying,
+    campaign_id character varying,
+    fund_id character varying,
+    gift_status character varying,
+    is_anonymous character varying,
+    constituency character varying,
+    lookup_id character varying,
+    payment_method character varying,
+    post_date date,
+    post_status character varying,
+    receipts character varying,
+    receipts_date date,
+    receipts_status character varying,
+    type character varying
+);
+
 ```
 
 - Create a **.env** file with below parameters. ***`Replace # ... with appropriate values`***

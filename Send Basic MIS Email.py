@@ -222,7 +222,6 @@ def get_constituent_data():
     constituent_dataframe = pd.DataFrame(constituent_data, columns = ['Constituent_ID', 'Constituent_Name', 'Type', 'Date_Added'])
 
 def pagination_api_request(url):
-    global donation_dataframe
     
     params = {}
     
@@ -236,6 +235,9 @@ def pagination_api_request(url):
             i += 1
         with open("Gift_List_in_RE_%s.json" % i, "w") as list_output:
             json.dump(re_api_response, list_output,ensure_ascii=False, sort_keys=True, indent=4)
+            
+        # Add to dataframe
+        add_to_dataframe(i)
         
         # Check if a variable is present in file
         with open("Gift_List_in_RE_%s.json" % i) as list_output_last:
@@ -243,6 +245,21 @@ def pagination_api_request(url):
                 url = re_api_response["next_link"]
             else:
                 break
+
+def add_to_dataframe(i):
+    
+    global dataframe
+    
+    with open(f'Gift_List_in_RE_{i}.json','r') as f:
+        value = json.loads(f.read())
+    
+    if i == 1:
+        # dataframe = pd.json_normalize(value, record_path=['value', 'gift_splits'], meta=[['value', 'id'], ['value', 'amount', 'value'], ['value', 'constituent_id'], ['value', 'date'], ['value', 'lookup_id']])
+        dataframe = pd.json_normalize(value, record_path=['value', 'gift_splits'], meta=[['value', 'id'], ['value', 'amount', 'value'], ['value', 'constituent_id']])
+    else:
+        dataframe_new = pd.json_normalize(value, record_path=['value', 'gift_splits'], meta=[['value', 'id'], ['value', 'amount', 'value'], ['value', 'constituent_id']])
+        # dataframe.append(dataframe_new)
+        dataframe = pd.concat([dataframe, dataframe_new])
 
 def retrieve_token():
     global access_token
@@ -344,6 +361,8 @@ def identify_current_quarter():
         Q4_end_date = datetime.strptime(f"{current_year + 1}-03-31", "%Y-%m-%d").date()
 
 def get_constituent_breakup():
+      
+    global complete_constituent_dataframe
     
     # Get primary constituent code
     primary_constituency = constituency_dataframe.query('Description == "Alumni"').filter(['Constituent_ID', 'Description']).drop_duplicates()
@@ -2055,7 +2074,7 @@ def send_email():
     emailbody = MIMEText(
         Environment().from_string(TEMPLATE).render(
             financial_year = financial_year,
-            constituent_breakup = constituent_breakup
+            constituent_breakup = constituent_breakup.replace('Since Inception', '<b>Since Inception</b>').replace('Created in Q1', '<b>Created in Q1</b>').replace('Created in Q2', '<b>Created in Q2</b>').replace('Created in Q3', '<b>Created in Q3</b>').replace('Created in Q4', '<b>Created in Q4</b>')
         ), "html"
     )
     
@@ -2075,6 +2094,27 @@ def send_email():
         imap.login(MAIL_USERN, MAIL_PASSWORD)
         imap.append('Sent', '\\Seen', imaplib.Time2Internaldate(time.time()), emailcontent.encode('utf8'))
         imap.logout()
+
+def get_donation():
+      
+      url = f"https://api.sky.blackbaud.com/gift/v1/gifts?gift_type=Donation&gift_type=MatchingGiftPayment&gift_type=PledgePayment&gift_type=RecurringGiftPayment&limit=5000"
+      
+      pagination_api_request(url)
+    
+def get_individual_donor_breakup():
+      
+      get_donation()
+      
+      donation_dataframe = pd.merge(dataframe, complete_constituent_dataframe, left_on='value.constituent_id', right_on='Constituent_ID', how='outer')
+      
+      individual_donor_breakup_list = {
+        'Alumni Donors': [
+          len(donation_dataframe.query('Description == "Alumni" and Type == "Individual" and value.amount.value > 0').index)
+        ]
+      }
+      
+      print_json(individual_donor_breakup_list)
+      donation_dataframe.to_excel('Test.xlsx')
 
 try:
     
@@ -2100,8 +2140,11 @@ try:
     get_constituent_breakup()
     constituent_breakup = html_output
     
+    # Individual Donor breakup
+    get_individual_donor_breakup()
+    
     # Send email
-    send_email()
+    # send_email()
     
 except Exception as Argument:
   

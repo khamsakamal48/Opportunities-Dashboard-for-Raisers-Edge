@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import requests, os, json, glob, csv, psycopg2, sys, smtplib, ssl, imaplib, time, datetime, logging
+import pandas as pd
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
@@ -580,27 +581,141 @@ def get_constituency_list_from_re():
     # Commit changes
     conn.commit()
     
+def read_json(filename: str) -> dict:
+      
+    try:
+        with open(filename, "r") as f:
+            data = json.loads(f.read())
+    except:
+        raise Exception(f"Reading {filename} file encountered an error")
+  
+    return data
+  
+  
+def normalize_json(data: dict) -> dict:
+  
+    new_data = dict()
+    for key, value in data.items():
+        if not isinstance(value, dict):
+            new_data[key] = value
+        else:
+            for k, v in value.items():
+                new_data[key + "_" + k] = v
+      
+    return new_data
+    
+def get_gift_list_from_re():
+        
+    global url
+    
+    retrieve_token()
+    
+    housekeeping()
+    
+    # Blackbaud API URL
+    url = 'https://api.sky.blackbaud.com/gift/v1/gifts?gift_type=Donation&gift_type=MatchingGiftPayment&gift_type=PledgePayment&gift_type=RecurringGiftPayment&limit=5000'
+    
+    # Pagination request to retreive list
+    while url:
+        # Blackbaud API GET request
+        get_request_re()
+        
+    # Incremental File name
+        i = 1
+        while os.path.exists("Gift_List_from_RE_%s.json" % i):
+            i += 1
+        with open("Gift_List_from_RE_%s.json" % i, "w") as list_output:
+            json.dump(re_api_response, list_output,ensure_ascii=False, sort_keys=True, indent=4)
+            
+        # Check if a variable is present in file
+        with open("Gift_List_from_RE_%s.json" % i) as list_output_last:
+            if 'next_link' in list_output_last.read():
+                url = re_api_response["next_link"]
+            else:
+                break
+            
+    # Convert JSON to CSV
+    ## Read each file
+    print("Parsing content from Gift_List_from_RE_*.json files and adding to DB")
+    multiple_files = glob.glob("Gift_List_from_RE_*.json")
+    
+    for each_file in multiple_files:
+        
+        # Open JSON file
+        with open(each_file, 'r') as json_file:
+            # data = json.loads(json_file.read())
+            
+            # # create dataframe
+            # df = pd.json_normalize(data['value'])
+            
+            # try:
+            #     merged_df = pd.concat([merged_df, df])
+                
+            # except:
+            #     merged_df = df.copy()
+            
+            # Read the JSON file as python dictionary
+            data = read_json(filename=json_file)
+            
+            # Normalize the nested python dict 
+            new_data = normalize_json(data=data)
+            
+            # Create a pandas dataframe 
+            df = pd.DataFrame(new_data, index=[0])
+            
+            try:
+                merged_df = pd.concat([merged_df, df])
+                
+            except:
+                merged_df = df.copy()
+            
+        os.remove(each_file)
+    
+    ## Export from Dataframe to CSV        
+    merged_df.to_csv('Gift_List.csv', sep=';', header=True)
+    
+    # ## Delete rows in table
+    # cur.execute("truncate gift_list")
+    
+    # ## Commit changes
+    # conn.commit()
+        
+    # ## Copying contents of CSV file to PostgreSQL DB
+    # with open('Gift_List.csv', 'r') as input_csv:
+        
+    #     ### Skip the header row.
+    #     next(input_csv)
+    #     cur.copy_from(input_csv, 'gift_list', sep=';')
+
+    # # Commit changes
+    # conn.commit()
+    
 try:
     connect_db()
     
-    # Get list of constituents in RE
-    print("Get list of constituents in RE")
-    get_constituent_from_re()
+    # # Get list of constituents in RE
+    # print("Get list of constituents in RE")
+    # get_constituent_from_re()
     
-    # Get opportunity list from RE
-    print("Get opportunity list from RE")
-    params = ""
-    get_opportunity_list_from_re()
+    # # Get opportunity list from RE
+    # print("Get opportunity list from RE")
+    # params = ""
+    # get_opportunity_list_from_re()
     
-    # Get campaign list from RE
-    print("Get campaign list from RE")
-    params = ""
-    get_campaign_list_from_re()
+    # # Get campaign list from RE
+    # print("Get campaign list from RE")
+    # params = ""
+    # get_campaign_list_from_re()
     
-    # Get constituency list from RE
-    print("Get constituency list from RE")
+    # # Get constituency list from RE
+    # print("Get constituency list from RE")
+    # params = ""
+    # get_constituency_list_from_re()
+    
+    # Get Gift list from RE
+    print("Get Gift list from RE")
     params = ""
-    get_constituency_list_from_re()
+    get_gift_list_from_re()
 
 except Exception as Argument:
     print("Error while downloading opportunity list from Raisers Edge")
@@ -609,7 +724,7 @@ except Exception as Argument:
     
 finally:
     # Do housekeeping
-    housekeeping()
+    # housekeeping()
     
     # Disconnect DB
     disconnect_db()
